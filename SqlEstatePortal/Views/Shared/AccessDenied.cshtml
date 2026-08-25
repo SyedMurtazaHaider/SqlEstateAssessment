@@ -1,0 +1,12 @@
+@{
+    ViewData["Title"] = "Access Denied";
+    var canDashboard = await Permissions.HasAsync(User, AppModules.Dashboard, "view");
+}
+<div class="panel">
+    <h1>Access denied</h1>
+    <p>Your role does not allow this action.</p>
+    @if (canDashboard)
+    {
+        <a class="btn btn-primary" asp-controller="Dashboard" asp-action="Index">Back to dashboard</a>
+    }
+</div>

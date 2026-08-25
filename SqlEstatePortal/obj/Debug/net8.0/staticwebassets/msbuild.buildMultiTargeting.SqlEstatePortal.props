@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\SqlEstatePortal.props" />
+</Project>

@@ -1,0 +1,235 @@
+﻿{
+    "Title":  "SQL Estate Assessment - Single Source of Truth",
+    "Mode":  "Read-only (SELECT and monitoring queries only)",
+    "ExecutiveSummary":  {
+                             "GeneratedLocal":  {
+                                                    "value":  "\/Date(1787576741252)\/",
+                                                    "DisplayHint":  2,
+                                                    "DateTime":  "Monday, August 24, 2026 6:05:41 PM"
+                                                },
+                             "GeneratedUtc":  "\/Date(1787576741253)\/",
+                             "ServerCount":  3,
+                             "ReachableCount":  0,
+                             "UnreachableCount":  3,
+                             "EndOfSupportCount":  0,
+                             "AllocatedStorageGB":  0,
+                             "EstimatedLicensedCores":  0,
+                             "FindingCounts":  {
+                                                   "Critical":  3,
+                                                   "High":  0,
+                                                   "Medium":  0,
+                                                   "Low":  0,
+                                                   "Total":  3
+                                               },
+                             "FullBackupSlaHours":  24,
+                             "LogBackupSlaMinutes":  60
+                         },
+    "Findings":  [
+                     {
+                         "Server":  "CTPCTA04VMSQL02",
+                         "Severity":  "Critical",
+                         "Area":  "Status",
+                         "Finding":  "Instance unreachable: Exception calling \"Open\" with \"0\" argument(s): \"A network-related or instance-specific error occurred while establishing a connection to SQL Server. The server was not found or was not accessible. Verify that the instance name is correct and that SQL Server is configured to allow remote connections. (provider: Named Pipes Provider, error: 40 - Could not open a connection to SQL Server)\"",
+                         "Recommendation":  "Verify service state, network, firewall, and that this account can connect as a read-only monitor login."
+                     },
+                     {
+                         "Server":  "CTPCTA04VMSQL03",
+                         "Severity":  "Critical",
+                         "Area":  "Status",
+                         "Finding":  "Instance unreachable: Exception calling \"Open\" with \"0\" argument(s): \"A network-related or instance-specific error occurred while establishing a connection to SQL Server. The server was not found or was not accessible. Verify that the instance name is correct and that SQL Server is configured to allow remote connections. (provider: Named Pipes Provider, error: 40 - Could not open a connection to SQL Server)\"",
+                         "Recommendation":  "Verify service state, network, firewall, and that this account can connect as a read-only monitor login."
+                     },
+                     {
+                         "Server":  "CTUCTA03VMSQL01",
+                         "Severity":  "Critical",
+                         "Area":  "Status",
+                         "Finding":  "Instance unreachable: Exception calling \"Open\" with \"0\" argument(s): \"A network-related or instance-specific error occurred while establishing a connection to SQL Server. The server was not found or was not accessible. Verify that the instance name is correct and that SQL Server is configured to allow remote connections. (provider: Named Pipes Provider, error: 40 - Could not open a connection to SQL Server)\"",
+                         "Recommendation":  "Verify service state, network, firewall, and that this account can connect as a read-only monitor login."
+                     }
+                 ],
+    "Servers":  [
+                    {
+                        "Databases":  [
+
+                                      ],
+                        "Waits":  [
+
+                                  ],
+                        "Server":  "CTPCTA04VMSQL03",
+                        "Performance":  null,
+                        "Services":  [
+
+                                     ],
+                        "Sysadmins":  [
+
+                                      ],
+                        "Support":  null,
+                        "TraceFlags":  [
+
+                                       ],
+                        "Cost":  null,
+                        "Configuration":  [
+
+                                          ],
+                        "SqlLogins":  [
+
+                                      ],
+                        "Jobs":  [
+
+                                 ],
+                        "Backups":  [
+
+                                    ],
+                        "Host":  [
+
+                                 ],
+                        "AvailabilityGroups":  [
+
+                                               ],
+                        "Reachable":  false,
+                        "CollectedUtc":  "\/Date(1787576591059)\/",
+                        "Findings":  [
+                                         {
+                                             "Server":  "CTPCTA04VMSQL03",
+                                             "Severity":  "Critical",
+                                             "Area":  "Status",
+                                             "Finding":  "Instance unreachable: Exception calling \"Open\" with \"0\" argument(s): \"A network-related or instance-specific error occurred while establishing a connection to SQL Server. The server was not found or was not accessible. Verify that the instance name is correct and that SQL Server is configured to allow remote connections. (provider: Named Pipes Provider, error: 40 - Could not open a connection to SQL Server)\"",
+                                             "Recommendation":  "Verify service state, network, firewall, and that this account can connect as a read-only monitor login."
+                                         }
+                                     ],
+                        "Volumes":  [
+
+                                    ],
+                        "SuspectPages":  [
+
+                                         ],
+                        "Error":  "Exception calling \"Open\" with \"0\" argument(s): \"A network-related or instance-specific error occurred while establishing a connection to SQL Server. The server was not found or was not accessible. Verify that the instance name is correct and that SQL Server is configured to allow remote connections. (provider: Named Pipes Provider, error: 40 - Could not open a connection to SQL Server)\"",
+                        "LinkedServers":  [
+
+                                          ],
+                        "Instance":  null
+                    },
+                    {
+                        "Databases":  [
+
+                                      ],
+                        "Waits":  [
+
+                                  ],
+                        "Server":  "CTPCTA04VMSQL02",
+                        "Performance":  null,
+                        "Services":  [
+
+                                     ],
+                        "Sysadmins":  [
+
+                                      ],
+                        "Support":  null,
+                        "TraceFlags":  [
+
+                                       ],
+                        "Cost":  null,
+                        "Configuration":  [
+
+                                          ],
+                        "SqlLogins":  [
+
+                                      ],
+                        "Jobs":  [
+
+                                 ],
+                        "Backups":  [
+
+                                    ],
+                        "Host":  [
+
+                                 ],
+                        "AvailabilityGroups":  [
+
+                                               ],
+                        "Reachable":  false,
+                        "CollectedUtc":  "\/Date(1787576641168)\/",
+                        "Findings":  [
+                                         {
+                                             "Server":  "CTPCTA04VMSQL02",
+                                             "Severity":  "Critical",
+                                             "Area":  "Status",
+                                             "Finding":  "Instance unreachable: Exception calling \"Open\" with \"0\" argument(s): \"A network-related or instance-specific error occurred while establishing a connection to SQL Server. The server was not found or was not accessible. Verify that the instance name is correct and that SQL Server is configured to allow remote connections. (provider: Named Pipes Provider, error: 40 - Could not open a connection to SQL Server)\"",
+                                             "Recommendation":  "Verify service state, network, firewall, and that this account can connect as a read-only monitor login."
+                                         }
+                                     ],
+                        "Volumes":  [
+
+                                    ],
+                        "SuspectPages":  [
+
+                                         ],
+                        "Error":  "Exception calling \"Open\" with \"0\" argument(s): \"A network-related or instance-specific error occurred while establishing a connection to SQL Server. The server was not found or was not accessible. Verify that the instance name is correct and that SQL Server is configured to allow remote connections. (provider: Named Pipes Provider, error: 40 - Could not open a connection to SQL Server)\"",
+                        "LinkedServers":  [
+
+                                          ],
+                        "Instance":  null
+                    },
+                    {
+                        "Databases":  [
+
+                                      ],
+                        "Waits":  [
+
+                                  ],
+                        "Server":  "CTUCTA03VMSQL01",
+                        "Performance":  null,
+                        "Services":  [
+
+                                     ],
+                        "Sysadmins":  [
+
+                                      ],
+                        "Support":  null,
+                        "TraceFlags":  [
+
+                                       ],
+                        "Cost":  null,
+                        "Configuration":  [
+
+                                          ],
+                        "SqlLogins":  [
+
+                                      ],
+                        "Jobs":  [
+
+                                 ],
+                        "Backups":  [
+
+                                    ],
+                        "Host":  [
+
+                                 ],
+                        "AvailabilityGroups":  [
+
+                                               ],
+                        "Reachable":  false,
+                        "CollectedUtc":  "\/Date(1787576691084)\/",
+                        "Findings":  [
+                                         {
+                                             "Server":  "CTUCTA03VMSQL01",
+                                             "Severity":  "Critical",
+                                             "Area":  "Status",
+                                             "Finding":  "Instance unreachable: Exception calling \"Open\" with \"0\" argument(s): \"A network-related or instance-specific error occurred while establishing a connection to SQL Server. The server was not found or was not accessible. Verify that the instance name is correct and that SQL Server is configured to allow remote connections. (provider: Named Pipes Provider, error: 40 - Could not open a connection to SQL Server)\"",
+                                             "Recommendation":  "Verify service state, network, firewall, and that this account can connect as a read-only monitor login."
+                                         }
+                                     ],
+                        "Volumes":  [
+
+                                    ],
+                        "SuspectPages":  [
+
+                                         ],
+                        "Error":  "Exception calling \"Open\" with \"0\" argument(s): \"A network-related or instance-specific error occurred while establishing a connection to SQL Server. The server was not found or was not accessible. Verify that the instance name is correct and that SQL Server is configured to allow remote connections. (provider: Named Pipes Provider, error: 40 - Could not open a connection to SQL Server)\"",
+                        "LinkedServers":  [
+
+                                          ],
+                        "Instance":  null
+                    }
+                ]
+}

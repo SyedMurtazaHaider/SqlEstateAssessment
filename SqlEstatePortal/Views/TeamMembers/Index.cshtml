@@ -1,0 +1,52 @@
+@model IEnumerable<SqlEstatePortal.Models.TeamMember>
+@{
+    ViewData["Title"] = "Team Members";
+    var canInsert = await Permissions.HasAsync(User, AppModules.TeamMembers, "insert");
+    var canUpdate = await Permissions.HasAsync(User, AppModules.TeamMembers, "update");
+    var canDelete = await Permissions.HasAsync(User, AppModules.TeamMembers, "delete");
+}
+<div class="page-toolbar">
+    <h1>Team Members</h1>
+    @if (canInsert)
+    {
+        <a class="btn btn-primary" asp-action="Create">Add team member</a>
+    }
+</div>
+<div class="panel">
+    <table class="table table-hover align-middle">
+        <thead>
+        @await Html.PartialAsync("_ColumnFilters", canUpdate || canDelete
+            ? new[] { "Member Name", "Username", "Role", "Team", "Admin", "Status", "" }
+            : new[] { "Member Name", "Username", "Role", "Team", "Admin", "Status" })
+        </thead>
+        <tbody>
+        @foreach (var m in Model)
+        {
+            <tr>
+                <td>@m.MemberName</td>
+                <td>@m.Username</td>
+                <td>@m.AccessRole.Name</td>
+                <td>@(m.Team?.Name ?? "-")</td>
+                <td>@(m.AdminAccess ? "Yes" : "No")</td>
+                <td><span class="badge @(m.Status == "Active" ? "text-bg-success" : "text-bg-secondary")">@m.Status</span></td>
+                @if (canUpdate || canDelete)
+                {
+                    <td class="text-end">
+                        @if (canUpdate)
+                        {
+                            <a class="btn btn-sm btn-outline-primary" asp-action="Edit" asp-route-id="@m.Id">Edit</a>
+                        }
+                        @if (canDelete)
+                        {
+                            <form asp-action="Delete" asp-route-id="@m.Id" method="post" class="d-inline" onsubmit="return confirm('Delete this member?');">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                            </form>
+                        }
+                    </td>
+                }
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

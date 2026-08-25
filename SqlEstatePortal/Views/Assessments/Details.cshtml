@@ -1,0 +1,51 @@
+@model SqlEstatePortal.ViewModels.AssessmentDetailsViewModel
+@{
+    var run = Model.Run;
+    ViewData["Title"] = $"Assessment #{run.Id}";
+    var serverNames = run.Servers.Select(s => s.ServerName).Where(n => !string.IsNullOrWhiteSpace(n)).Distinct().OrderBy(n => n).ToList();
+}
+<div class="page-toolbar">
+    <div>
+        <h1>Assessment #@run.Id</h1>
+        <p class="estate-line">@run.StartedAt.ToLocalTime().ToString("g") · @run.Status</p>
+    </div>
+    <a class="btn btn-outline-secondary" asp-action="Index">History</a>
+</div>
+@if (!string.IsNullOrWhiteSpace(run.ErrorMessage))
+{
+    <div class="alert alert-danger">@run.ErrorMessage</div>
+}
+<div data-estate-report>
+    <div class="filter-bar dashboard-filters">
+        <label for="runFilter">Assessment date</label>
+        <select id="runFilter" class="form-select assessment-filter">
+            @foreach (var item in Model.AvailableRuns)
+            {
+                if (item.Id == run.Id)
+                {
+                    <option value="@Url.Action("Details", new { id = item.Id })" selected>@item.StartedAt.ToLocalTime().ToString("g") · #@item.Id · @item.Status</option>
+                }
+                else
+                {
+                    <option value="@Url.Action("Details", new { id = item.Id })">@item.StartedAt.ToLocalTime().ToString("g") · #@item.Id · @item.Status</option>
+                }
+            }
+        </select>
+        <label for="serverFilter">Server</label>
+        <select id="serverFilter" class="form-select server-filter">
+            <option value="">All servers</option>
+            @foreach (var name in serverNames)
+            {
+                <option value="@name">@name</option>
+            }
+        </select>
+    </div>
+    @await Html.PartialAsync("_EstateReport", run)
+</div>
+@if (!string.IsNullOrWhiteSpace(run.OutputLog))
+{
+    <div class="panel">
+        <h2 class="section-title">PowerShell output</h2>
+        <pre class="log-box">@run.OutputLog</pre>
+    </div>
+}

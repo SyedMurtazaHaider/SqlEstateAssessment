@@ -1,0 +1,2144 @@
+﻿{
+    "Title":  "SQL Estate Assessment - Single Source of Truth",
+    "Mode":  "Read-only (SELECT and monitoring queries only)",
+    "ExecutiveSummary":  {
+                             "GeneratedLocal":  {
+                                                    "value":  "\/Date(1787581024835)\/",
+                                                    "DisplayHint":  2,
+                                                    "DateTime":  "Monday, August 24, 2026 7:17:04 PM"
+                                                },
+                             "GeneratedUtc":  "\/Date(1787581024835)\/",
+                             "ServerCount":  2,
+                             "ReachableCount":  2,
+                             "UnreachableCount":  0,
+                             "EndOfSupportCount":  0,
+                             "AllocatedStorageGB":  105.11,
+                             "EstimatedLicensedCores":  16,
+                             "FindingCounts":  {
+                                                   "Critical":  20,
+                                                   "High":  12,
+                                                   "Medium":  25,
+                                                   "Low":  5,
+                                                   "Total":  64
+                                               },
+                             "FullBackupSlaHours":  24,
+                             "LogBackupSlaMinutes":  60
+                         },
+    "Findings":  [
+                     {
+                         "Server":  "MURTAZA\\SQL2022",
+                         "Severity":  "Critical",
+                         "Area":  "SLA",
+                         "Finding":  "Database \u0027DocManagementDb\u0027 last full backup is 269 hours old (SLA 24h).",
+                         "Recommendation":  "Fix the backup job and verify backups are restorable off-box."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQL2022",
+                         "Severity":  "Critical",
+                         "Area":  "SLA",
+                         "Finding":  "Database \u0027HealthCare_2\u0027 has no full backup recorded in msdb.",
+                         "Recommendation":  "Take a full backup immediately and enroll the database in the estate backup SLA."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQL2022",
+                         "Severity":  "Critical",
+                         "Area":  "SLA",
+                         "Finding":  "Database \u0027HealthCare_3\u0027 has no full backup recorded in msdb.",
+                         "Recommendation":  "Take a full backup immediately and enroll the database in the estate backup SLA."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQL2022",
+                         "Severity":  "Critical",
+                         "Area":  "SLA",
+                         "Finding":  "Database \u0027varianenm\u0027 last full backup is 9338 hours old (SLA 24h).",
+                         "Recommendation":  "Fix the backup job and verify backups are restorable off-box."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQL2022",
+                         "Severity":  "Critical",
+                         "Area":  "SLA",
+                         "Finding":  "Database \u0027HealthCare_4\u0027 has no full backup recorded in msdb.",
+                         "Recommendation":  "Take a full backup immediately and enroll the database in the estate backup SLA."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQL2022",
+                         "Severity":  "Critical",
+                         "Area":  "SLA",
+                         "Finding":  "Database \u0027HealthCare3\u0027 has no full backup recorded in msdb.",
+                         "Recommendation":  "Take a full backup immediately and enroll the database in the estate backup SLA."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQL2022",
+                         "Severity":  "Critical",
+                         "Area":  "SLA",
+                         "Finding":  "Database \u0027HealthCare1\u0027 has no full backup recorded in msdb.",
+                         "Recommendation":  "Take a full backup immediately and enroll the database in the estate backup SLA."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQL2022",
+                         "Severity":  "Critical",
+                         "Area":  "SLA",
+                         "Finding":  "Database \u0027CountyMedical\u0027 has no full backup recorded in msdb.",
+                         "Recommendation":  "Take a full backup immediately and enroll the database in the estate backup SLA."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQL2022",
+                         "Severity":  "Critical",
+                         "Area":  "SLA",
+                         "Finding":  "Database \u0027HealthCare\u0027 has no full backup recorded in msdb.",
+                         "Recommendation":  "Take a full backup immediately and enroll the database in the estate backup SLA."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQL2022",
+                         "Severity":  "Critical",
+                         "Area":  "SLA",
+                         "Finding":  "Database \u0027HealthCare_6\u0027 has no full backup recorded in msdb.",
+                         "Recommendation":  "Take a full backup immediately and enroll the database in the estate backup SLA."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQL2022",
+                         "Severity":  "Critical",
+                         "Area":  "SLA",
+                         "Finding":  "Database \u0027master\u0027 has no full backup recorded in msdb.",
+                         "Recommendation":  "Take a full backup immediately and enroll the database in the estate backup SLA."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQL2022",
+                         "Severity":  "Critical",
+                         "Area":  "SLA",
+                         "Finding":  "Database \u0027model\u0027 has no full backup recorded in msdb.",
+                         "Recommendation":  "Take a full backup immediately and enroll the database in the estate backup SLA."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQL2022",
+                         "Severity":  "Critical",
+                         "Area":  "SLA",
+                         "Finding":  "Database \u0027msdb\u0027 has no full backup recorded in msdb.",
+                         "Recommendation":  "Take a full backup immediately and enroll the database in the estate backup SLA."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQL2022",
+                         "Severity":  "Critical",
+                         "Area":  "SLA",
+                         "Finding":  "Database \u0027SqlEstatePortal\u0027 has no full backup recorded in msdb.",
+                         "Recommendation":  "Take a full backup immediately and enroll the database in the estate backup SLA."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQL2022",
+                         "Severity":  "Critical",
+                         "Area":  "SLA",
+                         "Finding":  "Database \u0027AuntieAI\u0027 has no full backup recorded in msdb.",
+                         "Recommendation":  "Take a full backup immediately and enroll the database in the estate backup SLA."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQLEXPRESS",
+                         "Severity":  "Critical",
+                         "Area":  "SLA",
+                         "Finding":  "Database \u0027FISOHCM\u0027 last full backup is 14256 hours old (SLA 24h).",
+                         "Recommendation":  "Fix the backup job and verify backups are restorable off-box."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQLEXPRESS",
+                         "Severity":  "Critical",
+                         "Area":  "SLA",
+                         "Finding":  "Database \u0027model\u0027 last full backup is 16877 hours old (SLA 24h).",
+                         "Recommendation":  "Fix the backup job and verify backups are restorable off-box."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQLEXPRESS",
+                         "Severity":  "Critical",
+                         "Area":  "SLA",
+                         "Finding":  "Database \u0027EliteCarsInternational\u0027 last full backup is 11132 hours old (SLA 24h).",
+                         "Recommendation":  "Fix the backup job and verify backups are restorable off-box."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQLEXPRESS",
+                         "Severity":  "Critical",
+                         "Area":  "SLA",
+                         "Finding":  "Database \u0027msdb\u0027 last full backup is 16877 hours old (SLA 24h).",
+                         "Recommendation":  "Fix the backup job and verify backups are restorable off-box."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQLEXPRESS",
+                         "Severity":  "Critical",
+                         "Area":  "SLA",
+                         "Finding":  "Database \u0027master\u0027 last full backup is 16877 hours old (SLA 24h).",
+                         "Recommendation":  "Fix the backup job and verify backups are restorable off-box."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQL2022",
+                         "Severity":  "High",
+                         "Area":  "Licensing",
+                         "Finding":  "Developer edition detected.",
+                         "Recommendation":  "Developer edition is not licensed for production workloads."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQL2022",
+                         "Severity":  "High",
+                         "Area":  "SLA",
+                         "Finding":  "Database \u0027HealthCare_3\u0027 is FULL but has no log backup.",
+                         "Recommendation":  "Start log backups or switch to SIMPLE if point-in-time recovery is not required."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQL2022",
+                         "Severity":  "High",
+                         "Area":  "SLA",
+                         "Finding":  "Database \u0027HealthCare_6\u0027 is FULL but has no log backup.",
+                         "Recommendation":  "Start log backups or switch to SIMPLE if point-in-time recovery is not required."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQL2022",
+                         "Severity":  "High",
+                         "Area":  "SLA",
+                         "Finding":  "Database \u0027HealthCare_4\u0027 is FULL but has no log backup.",
+                         "Recommendation":  "Start log backups or switch to SIMPLE if point-in-time recovery is not required."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQL2022",
+                         "Severity":  "High",
+                         "Area":  "SLA",
+                         "Finding":  "Database \u0027HealthCare_2\u0027 is FULL but has no log backup.",
+                         "Recommendation":  "Start log backups or switch to SIMPLE if point-in-time recovery is not required."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQL2022",
+                         "Severity":  "High",
+                         "Area":  "SLA",
+                         "Finding":  "Database \u0027SqlEstatePortal\u0027 is FULL but has no log backup.",
+                         "Recommendation":  "Start log backups or switch to SIMPLE if point-in-time recovery is not required."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQL2022",
+                         "Severity":  "High",
+                         "Area":  "SLA",
+                         "Finding":  "Database \u0027CountyMedical\u0027 is FULL but has no log backup.",
+                         "Recommendation":  "Start log backups or switch to SIMPLE if point-in-time recovery is not required."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQL2022",
+                         "Severity":  "High",
+                         "Area":  "SLA",
+                         "Finding":  "Database \u0027AuntieAI\u0027 is FULL but has no log backup.",
+                         "Recommendation":  "Start log backups or switch to SIMPLE if point-in-time recovery is not required."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQL2022",
+                         "Severity":  "High",
+                         "Area":  "SLA",
+                         "Finding":  "Database \u0027HealthCare\u0027 is FULL but has no log backup.",
+                         "Recommendation":  "Start log backups or switch to SIMPLE if point-in-time recovery is not required."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQL2022",
+                         "Severity":  "High",
+                         "Area":  "SLA",
+                         "Finding":  "Database \u0027DocManagementDb\u0027 is FULL but has no log backup.",
+                         "Recommendation":  "Start log backups or switch to SIMPLE if point-in-time recovery is not required."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQL2022",
+                         "Severity":  "High",
+                         "Area":  "SLA",
+                         "Finding":  "Database \u0027HealthCare3\u0027 is FULL but has no log backup.",
+                         "Recommendation":  "Start log backups or switch to SIMPLE if point-in-time recovery is not required."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQL2022",
+                         "Severity":  "High",
+                         "Area":  "SLA",
+                         "Finding":  "Database \u0027HealthCare1\u0027 is FULL but has no log backup.",
+                         "Recommendation":  "Start log backups or switch to SIMPLE if point-in-time recovery is not required."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQL2022",
+                         "Severity":  "Medium",
+                         "Area":  "Performance",
+                         "Finding":  "max server memory is 2147483647 MB vs 32644 MB physical.",
+                         "Recommendation":  "Cap max server memory to leave RAM for the OS (typically 4 GB+ on dedicated hosts, more with other services)."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQL2022",
+                         "Severity":  "Medium",
+                         "Area":  "SLA",
+                         "Finding":  "Database \u0027SqlEstatePortal\u0027 has no LastGoodCheckDbTime.",
+                         "Recommendation":  "Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQL2022",
+                         "Severity":  "Medium",
+                         "Area":  "SLA",
+                         "Finding":  "Database \u0027AuntieAI\u0027 has no LastGoodCheckDbTime.",
+                         "Recommendation":  "Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQL2022",
+                         "Severity":  "Medium",
+                         "Area":  "SLA",
+                         "Finding":  "Database \u0027master\u0027 has no LastGoodCheckDbTime.",
+                         "Recommendation":  "Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQL2022",
+                         "Severity":  "Medium",
+                         "Area":  "SLA",
+                         "Finding":  "Database \u0027varianenm\u0027 has no LastGoodCheckDbTime.",
+                         "Recommendation":  "Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQL2022",
+                         "Severity":  "Medium",
+                         "Area":  "SLA",
+                         "Finding":  "Database \u0027HealthCare1\u0027 has no LastGoodCheckDbTime.",
+                         "Recommendation":  "Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQL2022",
+                         "Severity":  "Medium",
+                         "Area":  "SLA",
+                         "Finding":  "Database \u0027model\u0027 has no LastGoodCheckDbTime.",
+                         "Recommendation":  "Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQL2022",
+                         "Severity":  "Medium",
+                         "Area":  "SLA",
+                         "Finding":  "Database \u0027msdb\u0027 has no LastGoodCheckDbTime.",
+                         "Recommendation":  "Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQL2022",
+                         "Severity":  "Medium",
+                         "Area":  "SLA",
+                         "Finding":  "Database \u0027HealthCare_6\u0027 has no LastGoodCheckDbTime.",
+                         "Recommendation":  "Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQL2022",
+                         "Severity":  "Medium",
+                         "Area":  "SLA",
+                         "Finding":  "Database \u0027HealthCare\u0027 has no LastGoodCheckDbTime.",
+                         "Recommendation":  "Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQL2022",
+                         "Severity":  "Medium",
+                         "Area":  "SLA",
+                         "Finding":  "Database \u0027HealthCare3\u0027 has no LastGoodCheckDbTime.",
+                         "Recommendation":  "Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQL2022",
+                         "Severity":  "Medium",
+                         "Area":  "SLA",
+                         "Finding":  "Database \u0027CountyMedical\u0027 has no LastGoodCheckDbTime.",
+                         "Recommendation":  "Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQL2022",
+                         "Severity":  "Medium",
+                         "Area":  "SLA",
+                         "Finding":  "Database \u0027DocManagementDb\u0027 has no LastGoodCheckDbTime.",
+                         "Recommendation":  "Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQL2022",
+                         "Severity":  "Medium",
+                         "Area":  "SLA",
+                         "Finding":  "Database \u0027HealthCare_3\u0027 has no LastGoodCheckDbTime.",
+                         "Recommendation":  "Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQL2022",
+                         "Severity":  "Medium",
+                         "Area":  "SLA",
+                         "Finding":  "Database \u0027HealthCare_2\u0027 has no LastGoodCheckDbTime.",
+                         "Recommendation":  "Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQL2022",
+                         "Severity":  "Medium",
+                         "Area":  "SLA",
+                         "Finding":  "Database \u0027HealthCare_4\u0027 has no LastGoodCheckDbTime.",
+                         "Recommendation":  "Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQLEXPRESS",
+                         "Severity":  "Medium",
+                         "Area":  "Licensing",
+                         "Finding":  "Express edition detected (resource limits apply).",
+                         "Recommendation":  "Confirm Express is appropriate; it is not sized for most production OLTP estates."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQLEXPRESS",
+                         "Severity":  "Medium",
+                         "Area":  "Performance",
+                         "Finding":  "max server memory is 2147483647 MB vs 32644 MB physical.",
+                         "Recommendation":  "Cap max server memory to leave RAM for the OS (typically 4 GB+ on dedicated hosts, more with other services)."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQLEXPRESS",
+                         "Severity":  "Medium",
+                         "Area":  "SLA",
+                         "Finding":  "Database \u0027msdb\u0027 has no LastGoodCheckDbTime.",
+                         "Recommendation":  "Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQLEXPRESS",
+                         "Severity":  "Medium",
+                         "Area":  "SLA",
+                         "Finding":  "Database \u0027EliteCarsInternational\u0027 has no LastGoodCheckDbTime.",
+                         "Recommendation":  "Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQLEXPRESS",
+                         "Severity":  "Medium",
+                         "Area":  "SLA",
+                         "Finding":  "Database \u0027FISOHCM\u0027 has no LastGoodCheckDbTime.",
+                         "Recommendation":  "Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQLEXPRESS",
+                         "Severity":  "Medium",
+                         "Area":  "SLA",
+                         "Finding":  "Database \u0027master\u0027 has no LastGoodCheckDbTime.",
+                         "Recommendation":  "Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQLEXPRESS",
+                         "Severity":  "Medium",
+                         "Area":  "SLA",
+                         "Finding":  "Database \u0027model\u0027 has no LastGoodCheckDbTime.",
+                         "Recommendation":  "Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQLEXPRESS",
+                         "Severity":  "Medium",
+                         "Area":  "Standards",
+                         "Finding":  "Database \u0027FISOHCM\u0027 has AUTO_CLOSE on.",
+                         "Recommendation":  "Disable AUTO_CLOSE on server databases; it causes reopen latency."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQLEXPRESS",
+                         "Severity":  "Medium",
+                         "Area":  "Standards",
+                         "Finding":  "Database \u0027EliteCarsInternational\u0027 has AUTO_CLOSE on.",
+                         "Recommendation":  "Disable AUTO_CLOSE on server databases; it causes reopen latency."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQL2022",
+                         "Severity":  "Low",
+                         "Area":  "Cost",
+                         "Finding":  "Backup compression is not the instance default.",
+                         "Recommendation":  "Enable backup compression default to reduce backup storage and duration (test CPU impact)."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQL2022",
+                         "Severity":  "Low",
+                         "Area":  "Security",
+                         "Finding":  "Engine service account is NT Service\\MSSQL$SQL2022.",
+                         "Recommendation":  "Use a Group Managed Service Account (gMSA) for production instances."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQL2022",
+                         "Severity":  "Low",
+                         "Area":  "Standards",
+                         "Finding":  "optimize for ad hoc workloads is OFF.",
+                         "Recommendation":  "Enable this on most OLTP systems to reduce plan-cache bloat from one-shot queries."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQLEXPRESS",
+                         "Severity":  "Low",
+                         "Area":  "Security",
+                         "Finding":  "Engine service account is NT Service\\MSSQL$SQLEXPRESS.",
+                         "Recommendation":  "Use a Group Managed Service Account (gMSA) for production instances."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQLEXPRESS",
+                         "Severity":  "Low",
+                         "Area":  "Standards",
+                         "Finding":  "optimize for ad hoc workloads is OFF.",
+                         "Recommendation":  "Enable this on most OLTP systems to reduce plan-cache bloat from one-shot queries."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQL2022",
+                         "Severity":  "Info",
+                         "Area":  "Security",
+                         "Finding":  "Mixed authentication is enabled (1 enabled SQL logins).",
+                         "Recommendation":  "Prefer Windows authentication only where possible."
+                     },
+                     {
+                         "Server":  "MURTAZA\\SQLEXPRESS",
+                         "Severity":  "Info",
+                         "Area":  "Security",
+                         "Finding":  "Mixed authentication is enabled (1 enabled SQL logins).",
+                         "Recommendation":  "Prefer Windows authentication only where possible."
+                     }
+                 ],
+    "Servers":  [
+                    {
+                        "Databases":  [
+                                          {
+                                              "database_id":  1,
+                                              "name":  "master",
+                                              "state_desc":  "ONLINE",
+                                              "recovery_model_desc":  "SIMPLE",
+                                              "compatibility_level":  160,
+                                              "is_read_only":  false,
+                                              "is_auto_close_on":  false,
+                                              "is_auto_shrink_on":  false,
+                                              "page_verify_option_desc":  "CHECKSUM",
+                                              "is_encrypted":  false,
+                                              "is_trustworthy_on":  false,
+                                              "is_auto_create_stats_on":  true,
+                                              "is_auto_update_stats_on":  true,
+                                              "user_access_desc":  "MULTI_USER",
+                                              "log_reuse_wait_desc":  "NOTHING",
+                                              "create_date":  "\/Date(1049775216390)\/",
+                                              "owner_name":  "sa",
+                                              "LastGoodCheckDbTime":  "\/Date(-2209006800000)\/",
+                                              "DataMB":  4.00,
+                                              "LogMB":  1.25
+                                          },
+                                          {
+                                              "database_id":  2,
+                                              "name":  "tempdb",
+                                              "state_desc":  "ONLINE",
+                                              "recovery_model_desc":  "SIMPLE",
+                                              "compatibility_level":  160,
+                                              "is_read_only":  false,
+                                              "is_auto_close_on":  false,
+                                              "is_auto_shrink_on":  false,
+                                              "page_verify_option_desc":  "CHECKSUM",
+                                              "is_encrypted":  false,
+                                              "is_trustworthy_on":  false,
+                                              "is_auto_create_stats_on":  true,
+                                              "is_auto_update_stats_on":  true,
+                                              "user_access_desc":  "MULTI_USER",
+                                              "log_reuse_wait_desc":  "NOTHING",
+                                              "create_date":  "\/Date(1787560636873)\/",
+                                              "owner_name":  "sa",
+                                              "LastGoodCheckDbTime":  "\/Date(-2209006800000)\/",
+                                              "DataMB":  64.00,
+                                              "LogMB":  8.00
+                                          },
+                                          {
+                                              "database_id":  3,
+                                              "name":  "model",
+                                              "state_desc":  "ONLINE",
+                                              "recovery_model_desc":  "FULL",
+                                              "compatibility_level":  160,
+                                              "is_read_only":  false,
+                                              "is_auto_close_on":  false,
+                                              "is_auto_shrink_on":  false,
+                                              "page_verify_option_desc":  "CHECKSUM",
+                                              "is_encrypted":  false,
+                                              "is_trustworthy_on":  false,
+                                              "is_auto_create_stats_on":  true,
+                                              "is_auto_update_stats_on":  true,
+                                              "user_access_desc":  "MULTI_USER",
+                                              "log_reuse_wait_desc":  "NOTHING",
+                                              "create_date":  "\/Date(1049775216390)\/",
+                                              "owner_name":  "sa",
+                                              "LastGoodCheckDbTime":  "\/Date(-2209006800000)\/",
+                                              "DataMB":  8.00,
+                                              "LogMB":  8.00
+                                          },
+                                          {
+                                              "database_id":  4,
+                                              "name":  "msdb",
+                                              "state_desc":  "ONLINE",
+                                              "recovery_model_desc":  "SIMPLE",
+                                              "compatibility_level":  160,
+                                              "is_read_only":  false,
+                                              "is_auto_close_on":  false,
+                                              "is_auto_shrink_on":  false,
+                                              "page_verify_option_desc":  "CHECKSUM",
+                                              "is_encrypted":  false,
+                                              "is_trustworthy_on":  true,
+                                              "is_auto_create_stats_on":  true,
+                                              "is_auto_update_stats_on":  true,
+                                              "user_access_desc":  "MULTI_USER",
+                                              "log_reuse_wait_desc":  "NOTHING",
+                                              "create_date":  "\/Date(1665192717550)\/",
+                                              "owner_name":  "sa",
+                                              "LastGoodCheckDbTime":  "\/Date(-2209006800000)\/",
+                                              "DataMB":  15.31,
+                                              "LogMB":  1.00
+                                          },
+                                          {
+                                              "database_id":  5,
+                                              "name":  "varianenm",
+                                              "state_desc":  "ONLINE",
+                                              "recovery_model_desc":  "SIMPLE",
+                                              "compatibility_level":  160,
+                                              "is_read_only":  false,
+                                              "is_auto_close_on":  false,
+                                              "is_auto_shrink_on":  false,
+                                              "page_verify_option_desc":  "CHECKSUM",
+                                              "is_encrypted":  false,
+                                              "is_trustworthy_on":  false,
+                                              "is_auto_create_stats_on":  true,
+                                              "is_auto_update_stats_on":  true,
+                                              "user_access_desc":  "MULTI_USER",
+                                              "log_reuse_wait_desc":  "NOTHING",
+                                              "create_date":  "\/Date(1753991793980)\/",
+                                              "owner_name":  "MURTAZA\\Murtaza",
+                                              "LastGoodCheckDbTime":  "\/Date(-2209006800000)\/",
+                                              "DataMB":  97000.00,
+                                              "LogMB":  10000.00
+                                          },
+                                          {
+                                              "database_id":  6,
+                                              "name":  "AuntieAI",
+                                              "state_desc":  "ONLINE",
+                                              "recovery_model_desc":  "FULL",
+                                              "compatibility_level":  160,
+                                              "is_read_only":  false,
+                                              "is_auto_close_on":  false,
+                                              "is_auto_shrink_on":  false,
+                                              "page_verify_option_desc":  "CHECKSUM",
+                                              "is_encrypted":  false,
+                                              "is_trustworthy_on":  false,
+                                              "is_auto_create_stats_on":  true,
+                                              "is_auto_update_stats_on":  true,
+                                              "user_access_desc":  "MULTI_USER",
+                                              "log_reuse_wait_desc":  "NOTHING",
+                                              "create_date":  "\/Date(1776094785160)\/",
+                                              "owner_name":  "sa",
+                                              "LastGoodCheckDbTime":  "\/Date(-2209006800000)\/",
+                                              "DataMB":  8.00,
+                                              "LogMB":  8.00
+                                          },
+                                          {
+                                              "database_id":  7,
+                                              "name":  "DocManagementDb",
+                                              "state_desc":  "ONLINE",
+                                              "recovery_model_desc":  "FULL",
+                                              "compatibility_level":  160,
+                                              "is_read_only":  false,
+                                              "is_auto_close_on":  false,
+                                              "is_auto_shrink_on":  false,
+                                              "page_verify_option_desc":  "CHECKSUM",
+                                              "is_encrypted":  false,
+                                              "is_trustworthy_on":  false,
+                                              "is_auto_create_stats_on":  true,
+                                              "is_auto_update_stats_on":  true,
+                                              "user_access_desc":  "MULTI_USER",
+                                              "log_reuse_wait_desc":  "NOTHING",
+                                              "create_date":  "\/Date(1777399974883)\/",
+                                              "owner_name":  "sa",
+                                              "LastGoodCheckDbTime":  "\/Date(-2209006800000)\/",
+                                              "DataMB":  8.00,
+                                              "LogMB":  8.00
+                                          },
+                                          {
+                                              "database_id":  8,
+                                              "name":  "HealthCare",
+                                              "state_desc":  "ONLINE",
+                                              "recovery_model_desc":  "FULL",
+                                              "compatibility_level":  160,
+                                              "is_read_only":  false,
+                                              "is_auto_close_on":  false,
+                                              "is_auto_shrink_on":  false,
+                                              "page_verify_option_desc":  "CHECKSUM",
+                                              "is_encrypted":  false,
+                                              "is_trustworthy_on":  false,
+                                              "is_auto_create_stats_on":  true,
+                                              "is_auto_update_stats_on":  true,
+                                              "user_access_desc":  "MULTI_USER",
+                                              "log_reuse_wait_desc":  "NOTHING",
+                                              "create_date":  "\/Date(1785755451237)\/",
+                                              "owner_name":  "sa",
+                                              "LastGoodCheckDbTime":  "\/Date(-2209006800000)\/",
+                                              "DataMB":  72.00,
+                                              "LogMB":  8.00
+                                          },
+                                          {
+                                              "database_id":  9,
+                                              "name":  "CountyMedical",
+                                              "state_desc":  "ONLINE",
+                                              "recovery_model_desc":  "FULL",
+                                              "compatibility_level":  160,
+                                              "is_read_only":  false,
+                                              "is_auto_close_on":  false,
+                                              "is_auto_shrink_on":  false,
+                                              "page_verify_option_desc":  "CHECKSUM",
+                                              "is_encrypted":  false,
+                                              "is_trustworthy_on":  false,
+                                              "is_auto_create_stats_on":  true,
+                                              "is_auto_update_stats_on":  true,
+                                              "user_access_desc":  "MULTI_USER",
+                                              "log_reuse_wait_desc":  "NOTHING",
+                                              "create_date":  "\/Date(1785242509813)\/",
+                                              "owner_name":  "sa",
+                                              "LastGoodCheckDbTime":  "\/Date(-2209006800000)\/",
+                                              "DataMB":  72.00,
+                                              "LogMB":  72.00
+                                          },
+                                          {
+                                              "database_id":  10,
+                                              "name":  "HealthCare1",
+                                              "state_desc":  "ONLINE",
+                                              "recovery_model_desc":  "FULL",
+                                              "compatibility_level":  160,
+                                              "is_read_only":  false,
+                                              "is_auto_close_on":  false,
+                                              "is_auto_shrink_on":  false,
+                                              "page_verify_option_desc":  "CHECKSUM",
+                                              "is_encrypted":  false,
+                                              "is_trustworthy_on":  false,
+                                              "is_auto_create_stats_on":  true,
+                                              "is_auto_update_stats_on":  true,
+                                              "user_access_desc":  "MULTI_USER",
+                                              "log_reuse_wait_desc":  "NOTHING",
+                                              "create_date":  "\/Date(1785758279417)\/",
+                                              "owner_name":  "sa",
+                                              "LastGoodCheckDbTime":  "\/Date(-2209006800000)\/",
+                                              "DataMB":  8.00,
+                                              "LogMB":  8.00
+                                          },
+                                          {
+                                              "database_id":  11,
+                                              "name":  "HealthCare_4",
+                                              "state_desc":  "ONLINE",
+                                              "recovery_model_desc":  "FULL",
+                                              "compatibility_level":  160,
+                                              "is_read_only":  false,
+                                              "is_auto_close_on":  false,
+                                              "is_auto_shrink_on":  false,
+                                              "page_verify_option_desc":  "CHECKSUM",
+                                              "is_encrypted":  false,
+                                              "is_trustworthy_on":  false,
+                                              "is_auto_create_stats_on":  true,
+                                              "is_auto_update_stats_on":  true,
+                                              "user_access_desc":  "MULTI_USER",
+                                              "log_reuse_wait_desc":  "NOTHING",
+                                              "create_date":  "\/Date(1787154159340)\/",
+                                              "owner_name":  "sa",
+                                              "LastGoodCheckDbTime":  "\/Date(-2209006800000)\/",
+                                              "DataMB":  8.00,
+                                              "LogMB":  8.00
+                                          },
+                                          {
+                                              "database_id":  12,
+                                              "name":  "HealthCare3",
+                                              "state_desc":  "ONLINE",
+                                              "recovery_model_desc":  "FULL",
+                                              "compatibility_level":  160,
+                                              "is_read_only":  false,
+                                              "is_auto_close_on":  false,
+                                              "is_auto_shrink_on":  false,
+                                              "page_verify_option_desc":  "CHECKSUM",
+                                              "is_encrypted":  false,
+                                              "is_trustworthy_on":  false,
+                                              "is_auto_create_stats_on":  true,
+                                              "is_auto_update_stats_on":  true,
+                                              "user_access_desc":  "MULTI_USER",
+                                              "log_reuse_wait_desc":  "NOTHING",
+                                              "create_date":  "\/Date(1786697187753)\/",
+                                              "owner_name":  "sa",
+                                              "LastGoodCheckDbTime":  "\/Date(-2209006800000)\/",
+                                              "DataMB":  8.00,
+                                              "LogMB":  8.00
+                                          },
+                                          {
+                                              "database_id":  13,
+                                              "name":  "HealthCare_6",
+                                              "state_desc":  "ONLINE",
+                                              "recovery_model_desc":  "FULL",
+                                              "compatibility_level":  160,
+                                              "is_read_only":  false,
+                                              "is_auto_close_on":  false,
+                                              "is_auto_shrink_on":  false,
+                                              "page_verify_option_desc":  "CHECKSUM",
+                                              "is_encrypted":  false,
+                                              "is_trustworthy_on":  false,
+                                              "is_auto_create_stats_on":  true,
+                                              "is_auto_update_stats_on":  true,
+                                              "user_access_desc":  "MULTI_USER",
+                                              "log_reuse_wait_desc":  "NOTHING",
+                                              "create_date":  "\/Date(1787155603260)\/",
+                                              "owner_name":  "sa",
+                                              "LastGoodCheckDbTime":  "\/Date(-2209006800000)\/",
+                                              "DataMB":  8.00,
+                                              "LogMB":  8.00
+                                          },
+                                          {
+                                              "database_id":  14,
+                                              "name":  "HealthCare_2",
+                                              "state_desc":  "ONLINE",
+                                              "recovery_model_desc":  "FULL",
+                                              "compatibility_level":  160,
+                                              "is_read_only":  false,
+                                              "is_auto_close_on":  false,
+                                              "is_auto_shrink_on":  false,
+                                              "page_verify_option_desc":  "CHECKSUM",
+                                              "is_encrypted":  false,
+                                              "is_trustworthy_on":  false,
+                                              "is_auto_create_stats_on":  true,
+                                              "is_auto_update_stats_on":  true,
+                                              "user_access_desc":  "MULTI_USER",
+                                              "log_reuse_wait_desc":  "NOTHING",
+                                              "create_date":  "\/Date(1787152688070)\/",
+                                              "owner_name":  "sa",
+                                              "LastGoodCheckDbTime":  "\/Date(-2209006800000)\/",
+                                              "DataMB":  8.00,
+                                              "LogMB":  8.00
+                                          },
+                                          {
+                                              "database_id":  15,
+                                              "name":  "HealthCare_3",
+                                              "state_desc":  "ONLINE",
+                                              "recovery_model_desc":  "FULL",
+                                              "compatibility_level":  160,
+                                              "is_read_only":  false,
+                                              "is_auto_close_on":  false,
+                                              "is_auto_shrink_on":  false,
+                                              "page_verify_option_desc":  "CHECKSUM",
+                                              "is_encrypted":  false,
+                                              "is_trustworthy_on":  false,
+                                              "is_auto_create_stats_on":  true,
+                                              "is_auto_update_stats_on":  true,
+                                              "user_access_desc":  "MULTI_USER",
+                                              "log_reuse_wait_desc":  "NOTHING",
+                                              "create_date":  "\/Date(1787153470303)\/",
+                                              "owner_name":  "sa",
+                                              "LastGoodCheckDbTime":  "\/Date(-2209006800000)\/",
+                                              "DataMB":  8.00,
+                                              "LogMB":  8.00
+                                          },
+                                          {
+                                              "database_id":  16,
+                                              "name":  "SqlEstatePortal",
+                                              "state_desc":  "ONLINE",
+                                              "recovery_model_desc":  "FULL",
+                                              "compatibility_level":  160,
+                                              "is_read_only":  false,
+                                              "is_auto_close_on":  false,
+                                              "is_auto_shrink_on":  false,
+                                              "page_verify_option_desc":  "CHECKSUM",
+                                              "is_encrypted":  false,
+                                              "is_trustworthy_on":  false,
+                                              "is_auto_create_stats_on":  true,
+                                              "is_auto_update_stats_on":  true,
+                                              "user_access_desc":  "MULTI_USER",
+                                              "log_reuse_wait_desc":  "NOTHING",
+                                              "create_date":  "\/Date(1787576509640)\/",
+                                              "owner_name":  "MURTAZA\\Murtaza",
+                                              "LastGoodCheckDbTime":  "\/Date(-2209006800000)\/",
+                                              "DataMB":  8.00,
+                                              "LogMB":  8.00
+                                          }
+                                      ],
+                        "Waits":  [
+                                      {
+                                          "wait_type":  "ASYNC_NETWORK_IO",
+                                          "waiting_tasks_count":  1513038,
+                                          "wait_time_ms":  1548886,
+                                          "signal_wait_time_ms":  179962,
+                                          "WaitPct":  91.26
+                                      },
+                                      {
+                                          "wait_type":  "LCK_M_SCH_M",
+                                          "waiting_tasks_count":  4,
+                                          "wait_time_ms":  60075,
+                                          "signal_wait_time_ms":  0,
+                                          "WaitPct":  3.54
+                                      },
+                                      {
+                                          "wait_type":  "PREEMPTIVE_OS_QUERYREGISTRY",
+                                          "waiting_tasks_count":  230530,
+                                          "wait_time_ms":  37341,
+                                          "signal_wait_time_ms":  0,
+                                          "WaitPct":  2.20
+                                      },
+                                      {
+                                          "wait_type":  "PREEMPTIVE_OS_FILEOPS",
+                                          "waiting_tasks_count":  778,
+                                          "wait_time_ms":  14399,
+                                          "signal_wait_time_ms":  0,
+                                          "WaitPct":  0.85
+                                      },
+                                      {
+                                          "wait_type":  "THREADPOOL",
+                                          "waiting_tasks_count":  2235,
+                                          "wait_time_ms":  8864,
+                                          "signal_wait_time_ms":  1,
+                                          "WaitPct":  0.52
+                                      },
+                                      {
+                                          "wait_type":  "PAGEIOLATCH_SH",
+                                          "waiting_tasks_count":  4901,
+                                          "wait_time_ms":  5701,
+                                          "signal_wait_time_ms":  232,
+                                          "WaitPct":  0.34
+                                      },
+                                      {
+                                          "wait_type":  "SOS_SCHEDULER_YIELD",
+                                          "waiting_tasks_count":  17118,
+                                          "wait_time_ms":  5026,
+                                          "signal_wait_time_ms":  4960,
+                                          "WaitPct":  0.30
+                                      },
+                                      {
+                                          "wait_type":  "SNI_CRITICAL_SECTION",
+                                          "waiting_tasks_count":  7895,
+                                          "wait_time_ms":  3955,
+                                          "signal_wait_time_ms":  2705,
+                                          "WaitPct":  0.23
+                                      },
+                                      {
+                                          "wait_type":  "PREEMPTIVE_XE_CALLBACKEXECUTE",
+                                          "waiting_tasks_count":  1124838,
+                                          "wait_time_ms":  3647,
+                                          "signal_wait_time_ms":  0,
+                                          "WaitPct":  0.21
+                                      },
+                                      {
+                                          "wait_type":  "LCK_M_S",
+                                          "waiting_tasks_count":  19,
+                                          "wait_time_ms":  2640,
+                                          "signal_wait_time_ms":  12,
+                                          "WaitPct":  0.16
+                                      },
+                                      {
+                                          "wait_type":  "PREEMPTIVE_OS_DEVICEOPS",
+                                          "waiting_tasks_count":  490,
+                                          "wait_time_ms":  1532,
+                                          "signal_wait_time_ms":  0,
+                                          "WaitPct":  0.09
+                                      },
+                                      {
+                                          "wait_type":  "ASYNC_IO_COMPLETION",
+                                          "waiting_tasks_count":  3,
+                                          "wait_time_ms":  1475,
+                                          "signal_wait_time_ms":  2,
+                                          "WaitPct":  0.09
+                                      },
+                                      {
+                                          "wait_type":  "WRITELOG",
+                                          "waiting_tasks_count":  458,
+                                          "wait_time_ms":  397,
+                                          "signal_wait_time_ms":  151,
+                                          "WaitPct":  0.02
+                                      },
+                                      {
+                                          "wait_type":  "PREEMPTIVE_OS_AUTHENTICATIONOPS",
+                                          "waiting_tasks_count":  540,
+                                          "wait_time_ms":  374,
+                                          "signal_wait_time_ms":  0,
+                                          "WaitPct":  0.02
+                                      },
+                                      {
+                                          "wait_type":  "PREEMPTIVE_OS_REPORTEVENT",
+                                          "waiting_tasks_count":  110,
+                                          "wait_time_ms":  271,
+                                          "signal_wait_time_ms":  0,
+                                          "WaitPct":  0.02
+                                      }
+                                  ],
+                        "Server":  "MURTAZA\\SQL2022",
+                        "Performance":  {
+                                            "PageLifeExpectancySec":  524,
+                                            "MemoryGrantsPending":  0,
+                                            "ProcessesBlocked":  0,
+                                            "UserConnections":  4,
+                                            "TotalServerMemoryMB":  560.4,
+                                            "TargetServerMemoryMB":  13609.4,
+                                            "BatchRequestsPerSec":  0.5,
+                                            "CompilationsPerSec":  0,
+                                            "RecompilationsPerSec":  0,
+                                            "PageReadsPerSec":  32,
+                                            "PageWritesPerSec":  0,
+                                            "DeadlocksPerSec":  0,
+                                            "SampleSeconds":  2
+                                        },
+                        "Services":  [
+                                         {
+                                             "servicename":  "SQL Server (SQL2022)",
+                                             "startup_type_desc":  "Automatic",
+                                             "status_desc":  "Running",
+                                             "service_account":  "NT Service\\MSSQL$SQL2022",
+                                             "instant_file_initialization_enabled":  "N"
+                                         },
+                                         {
+                                             "servicename":  "SQL Server Agent (SQL2022)",
+                                             "startup_type_desc":  "Manual",
+                                             "status_desc":  "Stopped",
+                                             "service_account":  "NT Service\\SQLAgent$SQL2022",
+                                             "instant_file_initialization_enabled":  "N"
+                                         }
+                                     ],
+                        "Sysadmins":  [
+                                          {
+                                              "name":  "sa",
+                                              "type_desc":  "SQL_LOGIN",
+                                              "is_disabled":  false,
+                                              "create_date":  "\/Date(1049775035460)\/"
+                                          },
+                                          {
+                                              "name":  "MURTAZA\\Murtaza",
+                                              "type_desc":  "WINDOWS_LOGIN",
+                                              "is_disabled":  false,
+                                              "create_date":  "\/Date(1753978395507)\/"
+                                          },
+                                          {
+                                              "name":  "NT SERVICE\\SQLWriter",
+                                              "type_desc":  "WINDOWS_LOGIN",
+                                              "is_disabled":  false,
+                                              "create_date":  "\/Date(1753978395523)\/"
+                                          },
+                                          {
+                                              "name":  "NT SERVICE\\Winmgmt",
+                                              "type_desc":  "WINDOWS_LOGIN",
+                                              "is_disabled":  false,
+                                              "create_date":  "\/Date(1753978395540)\/"
+                                          },
+                                          {
+                                              "name":  "NT SERVICE\\SQLAgent$SQL2022",
+                                              "type_desc":  "WINDOWS_LOGIN",
+                                              "is_disabled":  false,
+                                              "create_date":  "\/Date(1753978396410)\/"
+                                          }
+                                      ],
+                        "Support":  {
+                                        "ExtendedEnd":  "2033-01-11",
+                                        "MainstreamEnd":  "2028-01-11",
+                                        "Status":  "Supported",
+                                        "Product":  "SQL Server 2022"
+                                    },
+                        "TraceFlags":  [
+
+                                       ],
+                        "Cost":  {
+                                     "AllocatedDataAndLogGB":  104.96,
+                                     "UserDatabaseCount":  12,
+                                     "CpuCount":  8,
+                                     "EstimatedLicensedCores":  8,
+                                     "LicenseType":  "DISABLED",
+                                     "NumLicensesProperty":  null,
+                                     "EstimatedCoreLicenseUsd":  0,
+                                     "EstimatedStorageUsdMonth":  0,
+                                     "Note":  "Dollar figures are estimates from the rates you passed. LicenseType/NumLicenses from SERVERPROPERTY is often unpopulated for core licensing."
+                                 },
+                        "Configuration":  [
+                                              {
+                                                  "name":  "remote access",
+                                                  "value_in_use":  1
+                                              },
+                                              {
+                                                  "name":  "cross db ownership chaining",
+                                                  "value_in_use":  0
+                                              },
+                                              {
+                                                  "name":  "show advanced options",
+                                                  "value_in_use":  0
+                                              },
+                                              {
+                                                  "name":  "cost threshold for parallelism",
+                                                  "value_in_use":  5
+                                              },
+                                              {
+                                                  "name":  "max degree of parallelism",
+                                                  "value_in_use":  8
+                                              },
+                                              {
+                                                  "name":  "min server memory (MB)",
+                                                  "value_in_use":  16
+                                              },
+                                              {
+                                                  "name":  "max server memory (MB)",
+                                                  "value_in_use":  2147483647
+                                              },
+                                              {
+                                                  "name":  "scan for startup procs",
+                                                  "value_in_use":  0
+                                              },
+                                              {
+                                                  "name":  "clr enabled",
+                                                  "value_in_use":  0
+                                              },
+                                              {
+                                                  "name":  "remote admin connections",
+                                                  "value_in_use":  0
+                                              },
+                                              {
+                                                  "name":  "backup compression default",
+                                                  "value_in_use":  0
+                                              },
+                                              {
+                                                  "name":  "optimize for ad hoc workloads",
+                                                  "value_in_use":  0
+                                              },
+                                              {
+                                                  "name":  "Database Mail XPs",
+                                                  "value_in_use":  0
+                                              },
+                                              {
+                                                  "name":  "Ole Automation Procedures",
+                                                  "value_in_use":  0
+                                              },
+                                              {
+                                                  "name":  "xp_cmdshell",
+                                                  "value_in_use":  0
+                                              },
+                                              {
+                                                  "name":  "contained database authentication",
+                                                  "value_in_use":  0
+                                              }
+                                          ],
+                        "SqlLogins":  [
+                                          {
+                                              "name":  "sa",
+                                              "is_disabled":  false,
+                                              "is_policy_checked":  true,
+                                              "is_expiration_checked":  false,
+                                              "is_sysadmin":  1,
+                                              "create_date":  "\/Date(1049775035460)\/",
+                                              "modify_date":  "\/Date(1785242356320)\/"
+                                          }
+                                      ],
+                        "Jobs":  [
+                                     {
+                                         "JobName":  "syspolicy_purge_history",
+                                         "enabled":  1,
+                                         "run_status":  1,
+                                         "LastRunStatus":  "Succeeded",
+                                         "LastRun":  "\/Date(1771741119000)\/",
+                                         "Message":  "The job succeeded.  The Job was invoked by Schedule 8 (syspolicy_purge_history_schedule).  The last step to run was step 3 (Erase Phantom System Health Records.)."
+                                     }
+                                 ],
+                        "Backups":  [
+                                        {
+                                            "database_name":  "DocManagementDb",
+                                            "LastFull":  "\/Date(1786612777000)\/",
+                                            "LastDiff":  null,
+                                            "LastLog":  null
+                                        },
+                                        {
+                                            "database_name":  "varianenm",
+                                            "LastFull":  "\/Date(1753962518000)\/",
+                                            "LastDiff":  null,
+                                            "LastLog":  null
+                                        }
+                                    ],
+                        "Host":  [
+                                     {
+                                         "host_platform":  "Windows",
+                                         "host_distribution":  "Windows 10 Pro",
+                                         "host_release":  "10.0"
+                                     }
+                                 ],
+                        "AvailabilityGroups":  [
+
+                                               ],
+                        "Reachable":  true,
+                        "CollectedUtc":  "\/Date(1787581015202)\/",
+                        "Findings":  [
+                                         {
+                                             "Server":  "MURTAZA\\SQL2022",
+                                             "Severity":  "Low",
+                                             "Area":  "Standards",
+                                             "Finding":  "optimize for ad hoc workloads is OFF.",
+                                             "Recommendation":  "Enable this on most OLTP systems to reduce plan-cache bloat from one-shot queries."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQL2022",
+                                             "Severity":  "Low",
+                                             "Area":  "Cost",
+                                             "Finding":  "Backup compression is not the instance default.",
+                                             "Recommendation":  "Enable backup compression default to reduce backup storage and duration (test CPU impact)."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQL2022",
+                                             "Severity":  "Medium",
+                                             "Area":  "Performance",
+                                             "Finding":  "max server memory is 2147483647 MB vs 32644 MB physical.",
+                                             "Recommendation":  "Cap max server memory to leave RAM for the OS (typically 4 GB+ on dedicated hosts, more with other services)."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQL2022",
+                                             "Severity":  "Medium",
+                                             "Area":  "SLA",
+                                             "Finding":  "Database \u0027master\u0027 has no LastGoodCheckDbTime.",
+                                             "Recommendation":  "Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQL2022",
+                                             "Severity":  "Critical",
+                                             "Area":  "SLA",
+                                             "Finding":  "Database \u0027master\u0027 has no full backup recorded in msdb.",
+                                             "Recommendation":  "Take a full backup immediately and enroll the database in the estate backup SLA."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQL2022",
+                                             "Severity":  "Medium",
+                                             "Area":  "SLA",
+                                             "Finding":  "Database \u0027model\u0027 has no LastGoodCheckDbTime.",
+                                             "Recommendation":  "Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQL2022",
+                                             "Severity":  "Critical",
+                                             "Area":  "SLA",
+                                             "Finding":  "Database \u0027model\u0027 has no full backup recorded in msdb.",
+                                             "Recommendation":  "Take a full backup immediately and enroll the database in the estate backup SLA."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQL2022",
+                                             "Severity":  "Medium",
+                                             "Area":  "SLA",
+                                             "Finding":  "Database \u0027msdb\u0027 has no LastGoodCheckDbTime.",
+                                             "Recommendation":  "Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQL2022",
+                                             "Severity":  "Critical",
+                                             "Area":  "SLA",
+                                             "Finding":  "Database \u0027msdb\u0027 has no full backup recorded in msdb.",
+                                             "Recommendation":  "Take a full backup immediately and enroll the database in the estate backup SLA."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQL2022",
+                                             "Severity":  "Medium",
+                                             "Area":  "SLA",
+                                             "Finding":  "Database \u0027varianenm\u0027 has no LastGoodCheckDbTime.",
+                                             "Recommendation":  "Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQL2022",
+                                             "Severity":  "Critical",
+                                             "Area":  "SLA",
+                                             "Finding":  "Database \u0027varianenm\u0027 last full backup is 9338 hours old (SLA 24h).",
+                                             "Recommendation":  "Fix the backup job and verify backups are restorable off-box."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQL2022",
+                                             "Severity":  "Medium",
+                                             "Area":  "SLA",
+                                             "Finding":  "Database \u0027AuntieAI\u0027 has no LastGoodCheckDbTime.",
+                                             "Recommendation":  "Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQL2022",
+                                             "Severity":  "Critical",
+                                             "Area":  "SLA",
+                                             "Finding":  "Database \u0027AuntieAI\u0027 has no full backup recorded in msdb.",
+                                             "Recommendation":  "Take a full backup immediately and enroll the database in the estate backup SLA."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQL2022",
+                                             "Severity":  "High",
+                                             "Area":  "SLA",
+                                             "Finding":  "Database \u0027AuntieAI\u0027 is FULL but has no log backup.",
+                                             "Recommendation":  "Start log backups or switch to SIMPLE if point-in-time recovery is not required."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQL2022",
+                                             "Severity":  "Medium",
+                                             "Area":  "SLA",
+                                             "Finding":  "Database \u0027DocManagementDb\u0027 has no LastGoodCheckDbTime.",
+                                             "Recommendation":  "Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQL2022",
+                                             "Severity":  "Critical",
+                                             "Area":  "SLA",
+                                             "Finding":  "Database \u0027DocManagementDb\u0027 last full backup is 269 hours old (SLA 24h).",
+                                             "Recommendation":  "Fix the backup job and verify backups are restorable off-box."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQL2022",
+                                             "Severity":  "High",
+                                             "Area":  "SLA",
+                                             "Finding":  "Database \u0027DocManagementDb\u0027 is FULL but has no log backup.",
+                                             "Recommendation":  "Start log backups or switch to SIMPLE if point-in-time recovery is not required."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQL2022",
+                                             "Severity":  "Medium",
+                                             "Area":  "SLA",
+                                             "Finding":  "Database \u0027HealthCare\u0027 has no LastGoodCheckDbTime.",
+                                             "Recommendation":  "Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQL2022",
+                                             "Severity":  "Critical",
+                                             "Area":  "SLA",
+                                             "Finding":  "Database \u0027HealthCare\u0027 has no full backup recorded in msdb.",
+                                             "Recommendation":  "Take a full backup immediately and enroll the database in the estate backup SLA."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQL2022",
+                                             "Severity":  "High",
+                                             "Area":  "SLA",
+                                             "Finding":  "Database \u0027HealthCare\u0027 is FULL but has no log backup.",
+                                             "Recommendation":  "Start log backups or switch to SIMPLE if point-in-time recovery is not required."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQL2022",
+                                             "Severity":  "Medium",
+                                             "Area":  "SLA",
+                                             "Finding":  "Database \u0027CountyMedical\u0027 has no LastGoodCheckDbTime.",
+                                             "Recommendation":  "Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQL2022",
+                                             "Severity":  "Critical",
+                                             "Area":  "SLA",
+                                             "Finding":  "Database \u0027CountyMedical\u0027 has no full backup recorded in msdb.",
+                                             "Recommendation":  "Take a full backup immediately and enroll the database in the estate backup SLA."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQL2022",
+                                             "Severity":  "High",
+                                             "Area":  "SLA",
+                                             "Finding":  "Database \u0027CountyMedical\u0027 is FULL but has no log backup.",
+                                             "Recommendation":  "Start log backups or switch to SIMPLE if point-in-time recovery is not required."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQL2022",
+                                             "Severity":  "Medium",
+                                             "Area":  "SLA",
+                                             "Finding":  "Database \u0027HealthCare1\u0027 has no LastGoodCheckDbTime.",
+                                             "Recommendation":  "Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQL2022",
+                                             "Severity":  "Critical",
+                                             "Area":  "SLA",
+                                             "Finding":  "Database \u0027HealthCare1\u0027 has no full backup recorded in msdb.",
+                                             "Recommendation":  "Take a full backup immediately and enroll the database in the estate backup SLA."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQL2022",
+                                             "Severity":  "High",
+                                             "Area":  "SLA",
+                                             "Finding":  "Database \u0027HealthCare1\u0027 is FULL but has no log backup.",
+                                             "Recommendation":  "Start log backups or switch to SIMPLE if point-in-time recovery is not required."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQL2022",
+                                             "Severity":  "Medium",
+                                             "Area":  "SLA",
+                                             "Finding":  "Database \u0027HealthCare_4\u0027 has no LastGoodCheckDbTime.",
+                                             "Recommendation":  "Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQL2022",
+                                             "Severity":  "Critical",
+                                             "Area":  "SLA",
+                                             "Finding":  "Database \u0027HealthCare_4\u0027 has no full backup recorded in msdb.",
+                                             "Recommendation":  "Take a full backup immediately and enroll the database in the estate backup SLA."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQL2022",
+                                             "Severity":  "High",
+                                             "Area":  "SLA",
+                                             "Finding":  "Database \u0027HealthCare_4\u0027 is FULL but has no log backup.",
+                                             "Recommendation":  "Start log backups or switch to SIMPLE if point-in-time recovery is not required."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQL2022",
+                                             "Severity":  "Medium",
+                                             "Area":  "SLA",
+                                             "Finding":  "Database \u0027HealthCare3\u0027 has no LastGoodCheckDbTime.",
+                                             "Recommendation":  "Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQL2022",
+                                             "Severity":  "Critical",
+                                             "Area":  "SLA",
+                                             "Finding":  "Database \u0027HealthCare3\u0027 has no full backup recorded in msdb.",
+                                             "Recommendation":  "Take a full backup immediately and enroll the database in the estate backup SLA."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQL2022",
+                                             "Severity":  "High",
+                                             "Area":  "SLA",
+                                             "Finding":  "Database \u0027HealthCare3\u0027 is FULL but has no log backup.",
+                                             "Recommendation":  "Start log backups or switch to SIMPLE if point-in-time recovery is not required."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQL2022",
+                                             "Severity":  "Medium",
+                                             "Area":  "SLA",
+                                             "Finding":  "Database \u0027HealthCare_6\u0027 has no LastGoodCheckDbTime.",
+                                             "Recommendation":  "Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQL2022",
+                                             "Severity":  "Critical",
+                                             "Area":  "SLA",
+                                             "Finding":  "Database \u0027HealthCare_6\u0027 has no full backup recorded in msdb.",
+                                             "Recommendation":  "Take a full backup immediately and enroll the database in the estate backup SLA."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQL2022",
+                                             "Severity":  "High",
+                                             "Area":  "SLA",
+                                             "Finding":  "Database \u0027HealthCare_6\u0027 is FULL but has no log backup.",
+                                             "Recommendation":  "Start log backups or switch to SIMPLE if point-in-time recovery is not required."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQL2022",
+                                             "Severity":  "Medium",
+                                             "Area":  "SLA",
+                                             "Finding":  "Database \u0027HealthCare_2\u0027 has no LastGoodCheckDbTime.",
+                                             "Recommendation":  "Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQL2022",
+                                             "Severity":  "Critical",
+                                             "Area":  "SLA",
+                                             "Finding":  "Database \u0027HealthCare_2\u0027 has no full backup recorded in msdb.",
+                                             "Recommendation":  "Take a full backup immediately and enroll the database in the estate backup SLA."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQL2022",
+                                             "Severity":  "High",
+                                             "Area":  "SLA",
+                                             "Finding":  "Database \u0027HealthCare_2\u0027 is FULL but has no log backup.",
+                                             "Recommendation":  "Start log backups or switch to SIMPLE if point-in-time recovery is not required."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQL2022",
+                                             "Severity":  "Medium",
+                                             "Area":  "SLA",
+                                             "Finding":  "Database \u0027HealthCare_3\u0027 has no LastGoodCheckDbTime.",
+                                             "Recommendation":  "Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQL2022",
+                                             "Severity":  "Critical",
+                                             "Area":  "SLA",
+                                             "Finding":  "Database \u0027HealthCare_3\u0027 has no full backup recorded in msdb.",
+                                             "Recommendation":  "Take a full backup immediately and enroll the database in the estate backup SLA."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQL2022",
+                                             "Severity":  "High",
+                                             "Area":  "SLA",
+                                             "Finding":  "Database \u0027HealthCare_3\u0027 is FULL but has no log backup.",
+                                             "Recommendation":  "Start log backups or switch to SIMPLE if point-in-time recovery is not required."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQL2022",
+                                             "Severity":  "Medium",
+                                             "Area":  "SLA",
+                                             "Finding":  "Database \u0027SqlEstatePortal\u0027 has no LastGoodCheckDbTime.",
+                                             "Recommendation":  "Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQL2022",
+                                             "Severity":  "Critical",
+                                             "Area":  "SLA",
+                                             "Finding":  "Database \u0027SqlEstatePortal\u0027 has no full backup recorded in msdb.",
+                                             "Recommendation":  "Take a full backup immediately and enroll the database in the estate backup SLA."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQL2022",
+                                             "Severity":  "High",
+                                             "Area":  "SLA",
+                                             "Finding":  "Database \u0027SqlEstatePortal\u0027 is FULL but has no log backup.",
+                                             "Recommendation":  "Start log backups or switch to SIMPLE if point-in-time recovery is not required."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQL2022",
+                                             "Severity":  "Info",
+                                             "Area":  "Security",
+                                             "Finding":  "Mixed authentication is enabled (1 enabled SQL logins).",
+                                             "Recommendation":  "Prefer Windows authentication only where possible."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQL2022",
+                                             "Severity":  "Low",
+                                             "Area":  "Security",
+                                             "Finding":  "Engine service account is NT Service\\MSSQL$SQL2022.",
+                                             "Recommendation":  "Use a Group Managed Service Account (gMSA) for production instances."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQL2022",
+                                             "Severity":  "High",
+                                             "Area":  "Licensing",
+                                             "Finding":  "Developer edition detected.",
+                                             "Recommendation":  "Developer edition is not licensed for production workloads."
+                                         }
+                                     ],
+                        "Volumes":  [
+                                        {
+                                            "volume_mount_point":  "C:\\",
+                                            "logical_volume_name":  "",
+                                            "TotalGB":  452.11,
+                                            "FreeGB":  104.12,
+                                            "FreePct":  23.03
+                                        },
+                                        {
+                                            "volume_mount_point":  "D:\\",
+                                            "logical_volume_name":  "New Volume",
+                                            "TotalGB":  500.00,
+                                            "FreeGB":  295.34,
+                                            "FreePct":  59.07
+                                        }
+                                    ],
+                        "SuspectPages":  [
+
+                                         ],
+                        "Error":  null,
+                        "LinkedServers":  [
+
+                                          ],
+                        "Instance":  {
+                                         "MachineName":  "Murtaza",
+                                         "ServerName":  "Murtaza\\SQL2022",
+                                         "InstanceName":  "SQL2022",
+                                         "ProductVersion":  "16.0.1000.6",
+                                         "ProductLevel":  "RTM",
+                                         "ProductUpdateLevel":  null,
+                                         "ProductUpdateReference":  null,
+                                         "Edition":  "Developer Edition (64-bit)",
+                                         "EngineEdition":  3,
+                                         "LicenseType":  "DISABLED",
+                                         "NumLicenses":  null,
+                                         "IsHadrEnabled":  0,
+                                         "IsClustered":  0,
+                                         "Collation":  "SQL_Latin1_General_CP1_CI_AS",
+                                         "IsIntegratedSecurityOnly":  0,
+                                         "SqlServerStartTime":  "\/Date(1787560629770)\/",
+                                         "CpuCount":  8,
+                                         "HyperthreadRatio":  8,
+                                         "PhysicalMemoryMB":  32644.31,
+                                         "VirtualMachineType":  "HYPERVISOR",
+                                         "VersionString":  "Microsoft SQL Server 2022 (RTM) - 16.0.1000.6 (X64) \n\tOct  8 2022 05:58:25 \n\tCopyright (C) 2022 Microsoft Corporation\n\tDeveloper Edition (64-bit) on Windows 10 Pro 10.0 \u003cX64\u003e (Build 26200: ) (Hypervisor)\n"
+                                     }
+                    },
+                    {
+                        "Databases":  [
+                                          {
+                                              "database_id":  1,
+                                              "name":  "master",
+                                              "state_desc":  "ONLINE",
+                                              "recovery_model_desc":  "SIMPLE",
+                                              "compatibility_level":  160,
+                                              "is_read_only":  false,
+                                              "is_auto_close_on":  false,
+                                              "is_auto_shrink_on":  false,
+                                              "page_verify_option_desc":  "CHECKSUM",
+                                              "is_encrypted":  false,
+                                              "is_trustworthy_on":  false,
+                                              "is_auto_create_stats_on":  true,
+                                              "is_auto_update_stats_on":  true,
+                                              "user_access_desc":  "MULTI_USER",
+                                              "log_reuse_wait_desc":  "NOTHING",
+                                              "create_date":  "\/Date(1049775216390)\/",
+                                              "owner_name":  "sa",
+                                              "LastGoodCheckDbTime":  "\/Date(-2209006800000)\/",
+                                              "DataMB":  4.00,
+                                              "LogMB":  1.25
+                                          },
+                                          {
+                                              "database_id":  2,
+                                              "name":  "tempdb",
+                                              "state_desc":  "ONLINE",
+                                              "recovery_model_desc":  "SIMPLE",
+                                              "compatibility_level":  160,
+                                              "is_read_only":  false,
+                                              "is_auto_close_on":  false,
+                                              "is_auto_shrink_on":  false,
+                                              "page_verify_option_desc":  "CHECKSUM",
+                                              "is_encrypted":  false,
+                                              "is_trustworthy_on":  false,
+                                              "is_auto_create_stats_on":  true,
+                                              "is_auto_update_stats_on":  true,
+                                              "user_access_desc":  "MULTI_USER",
+                                              "log_reuse_wait_desc":  "NOTHING",
+                                              "create_date":  "\/Date(1787560641643)\/",
+                                              "owner_name":  "sa",
+                                              "LastGoodCheckDbTime":  "\/Date(-2209006800000)\/",
+                                              "DataMB":  8.00,
+                                              "LogMB":  8.00
+                                          },
+                                          {
+                                              "database_id":  3,
+                                              "name":  "model",
+                                              "state_desc":  "ONLINE",
+                                              "recovery_model_desc":  "SIMPLE",
+                                              "compatibility_level":  160,
+                                              "is_read_only":  false,
+                                              "is_auto_close_on":  false,
+                                              "is_auto_shrink_on":  false,
+                                              "page_verify_option_desc":  "CHECKSUM",
+                                              "is_encrypted":  false,
+                                              "is_trustworthy_on":  false,
+                                              "is_auto_create_stats_on":  true,
+                                              "is_auto_update_stats_on":  true,
+                                              "user_access_desc":  "MULTI_USER",
+                                              "log_reuse_wait_desc":  "NOTHING",
+                                              "create_date":  "\/Date(1049775216390)\/",
+                                              "owner_name":  "sa",
+                                              "LastGoodCheckDbTime":  "\/Date(-2209006800000)\/",
+                                              "DataMB":  8.00,
+                                              "LogMB":  8.00
+                                          },
+                                          {
+                                              "database_id":  4,
+                                              "name":  "msdb",
+                                              "state_desc":  "ONLINE",
+                                              "recovery_model_desc":  "SIMPLE",
+                                              "compatibility_level":  160,
+                                              "is_read_only":  false,
+                                              "is_auto_close_on":  false,
+                                              "is_auto_shrink_on":  false,
+                                              "page_verify_option_desc":  "CHECKSUM",
+                                              "is_encrypted":  false,
+                                              "is_trustworthy_on":  true,
+                                              "is_auto_create_stats_on":  true,
+                                              "is_auto_update_stats_on":  true,
+                                              "user_access_desc":  "MULTI_USER",
+                                              "log_reuse_wait_desc":  "NOTHING",
+                                              "create_date":  "\/Date(1665192717550)\/",
+                                              "owner_name":  "sa",
+                                              "LastGoodCheckDbTime":  "\/Date(-2209006800000)\/",
+                                              "DataMB":  15.31,
+                                              "LogMB":  1.00
+                                          },
+                                          {
+                                              "database_id":  5,
+                                              "name":  "EliteCarsInternational",
+                                              "state_desc":  "ONLINE",
+                                              "recovery_model_desc":  "SIMPLE",
+                                              "compatibility_level":  160,
+                                              "is_read_only":  false,
+                                              "is_auto_close_on":  true,
+                                              "is_auto_shrink_on":  false,
+                                              "page_verify_option_desc":  "CHECKSUM",
+                                              "is_encrypted":  false,
+                                              "is_trustworthy_on":  false,
+                                              "is_auto_create_stats_on":  true,
+                                              "is_auto_update_stats_on":  true,
+                                              "user_access_desc":  "MULTI_USER",
+                                              "log_reuse_wait_desc":  "NOTHING",
+                                              "create_date":  "\/Date(1746722326903)\/",
+                                              "owner_name":  "MURTAZA\\Murtaza",
+                                              "LastGoodCheckDbTime":  null,
+                                              "DataMB":  72.00,
+                                              "LogMB":  8.00
+                                          },
+                                          {
+                                              "database_id":  6,
+                                              "name":  "FISOHCM",
+                                              "state_desc":  "ONLINE",
+                                              "recovery_model_desc":  "SIMPLE",
+                                              "compatibility_level":  160,
+                                              "is_read_only":  false,
+                                              "is_auto_close_on":  true,
+                                              "is_auto_shrink_on":  false,
+                                              "page_verify_option_desc":  "CHECKSUM",
+                                              "is_encrypted":  false,
+                                              "is_trustworthy_on":  false,
+                                              "is_auto_create_stats_on":  true,
+                                              "is_auto_update_stats_on":  true,
+                                              "user_access_desc":  "MULTI_USER",
+                                              "log_reuse_wait_desc":  "NOTHING",
+                                              "create_date":  "\/Date(1783861022413)\/",
+                                              "owner_name":  "MURTAZA\\Murtaza",
+                                              "LastGoodCheckDbTime":  null,
+                                              "DataMB":  8.00,
+                                              "LogMB":  8.00
+                                          }
+                                      ],
+                        "Waits":  [
+                                      {
+                                          "wait_type":  "PREEMPTIVE_OS_QUERYREGISTRY",
+                                          "waiting_tasks_count":  20822,
+                                          "wait_time_ms":  11312,
+                                          "signal_wait_time_ms":  0,
+                                          "WaitPct":  40.76
+                                      },
+                                      {
+                                          "wait_type":  "PREEMPTIVE_XE_CALLBACKEXECUTE",
+                                          "waiting_tasks_count":  1786546,
+                                          "wait_time_ms":  5259,
+                                          "signal_wait_time_ms":  0,
+                                          "WaitPct":  18.95
+                                      },
+                                      {
+                                          "wait_type":  "THREADPOOL",
+                                          "waiting_tasks_count":  2429,
+                                          "wait_time_ms":  3592,
+                                          "signal_wait_time_ms":  0,
+                                          "WaitPct":  12.94
+                                      },
+                                      {
+                                          "wait_type":  "PREEMPTIVE_OS_FILEOPS",
+                                          "waiting_tasks_count":  476,
+                                          "wait_time_ms":  1106,
+                                          "signal_wait_time_ms":  0,
+                                          "WaitPct":  3.98
+                                      },
+                                      {
+                                          "wait_type":  "PAGEIOLATCH_SH",
+                                          "waiting_tasks_count":  1961,
+                                          "wait_time_ms":  932,
+                                          "signal_wait_time_ms":  43,
+                                          "WaitPct":  3.36
+                                      },
+                                      {
+                                          "wait_type":  "LCK_M_S",
+                                          "waiting_tasks_count":  2,
+                                          "wait_time_ms":  820,
+                                          "signal_wait_time_ms":  1,
+                                          "WaitPct":  2.95
+                                      },
+                                      {
+                                          "wait_type":  "PREEMPTIVE_OS_CRYPTOPS",
+                                          "waiting_tasks_count":  10,
+                                          "wait_time_ms":  589,
+                                          "signal_wait_time_ms":  0,
+                                          "WaitPct":  2.12
+                                      },
+                                      {
+                                          "wait_type":  "PREEMPTIVE_OS_AUTHENTICATIONOPS",
+                                          "waiting_tasks_count":  458,
+                                          "wait_time_ms":  488,
+                                          "signal_wait_time_ms":  0,
+                                          "WaitPct":  1.76
+                                      },
+                                      {
+                                          "wait_type":  "SOS_SCHEDULER_YIELD",
+                                          "waiting_tasks_count":  5008,
+                                          "wait_time_ms":  436,
+                                          "signal_wait_time_ms":  404,
+                                          "WaitPct":  1.57
+                                      },
+                                      {
+                                          "wait_type":  "PREEMPTIVE_OS_DEVICEOPS",
+                                          "waiting_tasks_count":  96,
+                                          "wait_time_ms":  400,
+                                          "signal_wait_time_ms":  0,
+                                          "WaitPct":  1.44
+                                      },
+                                      {
+                                          "wait_type":  "WRITELOG",
+                                          "waiting_tasks_count":  192,
+                                          "wait_time_ms":  357,
+                                          "signal_wait_time_ms":  171,
+                                          "WaitPct":  1.29
+                                      },
+                                      {
+                                          "wait_type":  "PREEMPTIVE_OS_VERIFYTRUST",
+                                          "waiting_tasks_count":  3,
+                                          "wait_time_ms":  244,
+                                          "signal_wait_time_ms":  0,
+                                          "WaitPct":  0.88
+                                      },
+                                      {
+                                          "wait_type":  "XE_BUFFERMGR_ALLPROCESSED_EVENT",
+                                          "waiting_tasks_count":  104,
+                                          "wait_time_ms":  189,
+                                          "signal_wait_time_ms":  46,
+                                          "WaitPct":  0.68
+                                      },
+                                      {
+                                          "wait_type":  "IO_COMPLETION",
+                                          "waiting_tasks_count":  188,
+                                          "wait_time_ms":  180,
+                                          "signal_wait_time_ms":  0,
+                                          "WaitPct":  0.65
+                                      },
+                                      {
+                                          "wait_type":  "PREEMPTIVE_OS_REPORTEVENT",
+                                          "waiting_tasks_count":  96,
+                                          "wait_time_ms":  168,
+                                          "signal_wait_time_ms":  0,
+                                          "WaitPct":  0.61
+                                      }
+                                  ],
+                        "Server":  "MURTAZA\\SQLEXPRESS",
+                        "Performance":  {
+                                            "PageLifeExpectancySec":  2781,
+                                            "MemoryGrantsPending":  0,
+                                            "ProcessesBlocked":  0,
+                                            "UserConnections":  2,
+                                            "TotalServerMemoryMB":  438.6,
+                                            "TargetServerMemoryMB":  13539.5,
+                                            "BatchRequestsPerSec":  0.5,
+                                            "CompilationsPerSec":  0,
+                                            "RecompilationsPerSec":  0,
+                                            "PageReadsPerSec":  7,
+                                            "PageWritesPerSec":  22,
+                                            "DeadlocksPerSec":  0,
+                                            "SampleSeconds":  2
+                                        },
+                        "Services":  [
+                                         {
+                                             "servicename":  "SQL Server (SQLEXPRESS)",
+                                             "startup_type_desc":  "Automatic",
+                                             "status_desc":  "Running",
+                                             "service_account":  "NT Service\\MSSQL$SQLEXPRESS",
+                                             "instant_file_initialization_enabled":  "Y"
+                                         },
+                                         {
+                                             "servicename":  "SQL Server Agent (SQLEXPRESS)",
+                                             "startup_type_desc":  "Disabled",
+                                             "status_desc":  "Stopped",
+                                             "service_account":  "NT AUTHORITY\\NETWORKSERVICE",
+                                             "instant_file_initialization_enabled":  "N"
+                                         }
+                                     ],
+                        "Sysadmins":  [
+                                          {
+                                              "name":  "sa",
+                                              "type_desc":  "SQL_LOGIN",
+                                              "is_disabled":  true,
+                                              "create_date":  "\/Date(1049775035460)\/"
+                                          },
+                                          {
+                                              "name":  "MURTAZA\\Murtaza",
+                                              "type_desc":  "WINDOWS_LOGIN",
+                                              "is_disabled":  false,
+                                              "create_date":  "\/Date(1726207201043)\/"
+                                          },
+                                          {
+                                              "name":  "NT SERVICE\\SQLWriter",
+                                              "type_desc":  "WINDOWS_LOGIN",
+                                              "is_disabled":  false,
+                                              "create_date":  "\/Date(1726207201057)\/"
+                                          },
+                                          {
+                                              "name":  "NT SERVICE\\Winmgmt",
+                                              "type_desc":  "WINDOWS_LOGIN",
+                                              "is_disabled":  false,
+                                              "create_date":  "\/Date(1726207201067)\/"
+                                          },
+                                          {
+                                              "name":  "MigratePlus_QA_User",
+                                              "type_desc":  "SQL_LOGIN",
+                                              "is_disabled":  false,
+                                              "create_date":  "\/Date(1784547494020)\/"
+                                          }
+                                      ],
+                        "Support":  {
+                                        "ExtendedEnd":  "2033-01-11",
+                                        "MainstreamEnd":  "2028-01-11",
+                                        "Status":  "Supported",
+                                        "Product":  "SQL Server 2022"
+                                    },
+                        "TraceFlags":  [
+                                           {
+                                               "TraceFlag":  8017,
+                                               "Status":  1,
+                                               "Global":  1,
+                                               "Session":  0
+                                           }
+                                       ],
+                        "Cost":  {
+                                     "AllocatedDataAndLogGB":  0.15,
+                                     "UserDatabaseCount":  2,
+                                     "CpuCount":  8,
+                                     "EstimatedLicensedCores":  8,
+                                     "LicenseType":  "DISABLED",
+                                     "NumLicensesProperty":  null,
+                                     "EstimatedCoreLicenseUsd":  0,
+                                     "EstimatedStorageUsdMonth":  0,
+                                     "Note":  "Dollar figures are estimates from the rates you passed. LicenseType/NumLicenses from SERVERPROPERTY is often unpopulated for core licensing."
+                                 },
+                        "Configuration":  [
+                                              {
+                                                  "name":  "remote access",
+                                                  "value_in_use":  1
+                                              },
+                                              {
+                                                  "name":  "cross db ownership chaining",
+                                                  "value_in_use":  0
+                                              },
+                                              {
+                                                  "name":  "show advanced options",
+                                                  "value_in_use":  1
+                                              },
+                                              {
+                                                  "name":  "cost threshold for parallelism",
+                                                  "value_in_use":  5
+                                              },
+                                              {
+                                                  "name":  "max degree of parallelism",
+                                                  "value_in_use":  0
+                                              },
+                                              {
+                                                  "name":  "min server memory (MB)",
+                                                  "value_in_use":  16
+                                              },
+                                              {
+                                                  "name":  "max server memory (MB)",
+                                                  "value_in_use":  2147483647
+                                              },
+                                              {
+                                                  "name":  "scan for startup procs",
+                                                  "value_in_use":  0
+                                              },
+                                              {
+                                                  "name":  "clr enabled",
+                                                  "value_in_use":  0
+                                              },
+                                              {
+                                                  "name":  "remote admin connections",
+                                                  "value_in_use":  0
+                                              },
+                                              {
+                                                  "name":  "optimize for ad hoc workloads",
+                                                  "value_in_use":  0
+                                              },
+                                              {
+                                                  "name":  "Database Mail XPs",
+                                                  "value_in_use":  0
+                                              },
+                                              {
+                                                  "name":  "Ole Automation Procedures",
+                                                  "value_in_use":  0
+                                              },
+                                              {
+                                                  "name":  "xp_cmdshell",
+                                                  "value_in_use":  0
+                                              },
+                                              {
+                                                  "name":  "contained database authentication",
+                                                  "value_in_use":  0
+                                              }
+                                          ],
+                        "SqlLogins":  [
+                                          {
+                                              "name":  "sa",
+                                              "is_disabled":  true,
+                                              "is_policy_checked":  true,
+                                              "is_expiration_checked":  false,
+                                              "is_sysadmin":  1,
+                                              "create_date":  "\/Date(1049775035460)\/",
+                                              "modify_date":  "\/Date(1726207201133)\/"
+                                          },
+                                          {
+                                              "name":  "MigratePlus_QA_User",
+                                              "is_disabled":  false,
+                                              "is_policy_checked":  true,
+                                              "is_expiration_checked":  true,
+                                              "is_sysadmin":  1,
+                                              "create_date":  "\/Date(1784547494020)\/",
+                                              "modify_date":  "\/Date(1784636754097)\/"
+                                          }
+                                      ],
+                        "Jobs":  [
+                                     {
+                                         "JobName":  "syspolicy_purge_history",
+                                         "enabled":  1,
+                                         "run_status":  null,
+                                         "LastRunStatus":  "Unknown",
+                                         "LastRun":  null,
+                                         "Message":  null
+                                     }
+                                 ],
+                        "Backups":  [
+                                        {
+                                            "database_name":  "EliteCarsInternational",
+                                            "LastFull":  "\/Date(1747505243000)\/",
+                                            "LastDiff":  null,
+                                            "LastLog":  null
+                                        },
+                                        {
+                                            "database_name":  "FISOHCM",
+                                            "LastFull":  "\/Date(1736259564000)\/",
+                                            "LastDiff":  null,
+                                            "LastLog":  null
+                                        },
+                                        {
+                                            "database_name":  "master",
+                                            "LastFull":  "\/Date(1726823197000)\/",
+                                            "LastDiff":  null,
+                                            "LastLog":  null
+                                        },
+                                        {
+                                            "database_name":  "model",
+                                            "LastFull":  "\/Date(1726823197000)\/",
+                                            "LastDiff":  null,
+                                            "LastLog":  null
+                                        },
+                                        {
+                                            "database_name":  "msdb",
+                                            "LastFull":  "\/Date(1726823197000)\/",
+                                            "LastDiff":  null,
+                                            "LastLog":  null
+                                        }
+                                    ],
+                        "Host":  [
+                                     {
+                                         "host_platform":  "Windows",
+                                         "host_distribution":  "Windows 10 Pro",
+                                         "host_release":  "10.0"
+                                     }
+                                 ],
+                        "AvailabilityGroups":  [
+
+                                               ],
+                        "Reachable":  true,
+                        "CollectedUtc":  "\/Date(1787581020992)\/",
+                        "Findings":  [
+                                         {
+                                             "Server":  "MURTAZA\\SQLEXPRESS",
+                                             "Severity":  "Low",
+                                             "Area":  "Standards",
+                                             "Finding":  "optimize for ad hoc workloads is OFF.",
+                                             "Recommendation":  "Enable this on most OLTP systems to reduce plan-cache bloat from one-shot queries."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQLEXPRESS",
+                                             "Severity":  "Medium",
+                                             "Area":  "Performance",
+                                             "Finding":  "max server memory is 2147483647 MB vs 32644 MB physical.",
+                                             "Recommendation":  "Cap max server memory to leave RAM for the OS (typically 4 GB+ on dedicated hosts, more with other services)."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQLEXPRESS",
+                                             "Severity":  "Medium",
+                                             "Area":  "SLA",
+                                             "Finding":  "Database \u0027master\u0027 has no LastGoodCheckDbTime.",
+                                             "Recommendation":  "Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQLEXPRESS",
+                                             "Severity":  "Critical",
+                                             "Area":  "SLA",
+                                             "Finding":  "Database \u0027master\u0027 last full backup is 16877 hours old (SLA 24h).",
+                                             "Recommendation":  "Fix the backup job and verify backups are restorable off-box."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQLEXPRESS",
+                                             "Severity":  "Medium",
+                                             "Area":  "SLA",
+                                             "Finding":  "Database \u0027model\u0027 has no LastGoodCheckDbTime.",
+                                             "Recommendation":  "Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQLEXPRESS",
+                                             "Severity":  "Critical",
+                                             "Area":  "SLA",
+                                             "Finding":  "Database \u0027model\u0027 last full backup is 16877 hours old (SLA 24h).",
+                                             "Recommendation":  "Fix the backup job and verify backups are restorable off-box."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQLEXPRESS",
+                                             "Severity":  "Medium",
+                                             "Area":  "SLA",
+                                             "Finding":  "Database \u0027msdb\u0027 has no LastGoodCheckDbTime.",
+                                             "Recommendation":  "Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQLEXPRESS",
+                                             "Severity":  "Critical",
+                                             "Area":  "SLA",
+                                             "Finding":  "Database \u0027msdb\u0027 last full backup is 16877 hours old (SLA 24h).",
+                                             "Recommendation":  "Fix the backup job and verify backups are restorable off-box."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQLEXPRESS",
+                                             "Severity":  "Medium",
+                                             "Area":  "Standards",
+                                             "Finding":  "Database \u0027EliteCarsInternational\u0027 has AUTO_CLOSE on.",
+                                             "Recommendation":  "Disable AUTO_CLOSE on server databases; it causes reopen latency."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQLEXPRESS",
+                                             "Severity":  "Medium",
+                                             "Area":  "SLA",
+                                             "Finding":  "Database \u0027EliteCarsInternational\u0027 has no LastGoodCheckDbTime.",
+                                             "Recommendation":  "Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQLEXPRESS",
+                                             "Severity":  "Critical",
+                                             "Area":  "SLA",
+                                             "Finding":  "Database \u0027EliteCarsInternational\u0027 last full backup is 11132 hours old (SLA 24h).",
+                                             "Recommendation":  "Fix the backup job and verify backups are restorable off-box."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQLEXPRESS",
+                                             "Severity":  "Medium",
+                                             "Area":  "Standards",
+                                             "Finding":  "Database \u0027FISOHCM\u0027 has AUTO_CLOSE on.",
+                                             "Recommendation":  "Disable AUTO_CLOSE on server databases; it causes reopen latency."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQLEXPRESS",
+                                             "Severity":  "Medium",
+                                             "Area":  "SLA",
+                                             "Finding":  "Database \u0027FISOHCM\u0027 has no LastGoodCheckDbTime.",
+                                             "Recommendation":  "Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQLEXPRESS",
+                                             "Severity":  "Critical",
+                                             "Area":  "SLA",
+                                             "Finding":  "Database \u0027FISOHCM\u0027 last full backup is 14256 hours old (SLA 24h).",
+                                             "Recommendation":  "Fix the backup job and verify backups are restorable off-box."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQLEXPRESS",
+                                             "Severity":  "Info",
+                                             "Area":  "Security",
+                                             "Finding":  "Mixed authentication is enabled (1 enabled SQL logins).",
+                                             "Recommendation":  "Prefer Windows authentication only where possible."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQLEXPRESS",
+                                             "Severity":  "Low",
+                                             "Area":  "Security",
+                                             "Finding":  "Engine service account is NT Service\\MSSQL$SQLEXPRESS.",
+                                             "Recommendation":  "Use a Group Managed Service Account (gMSA) for production instances."
+                                         },
+                                         {
+                                             "Server":  "MURTAZA\\SQLEXPRESS",
+                                             "Severity":  "Medium",
+                                             "Area":  "Licensing",
+                                             "Finding":  "Express edition detected (resource limits apply).",
+                                             "Recommendation":  "Confirm Express is appropriate; it is not sized for most production OLTP estates."
+                                         }
+                                     ],
+                        "Volumes":  [
+                                        {
+                                            "volume_mount_point":  "C:\\",
+                                            "logical_volume_name":  "",
+                                            "TotalGB":  452.11,
+                                            "FreeGB":  104.12,
+                                            "FreePct":  23.03
+                                        }
+                                    ],
+                        "SuspectPages":  [
+
+                                         ],
+                        "Error":  null,
+                        "LinkedServers":  [
+
+                                          ],
+                        "Instance":  {
+                                         "MachineName":  "Murtaza",
+                                         "ServerName":  "Murtaza\\SQLEXPRESS",
+                                         "InstanceName":  "SQLEXPRESS",
+                                         "ProductVersion":  "16.0.1000.6",
+                                         "ProductLevel":  "RTM",
+                                         "ProductUpdateLevel":  null,
+                                         "ProductUpdateReference":  null,
+                                         "Edition":  "Express Edition (64-bit)",
+                                         "EngineEdition":  4,
+                                         "LicenseType":  "DISABLED",
+                                         "NumLicenses":  null,
+                                         "IsHadrEnabled":  0,
+                                         "IsClustered":  0,
+                                         "Collation":  "SQL_Latin1_General_CP1_CI_AS",
+                                         "IsIntegratedSecurityOnly":  0,
+                                         "SqlServerStartTime":  "\/Date(1787560636713)\/",
+                                         "CpuCount":  8,
+                                         "HyperthreadRatio":  8,
+                                         "PhysicalMemoryMB":  32644.31,
+                                         "VirtualMachineType":  "HYPERVISOR",
+                                         "VersionString":  "Microsoft SQL Server 2022 (RTM) - 16.0.1000.6 (X64) \n\tOct  8 2022 05:58:25 \n\tCopyright (C) 2022 Microsoft Corporation\n\tExpress Edition (64-bit) on Windows 10 Pro 10.0 \u003cX64\u003e (Build 26200: ) (Hypervisor)\n"
+                                     }
+                    }
+                ]
+}

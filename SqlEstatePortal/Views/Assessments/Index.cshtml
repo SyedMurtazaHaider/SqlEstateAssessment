@@ -1,0 +1,42 @@
+@model IEnumerable<SqlEstatePortal.Models.AssessmentRun>
+@{
+    ViewData["Title"] = "Assessments";
+    var canRun = await Permissions.HasAsync(User, AppModules.Assessments, "insert");
+}
+<div class="page-toolbar">
+    <h1>Assessments</h1>
+    @if (canRun)
+    {
+        <form asp-action="Run" method="post">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-primary" onclick="this.disabled=true; this.innerText='Running...'; this.form.submit();">
+                Run PowerShell assessment
+            </button>
+        </form>
+    }
+</div>
+<div class="panel">
+    <p class="muted">Runs <code>Assess-SqlEstate.ps1</code>, imports JSON findings into SQL Server, and keeps full history.</p>
+    <table class="table table-hover align-middle">
+        <thead>
+        @await Html.PartialAsync("_ColumnFilters", new[] { "Run #", "Started", "Status", "By", "Servers", "Critical", "High", "Medium", "Low", "" })
+        </thead>
+        <tbody>
+        @foreach (var run in Model)
+        {
+            <tr>
+                <td>@run.Id</td>
+                <td>@run.StartedAt.ToLocalTime().ToString("g")</td>
+                <td><span class="badge @(run.Status == "Succeeded" ? "text-bg-success" : run.Status == "Failed" ? "text-bg-danger" : "text-bg-warning")">@run.Status</span></td>
+                <td>@run.TriggeredBy</td>
+                <td>@run.ReachableCount / @run.ServerCount</td>
+                <td>@run.CriticalCount</td>
+                <td>@run.HighCount</td>
+                <td>@run.MediumCount</td>
+                <td>@run.LowCount</td>
+                <td class="text-end"><a class="btn btn-sm btn-outline-primary" asp-action="Details" asp-route-id="@run.Id">Open</a></td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,249 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>SQL Estate Assessment</title>
+<style>
+  body { margin: 0; font-family: "Segoe UI", Calibri, sans-serif; color: #1c2430; background: #f3f6f9; }
+  header { padding: 32px 40px 16px; }
+  header h1 { margin: 0 0 6px; font-size: 28px; color: #1f4e79; }
+  header p { margin: 0; color: #5c6b7a; }
+  main { padding: 0 40px 48px; }
+  h2 { margin: 28px 0 10px; font-size: 18px; border-bottom: 2px solid #1f4e79; padding-bottom: 4px; }
+  h3 { margin: 18px 0 8px; font-size: 15px; }
+  table { border-collapse: collapse; width: 100%; background: #fff; margin: 8px 0 16px; }
+  th, td { border: 1px solid #d5dde6; padding: 6px 8px; text-align: left; vertical-align: top; font-size: 13px; }
+  th { background: #e8eef4; }
+  .muted { color: #5c6b7a; }
+  .sev-critical { color: #8b1e1e; font-weight: 600; }
+  .sev-high { color: #9a4a00; font-weight: 600; }
+  .sev-medium { color: #6b5a00; }
+  .sev-low { color: #2b5d34; }
+  .note { font-size: 12px; color: #5c6b7a; }
+</style>
+</head>
+<body>
+<header>
+  <h1>SQL Estate Assessment</h1>
+  <p>Single Source of Truth - read-only collection - 08/24/2026 18:25:01</p>
+</header>
+<main>
+  <h2>Executive summary</h2>
+  <table>
+<thead><tr><th>Metric</th><th>Value</th></tr></thead><tbody>
+<tr><td>Servers assessed</td><td>2</td></tr>
+<tr><td>Reachable</td><td>2</td></tr>
+<tr><td>Unreachable</td><td>0</td></tr>
+<tr><td>End of support</td><td>0</td></tr>
+<tr><td>Allocated data+log (GB)</td><td>105.11</td></tr>
+<tr><td>Estimated licensed cores</td><td>16</td></tr>
+<tr><td>Critical findings</td><td>20</td></tr>
+<tr><td>High findings</td><td>12</td></tr>
+<tr><td>Medium findings</td><td>25</td></tr>
+<tr><td>Low findings</td><td>5</td></tr>
+</tbody></table>
+
+  <p class="note">Backup SLA used: full 24h, log 60m. No data, schema, configuration, or infrastructure was modified.</p>
+
+  <h2>Findings, risks, and recommendations</h2>
+  <table>
+<thead><tr><th>Severity</th><th>Area</th><th>Server</th><th>Finding</th><th>Recommendation</th></tr></thead><tbody>
+<tr><td class="sev-critical">Critical</td><td>SLA</td><td>MURTAZA\SQL2022</td><td>Database &#39;DocManagementDb&#39; last full backup is 268 hours old (SLA 24h).</td><td>Fix the backup job and verify backups are restorable off-box.</td></tr>
+<tr><td class="sev-critical">Critical</td><td>SLA</td><td>MURTAZA\SQL2022</td><td>Database &#39;HealthCare_2&#39; has no full backup recorded in msdb.</td><td>Take a full backup immediately and enroll the database in the estate backup SLA.</td></tr>
+<tr><td class="sev-critical">Critical</td><td>SLA</td><td>MURTAZA\SQL2022</td><td>Database &#39;HealthCare_3&#39; has no full backup recorded in msdb.</td><td>Take a full backup immediately and enroll the database in the estate backup SLA.</td></tr>
+<tr><td class="sev-critical">Critical</td><td>SLA</td><td>MURTAZA\SQL2022</td><td>Database &#39;varianenm&#39; last full backup is 9338 hours old (SLA 24h).</td><td>Fix the backup job and verify backups are restorable off-box.</td></tr>
+<tr><td class="sev-critical">Critical</td><td>SLA</td><td>MURTAZA\SQL2022</td><td>Database &#39;HealthCare_4&#39; has no full backup recorded in msdb.</td><td>Take a full backup immediately and enroll the database in the estate backup SLA.</td></tr>
+<tr><td class="sev-critical">Critical</td><td>SLA</td><td>MURTAZA\SQL2022</td><td>Database &#39;HealthCare3&#39; has no full backup recorded in msdb.</td><td>Take a full backup immediately and enroll the database in the estate backup SLA.</td></tr>
+<tr><td class="sev-critical">Critical</td><td>SLA</td><td>MURTAZA\SQL2022</td><td>Database &#39;HealthCare1&#39; has no full backup recorded in msdb.</td><td>Take a full backup immediately and enroll the database in the estate backup SLA.</td></tr>
+<tr><td class="sev-critical">Critical</td><td>SLA</td><td>MURTAZA\SQL2022</td><td>Database &#39;CountyMedical&#39; has no full backup recorded in msdb.</td><td>Take a full backup immediately and enroll the database in the estate backup SLA.</td></tr>
+<tr><td class="sev-critical">Critical</td><td>SLA</td><td>MURTAZA\SQL2022</td><td>Database &#39;HealthCare&#39; has no full backup recorded in msdb.</td><td>Take a full backup immediately and enroll the database in the estate backup SLA.</td></tr>
+<tr><td class="sev-critical">Critical</td><td>SLA</td><td>MURTAZA\SQL2022</td><td>Database &#39;HealthCare_6&#39; has no full backup recorded in msdb.</td><td>Take a full backup immediately and enroll the database in the estate backup SLA.</td></tr>
+<tr><td class="sev-critical">Critical</td><td>SLA</td><td>MURTAZA\SQL2022</td><td>Database &#39;master&#39; has no full backup recorded in msdb.</td><td>Take a full backup immediately and enroll the database in the estate backup SLA.</td></tr>
+<tr><td class="sev-critical">Critical</td><td>SLA</td><td>MURTAZA\SQL2022</td><td>Database &#39;model&#39; has no full backup recorded in msdb.</td><td>Take a full backup immediately and enroll the database in the estate backup SLA.</td></tr>
+<tr><td class="sev-critical">Critical</td><td>SLA</td><td>MURTAZA\SQL2022</td><td>Database &#39;msdb&#39; has no full backup recorded in msdb.</td><td>Take a full backup immediately and enroll the database in the estate backup SLA.</td></tr>
+<tr><td class="sev-critical">Critical</td><td>SLA</td><td>MURTAZA\SQL2022</td><td>Database &#39;SqlEstatePortal&#39; has no full backup recorded in msdb.</td><td>Take a full backup immediately and enroll the database in the estate backup SLA.</td></tr>
+<tr><td class="sev-critical">Critical</td><td>SLA</td><td>MURTAZA\SQL2022</td><td>Database &#39;AuntieAI&#39; has no full backup recorded in msdb.</td><td>Take a full backup immediately and enroll the database in the estate backup SLA.</td></tr>
+<tr><td class="sev-critical">Critical</td><td>SLA</td><td>MURTAZA\SQLEXPRESS</td><td>Database &#39;FISOHCM&#39; last full backup is 14255 hours old (SLA 24h).</td><td>Fix the backup job and verify backups are restorable off-box.</td></tr>
+<tr><td class="sev-critical">Critical</td><td>SLA</td><td>MURTAZA\SQLEXPRESS</td><td>Database &#39;model&#39; last full backup is 16876 hours old (SLA 24h).</td><td>Fix the backup job and verify backups are restorable off-box.</td></tr>
+<tr><td class="sev-critical">Critical</td><td>SLA</td><td>MURTAZA\SQLEXPRESS</td><td>Database &#39;EliteCarsInternational&#39; last full backup is 11131 hours old (SLA 24h).</td><td>Fix the backup job and verify backups are restorable off-box.</td></tr>
+<tr><td class="sev-critical">Critical</td><td>SLA</td><td>MURTAZA\SQLEXPRESS</td><td>Database &#39;msdb&#39; last full backup is 16876 hours old (SLA 24h).</td><td>Fix the backup job and verify backups are restorable off-box.</td></tr>
+<tr><td class="sev-critical">Critical</td><td>SLA</td><td>MURTAZA\SQLEXPRESS</td><td>Database &#39;master&#39; last full backup is 16876 hours old (SLA 24h).</td><td>Fix the backup job and verify backups are restorable off-box.</td></tr>
+<tr><td class="sev-high">High</td><td>Licensing</td><td>MURTAZA\SQL2022</td><td>Developer edition detected.</td><td>Developer edition is not licensed for production workloads.</td></tr>
+<tr><td class="sev-high">High</td><td>SLA</td><td>MURTAZA\SQL2022</td><td>Database &#39;HealthCare_3&#39; is FULL but has no log backup.</td><td>Start log backups or switch to SIMPLE if point-in-time recovery is not required.</td></tr>
+<tr><td class="sev-high">High</td><td>SLA</td><td>MURTAZA\SQL2022</td><td>Database &#39;HealthCare_6&#39; is FULL but has no log backup.</td><td>Start log backups or switch to SIMPLE if point-in-time recovery is not required.</td></tr>
+<tr><td class="sev-high">High</td><td>SLA</td><td>MURTAZA\SQL2022</td><td>Database &#39;HealthCare_4&#39; is FULL but has no log backup.</td><td>Start log backups or switch to SIMPLE if point-in-time recovery is not required.</td></tr>
+<tr><td class="sev-high">High</td><td>SLA</td><td>MURTAZA\SQL2022</td><td>Database &#39;HealthCare_2&#39; is FULL but has no log backup.</td><td>Start log backups or switch to SIMPLE if point-in-time recovery is not required.</td></tr>
+<tr><td class="sev-high">High</td><td>SLA</td><td>MURTAZA\SQL2022</td><td>Database &#39;SqlEstatePortal&#39; is FULL but has no log backup.</td><td>Start log backups or switch to SIMPLE if point-in-time recovery is not required.</td></tr>
+<tr><td class="sev-high">High</td><td>SLA</td><td>MURTAZA\SQL2022</td><td>Database &#39;CountyMedical&#39; is FULL but has no log backup.</td><td>Start log backups or switch to SIMPLE if point-in-time recovery is not required.</td></tr>
+<tr><td class="sev-high">High</td><td>SLA</td><td>MURTAZA\SQL2022</td><td>Database &#39;AuntieAI&#39; is FULL but has no log backup.</td><td>Start log backups or switch to SIMPLE if point-in-time recovery is not required.</td></tr>
+<tr><td class="sev-high">High</td><td>SLA</td><td>MURTAZA\SQL2022</td><td>Database &#39;HealthCare&#39; is FULL but has no log backup.</td><td>Start log backups or switch to SIMPLE if point-in-time recovery is not required.</td></tr>
+<tr><td class="sev-high">High</td><td>SLA</td><td>MURTAZA\SQL2022</td><td>Database &#39;DocManagementDb&#39; is FULL but has no log backup.</td><td>Start log backups or switch to SIMPLE if point-in-time recovery is not required.</td></tr>
+<tr><td class="sev-high">High</td><td>SLA</td><td>MURTAZA\SQL2022</td><td>Database &#39;HealthCare3&#39; is FULL but has no log backup.</td><td>Start log backups or switch to SIMPLE if point-in-time recovery is not required.</td></tr>
+<tr><td class="sev-high">High</td><td>SLA</td><td>MURTAZA\SQL2022</td><td>Database &#39;HealthCare1&#39; is FULL but has no log backup.</td><td>Start log backups or switch to SIMPLE if point-in-time recovery is not required.</td></tr>
+<tr><td class="sev-medium">Medium</td><td>Performance</td><td>MURTAZA\SQL2022</td><td>max server memory is 2147483647 MB vs 32644 MB physical.</td><td>Cap max server memory to leave RAM for the OS (typically 4 GB+ on dedicated hosts, more with other services).</td></tr>
+<tr><td class="sev-medium">Medium</td><td>SLA</td><td>MURTAZA\SQL2022</td><td>Database &#39;SqlEstatePortal&#39; has no LastGoodCheckDbTime.</td><td>Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds.</td></tr>
+<tr><td class="sev-medium">Medium</td><td>SLA</td><td>MURTAZA\SQL2022</td><td>Database &#39;AuntieAI&#39; has no LastGoodCheckDbTime.</td><td>Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds.</td></tr>
+<tr><td class="sev-medium">Medium</td><td>SLA</td><td>MURTAZA\SQL2022</td><td>Database &#39;master&#39; has no LastGoodCheckDbTime.</td><td>Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds.</td></tr>
+<tr><td class="sev-medium">Medium</td><td>SLA</td><td>MURTAZA\SQL2022</td><td>Database &#39;varianenm&#39; has no LastGoodCheckDbTime.</td><td>Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds.</td></tr>
+<tr><td class="sev-medium">Medium</td><td>SLA</td><td>MURTAZA\SQL2022</td><td>Database &#39;HealthCare1&#39; has no LastGoodCheckDbTime.</td><td>Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds.</td></tr>
+<tr><td class="sev-medium">Medium</td><td>SLA</td><td>MURTAZA\SQL2022</td><td>Database &#39;model&#39; has no LastGoodCheckDbTime.</td><td>Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds.</td></tr>
+<tr><td class="sev-medium">Medium</td><td>SLA</td><td>MURTAZA\SQL2022</td><td>Database &#39;msdb&#39; has no LastGoodCheckDbTime.</td><td>Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds.</td></tr>
+<tr><td class="sev-medium">Medium</td><td>SLA</td><td>MURTAZA\SQL2022</td><td>Database &#39;HealthCare_6&#39; has no LastGoodCheckDbTime.</td><td>Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds.</td></tr>
+<tr><td class="sev-medium">Medium</td><td>SLA</td><td>MURTAZA\SQL2022</td><td>Database &#39;HealthCare&#39; has no LastGoodCheckDbTime.</td><td>Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds.</td></tr>
+<tr><td class="sev-medium">Medium</td><td>SLA</td><td>MURTAZA\SQL2022</td><td>Database &#39;HealthCare3&#39; has no LastGoodCheckDbTime.</td><td>Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds.</td></tr>
+<tr><td class="sev-medium">Medium</td><td>SLA</td><td>MURTAZA\SQL2022</td><td>Database &#39;CountyMedical&#39; has no LastGoodCheckDbTime.</td><td>Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds.</td></tr>
+<tr><td class="sev-medium">Medium</td><td>SLA</td><td>MURTAZA\SQL2022</td><td>Database &#39;DocManagementDb&#39; has no LastGoodCheckDbTime.</td><td>Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds.</td></tr>
+<tr><td class="sev-medium">Medium</td><td>SLA</td><td>MURTAZA\SQL2022</td><td>Database &#39;HealthCare_3&#39; has no LastGoodCheckDbTime.</td><td>Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds.</td></tr>
+<tr><td class="sev-medium">Medium</td><td>SLA</td><td>MURTAZA\SQL2022</td><td>Database &#39;HealthCare_2&#39; has no LastGoodCheckDbTime.</td><td>Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds.</td></tr>
+<tr><td class="sev-medium">Medium</td><td>SLA</td><td>MURTAZA\SQL2022</td><td>Database &#39;HealthCare_4&#39; has no LastGoodCheckDbTime.</td><td>Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds.</td></tr>
+<tr><td class="sev-medium">Medium</td><td>Licensing</td><td>MURTAZA\SQLEXPRESS</td><td>Express edition detected (resource limits apply).</td><td>Confirm Express is appropriate; it is not sized for most production OLTP estates.</td></tr>
+<tr><td class="sev-medium">Medium</td><td>Performance</td><td>MURTAZA\SQLEXPRESS</td><td>max server memory is 2147483647 MB vs 32644 MB physical.</td><td>Cap max server memory to leave RAM for the OS (typically 4 GB+ on dedicated hosts, more with other services).</td></tr>
+<tr><td class="sev-medium">Medium</td><td>SLA</td><td>MURTAZA\SQLEXPRESS</td><td>Database &#39;msdb&#39; has no LastGoodCheckDbTime.</td><td>Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds.</td></tr>
+<tr><td class="sev-medium">Medium</td><td>SLA</td><td>MURTAZA\SQLEXPRESS</td><td>Database &#39;EliteCarsInternational&#39; has no LastGoodCheckDbTime.</td><td>Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds.</td></tr>
+<tr><td class="sev-medium">Medium</td><td>SLA</td><td>MURTAZA\SQLEXPRESS</td><td>Database &#39;FISOHCM&#39; has no LastGoodCheckDbTime.</td><td>Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds.</td></tr>
+<tr><td class="sev-medium">Medium</td><td>SLA</td><td>MURTAZA\SQLEXPRESS</td><td>Database &#39;master&#39; has no LastGoodCheckDbTime.</td><td>Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds.</td></tr>
+<tr><td class="sev-medium">Medium</td><td>SLA</td><td>MURTAZA\SQLEXPRESS</td><td>Database &#39;model&#39; has no LastGoodCheckDbTime.</td><td>Run DBCC CHECKDB and capture last-known-good; property is unavailable on some older builds.</td></tr>
+<tr><td class="sev-medium">Medium</td><td>Standards</td><td>MURTAZA\SQLEXPRESS</td><td>Database &#39;FISOHCM&#39; has AUTO_CLOSE on.</td><td>Disable AUTO_CLOSE on server databases; it causes reopen latency.</td></tr>
+<tr><td class="sev-medium">Medium</td><td>Standards</td><td>MURTAZA\SQLEXPRESS</td><td>Database &#39;EliteCarsInternational&#39; has AUTO_CLOSE on.</td><td>Disable AUTO_CLOSE on server databases; it causes reopen latency.</td></tr>
+<tr><td class="sev-low">Low</td><td>Cost</td><td>MURTAZA\SQL2022</td><td>Backup compression is not the instance default.</td><td>Enable backup compression default to reduce backup storage and duration (test CPU impact).</td></tr>
+<tr><td class="sev-low">Low</td><td>Security</td><td>MURTAZA\SQL2022</td><td>Engine service account is NT Service\MSSQL$SQL2022.</td><td>Use a Group Managed Service Account (gMSA) for production instances.</td></tr>
+<tr><td class="sev-low">Low</td><td>Standards</td><td>MURTAZA\SQL2022</td><td>optimize for ad hoc workloads is OFF.</td><td>Enable this on most OLTP systems to reduce plan-cache bloat from one-shot queries.</td></tr>
+<tr><td class="sev-low">Low</td><td>Security</td><td>MURTAZA\SQLEXPRESS</td><td>Engine service account is NT Service\MSSQL$SQLEXPRESS.</td><td>Use a Group Managed Service Account (gMSA) for production instances.</td></tr>
+<tr><td class="sev-low">Low</td><td>Standards</td><td>MURTAZA\SQLEXPRESS</td><td>optimize for ad hoc workloads is OFF.</td><td>Enable this on most OLTP systems to reduce plan-cache bloat from one-shot queries.</td></tr>
+<tr><td class="sev-info">Info</td><td>Security</td><td>MURTAZA\SQL2022</td><td>Mixed authentication is enabled (1 enabled SQL logins).</td><td>Prefer Windows authentication only where possible.</td></tr>
+<tr><td class="sev-info">Info</td><td>Security</td><td>MURTAZA\SQLEXPRESS</td><td>Mixed authentication is enabled (1 enabled SQL logins).</td><td>Prefer Windows authentication only where possible.</td></tr>
+</tbody></table>
+
+
+  <h2>Estate status</h2>
+  <table>
+<thead><tr><th>Server</th><th>Reachable</th><th>Product</th><th>Support</th><th>Edition</th><th>Version</th><th>Cpu</th><th>MemoryMB</th><th>Started</th><th>Error</th></tr></thead><tbody>
+<tr><td>MURTAZA\SQL2022</td><td>Yes</td><td>SQL Server 2022</td><td>Supported</td><td>Developer Edition (64-bit)</td><td>16.0.1000.6 RTM </td><td>8</td><td>32,644.31</td><td>2026-08-24 13:37</td><td></td></tr>
+<tr><td>MURTAZA\SQLEXPRESS</td><td>Yes</td><td>SQL Server 2022</td><td>Supported</td><td>Express Edition (64-bit)</td><td>16.0.1000.6 RTM </td><td>8</td><td>32,644.31</td><td>2026-08-24 13:37</td><td></td></tr>
+</tbody></table>
+<h2>MURTAZA\SQL2022</h2><h3>Cost drivers</h3><table>
+<thead><tr><th>AllocatedDataAndLogGB</th><th>UserDatabaseCount</th><th>CpuCount</th><th>EstimatedLicensedCores</th><th>LicenseType</th><th>NumLicensesProperty</th><th>EstimatedCoreLicenseUsd</th><th>EstimatedStorageUsdMonth</th><th>Note</th></tr></thead><tbody>
+<tr><td>104.96</td><td>12</td><td>8</td><td>8</td><td>DISABLED</td><td></td><td>0.00</td><td>0.00</td><td>Dollar figures are estimates from the rates you passed. LicenseType/NumLicenses from SERVERPROPERTY is often unpopulated for core licensing.</td></tr>
+</tbody></table>
+<h3>Performance snapshot</h3><table>
+<thead><tr><th>PageLifeExpectancySec</th><th>MemoryGrantsPending</th><th>ProcessesBlocked</th><th>UserConnections</th><th>TotalServerMemoryMB</th><th>TargetServerMemoryMB</th><th>BatchRequestsPerSec</th><th>CompilationsPerSec</th><th>RecompilationsPerSec</th><th>PageReadsPerSec</th><th>PageWritesPerSec</th><th>DeadlocksPerSec</th><th>SampleSeconds</th></tr></thead><tbody>
+<tr><td>1360</td><td>0</td><td>0</td><td>4</td><td>560.30</td><td>14,576.10</td><td>0.50</td><td>0.00</td><td>0.00</td><td>22.50</td><td>0.00</td><td>0.00</td><td>2</td></tr>
+</tbody></table>
+<h3>Volumes</h3><table>
+<thead><tr><th>volume_mount_point</th><th>logical_volume_name</th><th>TotalGB</th><th>FreeGB</th><th>FreePct</th></tr></thead><tbody>
+<tr><td>C:\</td><td></td><td>452.11</td><td>103.98</td><td>23.00</td></tr>
+<tr><td>D:\</td><td>New Volume</td><td>500.00</td><td>295.34</td><td>59.07</td></tr>
+</tbody></table>
+<h3>Databases</h3><table>
+<thead><tr><th>name</th><th>state_desc</th><th>recovery_model_desc</th><th>compatibility_level</th><th>page_verify_option_desc</th><th>is_encrypted</th><th>DataMB</th><th>LogMB</th><th>LastGoodCheckDbTime</th><th>owner_name</th></tr></thead><tbody>
+<tr><td>master</td><td>ONLINE</td><td>SIMPLE</td><td>160</td><td>CHECKSUM</td><td>No</td><td>4.00</td><td>1.25</td><td>1900-01-01 00:00</td><td>sa</td></tr>
+<tr><td>tempdb</td><td>ONLINE</td><td>SIMPLE</td><td>160</td><td>CHECKSUM</td><td>No</td><td>64.00</td><td>8.00</td><td>1900-01-01 00:00</td><td>sa</td></tr>
+<tr><td>model</td><td>ONLINE</td><td>FULL</td><td>160</td><td>CHECKSUM</td><td>No</td><td>8.00</td><td>8.00</td><td>1900-01-01 00:00</td><td>sa</td></tr>
+<tr><td>msdb</td><td>ONLINE</td><td>SIMPLE</td><td>160</td><td>CHECKSUM</td><td>No</td><td>15.31</td><td>1.00</td><td>1900-01-01 00:00</td><td>sa</td></tr>
+<tr><td>varianenm</td><td>ONLINE</td><td>SIMPLE</td><td>160</td><td>CHECKSUM</td><td>No</td><td>97,000.00</td><td>10,000.00</td><td>1900-01-01 00:00</td><td>MURTAZA\Murtaza</td></tr>
+<tr><td>AuntieAI</td><td>ONLINE</td><td>FULL</td><td>160</td><td>CHECKSUM</td><td>No</td><td>8.00</td><td>8.00</td><td>1900-01-01 00:00</td><td>sa</td></tr>
+<tr><td>DocManagementDb</td><td>ONLINE</td><td>FULL</td><td>160</td><td>CHECKSUM</td><td>No</td><td>8.00</td><td>8.00</td><td>1900-01-01 00:00</td><td>sa</td></tr>
+<tr><td>HealthCare</td><td>ONLINE</td><td>FULL</td><td>160</td><td>CHECKSUM</td><td>No</td><td>72.00</td><td>8.00</td><td>1900-01-01 00:00</td><td>sa</td></tr>
+<tr><td>CountyMedical</td><td>ONLINE</td><td>FULL</td><td>160</td><td>CHECKSUM</td><td>No</td><td>72.00</td><td>72.00</td><td>1900-01-01 00:00</td><td>sa</td></tr>
+<tr><td>HealthCare1</td><td>ONLINE</td><td>FULL</td><td>160</td><td>CHECKSUM</td><td>No</td><td>8.00</td><td>8.00</td><td>1900-01-01 00:00</td><td>sa</td></tr>
+<tr><td>HealthCare_4</td><td>ONLINE</td><td>FULL</td><td>160</td><td>CHECKSUM</td><td>No</td><td>8.00</td><td>8.00</td><td>1900-01-01 00:00</td><td>sa</td></tr>
+<tr><td>HealthCare3</td><td>ONLINE</td><td>FULL</td><td>160</td><td>CHECKSUM</td><td>No</td><td>8.00</td><td>8.00</td><td>1900-01-01 00:00</td><td>sa</td></tr>
+<tr><td>HealthCare_6</td><td>ONLINE</td><td>FULL</td><td>160</td><td>CHECKSUM</td><td>No</td><td>8.00</td><td>8.00</td><td>1900-01-01 00:00</td><td>sa</td></tr>
+<tr><td>HealthCare_2</td><td>ONLINE</td><td>FULL</td><td>160</td><td>CHECKSUM</td><td>No</td><td>8.00</td><td>8.00</td><td>1900-01-01 00:00</td><td>sa</td></tr>
+<tr><td>HealthCare_3</td><td>ONLINE</td><td>FULL</td><td>160</td><td>CHECKSUM</td><td>No</td><td>8.00</td><td>8.00</td><td>1900-01-01 00:00</td><td>sa</td></tr>
+<tr><td>SqlEstatePortal</td><td>ONLINE</td><td>FULL</td><td>160</td><td>CHECKSUM</td><td>No</td><td>8.00</td><td>8.00</td><td>1900-01-01 00:00</td><td>MURTAZA\Murtaza</td></tr>
+</tbody></table>
+<h3>Services</h3><table>
+<thead><tr><th>servicename</th><th>startup_type_desc</th><th>status_desc</th><th>service_account</th><th>instant_file_initialization_enabled</th></tr></thead><tbody>
+<tr><td>SQL Server (SQL2022)</td><td>Automatic</td><td>Running</td><td>NT Service\MSSQL$SQL2022</td><td>N</td></tr>
+<tr><td>SQL Server Agent (SQL2022)</td><td>Manual</td><td>Stopped</td><td>NT Service\SQLAgent$SQL2022</td><td>N</td></tr>
+</tbody></table>
+<h3>Top waits</h3><table>
+<thead><tr><th>wait_type</th><th>waiting_tasks_count</th><th>wait_time_ms</th><th>signal_wait_time_ms</th><th>WaitPct</th></tr></thead><tbody>
+<tr><td>PREEMPTIVE_OS_QUERYREGISTRY</td><td>225711</td><td>30797</td><td>0</td><td>41.58</td></tr>
+<tr><td>PREEMPTIVE_OS_FILEOPS</td><td>778</td><td>14399</td><td>0</td><td>19.44</td></tr>
+<tr><td>THREADPOOL</td><td>1783</td><td>7607</td><td>1</td><td>10.27</td></tr>
+<tr><td>PAGEIOLATCH_SH</td><td>4257</td><td>5141</td><td>226</td><td>6.94</td></tr>
+<tr><td>SOS_SCHEDULER_YIELD</td><td>13321</td><td>4168</td><td>4119</td><td>5.63</td></tr>
+<tr><td>PREEMPTIVE_XE_CALLBACKEXECUTE</td><td>911710</td><td>2904</td><td>0</td><td>3.92</td></tr>
+<tr><td>LCK_M_S</td><td>19</td><td>2640</td><td>12</td><td>3.56</td></tr>
+<tr><td>ASYNC_IO_COMPLETION</td><td>3</td><td>1475</td><td>2</td><td>1.99</td></tr>
+<tr><td>PREEMPTIVE_OS_DEVICEOPS</td><td>434</td><td>1280</td><td>0</td><td>1.73</td></tr>
+<tr><td>ASYNC_NETWORK_IO</td><td>6032</td><td>549</td><td>116</td><td>0.74</td></tr>
+<tr><td>WRITELOG</td><td>379</td><td>357</td><td>147</td><td>0.48</td></tr>
+<tr><td>PREEMPTIVE_OS_REPORTEVENT</td><td>105</td><td>269</td><td>0</td><td>0.36</td></tr>
+<tr><td>PREEMPTIVE_OS_CREATEFILE</td><td>207</td><td>246</td><td>0</td><td>0.33</td></tr>
+<tr><td>PREEMPTIVE_OS_VERIFYTRUST</td><td>4</td><td>225</td><td>0</td><td>0.30</td></tr>
+<tr><td>IO_COMPLETION</td><td>257</td><td>179</td><td>12</td><td>0.24</td></tr>
+</tbody></table>
+<h3>Sysadmins</h3><table>
+<thead><tr><th>name</th><th>type_desc</th><th>is_disabled</th><th>create_date</th></tr></thead><tbody>
+<tr><td>sa</td><td>SQL_LOGIN</td><td>No</td><td>2003-04-08 09:10</td></tr>
+<tr><td>MURTAZA\Murtaza</td><td>WINDOWS_LOGIN</td><td>No</td><td>2025-07-31 21:13</td></tr>
+<tr><td>NT SERVICE\SQLWriter</td><td>WINDOWS_LOGIN</td><td>No</td><td>2025-07-31 21:13</td></tr>
+<tr><td>NT SERVICE\Winmgmt</td><td>WINDOWS_LOGIN</td><td>No</td><td>2025-07-31 21:13</td></tr>
+<tr><td>NT SERVICE\SQLAgent$SQL2022</td><td>WINDOWS_LOGIN</td><td>No</td><td>2025-07-31 21:13</td></tr>
+</tbody></table>
+<h3>Availability groups</h3><p class="muted">None</p><h3>SQL Agent jobs</h3><table>
+<thead><tr><th>JobName</th><th>enabled</th><th>LastRunStatus</th><th>LastRun</th><th>Message</th></tr></thead><tbody>
+<tr><td>syspolicy_purge_history</td><td>1</td><td>Succeeded</td><td>2026-02-22 11:18</td><td>The job succeeded.  The Job was invoked by Schedule 8 (syspolicy_purge_history_schedule).  The last step to run was step 3 (Erase Phantom System Health Records.).</td></tr>
+</tbody></table>
+<h2>MURTAZA\SQLEXPRESS</h2><h3>Cost drivers</h3><table>
+<thead><tr><th>AllocatedDataAndLogGB</th><th>UserDatabaseCount</th><th>CpuCount</th><th>EstimatedLicensedCores</th><th>LicenseType</th><th>NumLicensesProperty</th><th>EstimatedCoreLicenseUsd</th><th>EstimatedStorageUsdMonth</th><th>Note</th></tr></thead><tbody>
+<tr><td>0.15</td><td>2</td><td>8</td><td>8</td><td>DISABLED</td><td></td><td>0.00</td><td>0.00</td><td>Dollar figures are estimates from the rates you passed. LicenseType/NumLicenses from SERVERPROPERTY is often unpopulated for core licensing.</td></tr>
+</tbody></table>
+<h3>Performance snapshot</h3><table>
+<thead><tr><th>PageLifeExpectancySec</th><th>MemoryGrantsPending</th><th>ProcessesBlocked</th><th>UserConnections</th><th>TotalServerMemoryMB</th><th>TargetServerMemoryMB</th><th>BatchRequestsPerSec</th><th>CompilationsPerSec</th><th>RecompilationsPerSec</th><th>PageReadsPerSec</th><th>PageWritesPerSec</th><th>DeadlocksPerSec</th><th>SampleSeconds</th></tr></thead><tbody>
+<tr><td>6304</td><td>0</td><td>0</td><td>3</td><td>438.00</td><td>14,456.80</td><td>0.50</td><td>0.00</td><td>0.00</td><td>76.00</td><td>7.00</td><td>0.00</td><td>2</td></tr>
+</tbody></table>
+<h3>Volumes</h3><table>
+<thead><tr><th>volume_mount_point</th><th>logical_volume_name</th><th>TotalGB</th><th>FreeGB</th><th>FreePct</th></tr></thead><tbody>
+<tr><td>C:\</td><td></td><td>452.11</td><td>103.99</td><td>23.00</td></tr>
+</tbody></table>
+<h3>Databases</h3><table>
+<thead><tr><th>name</th><th>state_desc</th><th>recovery_model_desc</th><th>compatibility_level</th><th>page_verify_option_desc</th><th>is_encrypted</th><th>DataMB</th><th>LogMB</th><th>LastGoodCheckDbTime</th><th>owner_name</th></tr></thead><tbody>
+<tr><td>master</td><td>ONLINE</td><td>SIMPLE</td><td>160</td><td>CHECKSUM</td><td>No</td><td>4.00</td><td>1.25</td><td>1900-01-01 00:00</td><td>sa</td></tr>
+<tr><td>tempdb</td><td>ONLINE</td><td>SIMPLE</td><td>160</td><td>CHECKSUM</td><td>No</td><td>8.00</td><td>8.00</td><td>1900-01-01 00:00</td><td>sa</td></tr>
+<tr><td>model</td><td>ONLINE</td><td>SIMPLE</td><td>160</td><td>CHECKSUM</td><td>No</td><td>8.00</td><td>8.00</td><td>1900-01-01 00:00</td><td>sa</td></tr>
+<tr><td>msdb</td><td>ONLINE</td><td>SIMPLE</td><td>160</td><td>CHECKSUM</td><td>No</td><td>15.31</td><td>1.00</td><td>1900-01-01 00:00</td><td>sa</td></tr>
+<tr><td>EliteCarsInternational</td><td>ONLINE</td><td>SIMPLE</td><td>160</td><td>CHECKSUM</td><td>No</td><td>72.00</td><td>8.00</td><td></td><td>MURTAZA\Murtaza</td></tr>
+<tr><td>FISOHCM</td><td>ONLINE</td><td>SIMPLE</td><td>160</td><td>CHECKSUM</td><td>No</td><td>8.00</td><td>8.00</td><td></td><td>MURTAZA\Murtaza</td></tr>
+</tbody></table>
+<h3>Services</h3><table>
+<thead><tr><th>servicename</th><th>startup_type_desc</th><th>status_desc</th><th>service_account</th><th>instant_file_initialization_enabled</th></tr></thead><tbody>
+<tr><td>SQL Server (SQLEXPRESS)</td><td>Automatic</td><td>Running</td><td>NT Service\MSSQL$SQLEXPRESS</td><td>Y</td></tr>
+<tr><td>SQL Server Agent (SQLEXPRESS)</td><td>Disabled</td><td>Stopped</td><td>NT AUTHORITY\NETWORKSERVICE</td><td>N</td></tr>
+</tbody></table>
+<h3>Top waits</h3><table>
+<thead><tr><th>wait_type</th><th>waiting_tasks_count</th><th>wait_time_ms</th><th>signal_wait_time_ms</th><th>WaitPct</th></tr></thead><tbody>
+<tr><td>PREEMPTIVE_OS_QUERYREGISTRY</td><td>17798</td><td>8216</td><td>0</td><td>35.91</td></tr>
+<tr><td>PREEMPTIVE_XE_CALLBACKEXECUTE</td><td>1483174</td><td>4336</td><td>0</td><td>18.95</td></tr>
+<tr><td>THREADPOOL</td><td>1959</td><td>3107</td><td>0</td><td>13.58</td></tr>
+<tr><td>PREEMPTIVE_OS_FILEOPS</td><td>438</td><td>1050</td><td>0</td><td>4.59</td></tr>
+<tr><td>PAGEIOLATCH_SH</td><td>1733</td><td>882</td><td>42</td><td>3.86</td></tr>
+<tr><td>LCK_M_S</td><td>2</td><td>820</td><td>1</td><td>3.58</td></tr>
+<tr><td>PREEMPTIVE_OS_CRYPTOPS</td><td>10</td><td>589</td><td>0</td><td>2.57</td></tr>
+<tr><td>PREEMPTIVE_OS_AUTHENTICATIONOPS</td><td>376</td><td>460</td><td>0</td><td>2.01</td></tr>
+<tr><td>PREEMPTIVE_OS_DEVICEOPS</td><td>84</td><td>362</td><td>0</td><td>1.58</td></tr>
+<tr><td>WRITELOG</td><td>168</td><td>348</td><td>169</td><td>1.52</td></tr>
+<tr><td>SOS_SCHEDULER_YIELD</td><td>4034</td><td>346</td><td>321</td><td>1.51</td></tr>
+<tr><td>PREEMPTIVE_OS_VERIFYTRUST</td><td>3</td><td>244</td><td>0</td><td>1.07</td></tr>
+<tr><td>IO_COMPLETION</td><td>174</td><td>176</td><td>0</td><td>0.77</td></tr>
+<tr><td>XE_BUFFERMGR_ALLPROCESSED_EVENT</td><td>83</td><td>169</td><td>45</td><td>0.74</td></tr>
+<tr><td>WRITE_COMPLETION</td><td>47</td><td>165</td><td>0</td><td>0.72</td></tr>
+</tbody></table>
+<h3>Sysadmins</h3><table>
+<thead><tr><th>name</th><th>type_desc</th><th>is_disabled</th><th>create_date</th></tr></thead><tbody>
+<tr><td>sa</td><td>SQL_LOGIN</td><td>Yes</td><td>2003-04-08 09:10</td></tr>
+<tr><td>MURTAZA\Murtaza</td><td>WINDOWS_LOGIN</td><td>No</td><td>2024-09-13 11:00</td></tr>
+<tr><td>NT SERVICE\SQLWriter</td><td>WINDOWS_LOGIN</td><td>No</td><td>2024-09-13 11:00</td></tr>
+<tr><td>NT SERVICE\Winmgmt</td><td>WINDOWS_LOGIN</td><td>No</td><td>2024-09-13 11:00</td></tr>
+<tr><td>MigratePlus_QA_User</td><td>SQL_LOGIN</td><td>No</td><td>2026-07-20 16:38</td></tr>
+</tbody></table>
+<h3>Availability groups</h3><p class="muted">None</p><h3>SQL Agent jobs</h3><table>
+<thead><tr><th>JobName</th><th>enabled</th><th>LastRunStatus</th><th>LastRun</th><th>Message</th></tr></thead><tbody>
+<tr><td>syspolicy_purge_history</td><td>1</td><td>Unknown</td><td></td><td></td></tr>
+</tbody></table>
+</main>
+</body>
+</html>

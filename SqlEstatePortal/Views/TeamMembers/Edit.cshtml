@@ -1,0 +1,74 @@
+@model SqlEstatePortal.ViewModels.TeamMemberFormViewModel
+@{
+    ViewData["Title"] = Model.Id == 0 ? "Add Team Member" : "Update Team Member";
+    var action = Model.Id == 0 ? "Create" : "Edit";
+    var canInsert = await Permissions.HasAsync(User, AppModules.TeamMembers, "insert");
+}
+<div class="page-toolbar">
+    <h1>@(Model.Id == 0 ? "Add team member" : "Update team member")</h1>
+    <div>
+        <a class="btn btn-outline-secondary" asp-action="Index">View all</a>
+        @if (canInsert)
+        {
+            <a class="btn btn-primary" asp-action="Create">Add team member</a>
+        }
+    </div>
+</div>
+<div class="panel">
+    <form asp-action="@action" method="post">
+        <input type="hidden" asp-for="Id" />
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="form-grid">
+            <div>
+                <label asp-for="MemberName">Member Name <span class="req">*</span></label>
+                <input asp-for="MemberName" class="form-control" />
+                <span asp-validation-for="MemberName" class="text-danger"></span>
+            </div>
+            <div>
+                <label asp-for="AccessRoleId">Access Role <span class="req">*</span></label>
+                <select asp-for="AccessRoleId" class="form-select" asp-items="Model.RoleOptions">
+                    <option value="">-- select option --</option>
+                </select>
+                <span asp-validation-for="AccessRoleId" class="text-danger"></span>
+            </div>
+            <div>
+                <label asp-for="Username">Username <span class="req">*</span></label>
+                <input asp-for="Username" class="form-control" />
+                <span asp-validation-for="Username" class="text-danger"></span>
+            </div>
+            <div>
+                <label asp-for="Email">Email</label>
+                <input asp-for="Email" class="form-control" />
+            </div>
+            <div>
+                <label asp-for="TeamId">Team Name</label>
+                <select asp-for="TeamId" class="form-select" asp-items="Model.TeamOptions">
+                    <option value="">-- select option --</option>
+                </select>
+            </div>
+            <div>
+                <label asp-for="Designation">Designation</label>
+                <input asp-for="Designation" class="form-control" />
+            </div>
+            <div>
+                <label asp-for="AdminAccess">Admin Access <span class="req">*</span></label>
+                <select asp-for="AdminAccess" class="form-select">
+                    <option value="false">No</option>
+                    <option value="true">Yes</option>
+                </select>
+            </div>
+            <div>
+                <label asp-for="Status">Status <span class="req">*</span></label>
+                <select asp-for="Status" class="form-select" asp-items="Model.StatusOptions"></select>
+            </div>
+            <div>
+                <label asp-for="GeneratedPassword">Password (auto-generated) <span class="req">*</span></label>
+                <input asp-for="GeneratedPassword" class="form-control" readonly />
+            </div>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">SAVE INFORMATION</button>
+            <a class="btn btn-secondary" asp-action="Index">CANCEL</a>
+        </div>
+    </form>
+</div>

@@ -1,0 +1,66 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>SQL Estate Assessment</title>
+<style>
+  body { margin: 0; font-family: "Segoe UI", Calibri, sans-serif; color: #1c2430; background: #f3f6f9; }
+  header { padding: 32px 40px 16px; }
+  header h1 { margin: 0 0 6px; font-size: 28px; color: #1f4e79; }
+  header p { margin: 0; color: #5c6b7a; }
+  main { padding: 0 40px 48px; }
+  h2 { margin: 28px 0 10px; font-size: 18px; border-bottom: 2px solid #1f4e79; padding-bottom: 4px; }
+  h3 { margin: 18px 0 8px; font-size: 15px; }
+  table { border-collapse: collapse; width: 100%; background: #fff; margin: 8px 0 16px; }
+  th, td { border: 1px solid #d5dde6; padding: 6px 8px; text-align: left; vertical-align: top; font-size: 13px; }
+  th { background: #e8eef4; }
+  .muted { color: #5c6b7a; }
+  .sev-critical { color: #8b1e1e; font-weight: 600; }
+  .sev-high { color: #9a4a00; font-weight: 600; }
+  .sev-medium { color: #6b5a00; }
+  .sev-low { color: #2b5d34; }
+  .note { font-size: 12px; color: #5c6b7a; }
+</style>
+</head>
+<body>
+<header>
+  <h1>SQL Estate Assessment</h1>
+  <p>Single Source of Truth - read-only collection - 08/24/2026 18:05:41</p>
+</header>
+<main>
+  <h2>Executive summary</h2>
+  <table>
+<thead><tr><th>Metric</th><th>Value</th></tr></thead><tbody>
+<tr><td>Servers assessed</td><td>3</td></tr>
+<tr><td>Reachable</td><td>0</td></tr>
+<tr><td>Unreachable</td><td>3</td></tr>
+<tr><td>End of support</td><td>0</td></tr>
+<tr><td>Allocated data+log (GB)</td><td>0.00</td></tr>
+<tr><td>Estimated licensed cores</td><td>0</td></tr>
+<tr><td>Critical findings</td><td>3</td></tr>
+<tr><td>High findings</td><td>0</td></tr>
+<tr><td>Medium findings</td><td>0</td></tr>
+<tr><td>Low findings</td><td>0</td></tr>
+</tbody></table>
+
+  <p class="note">Backup SLA used: full 24h, log 60m. No data, schema, configuration, or infrastructure was modified.</p>
+
+  <h2>Findings, risks, and recommendations</h2>
+  <table>
+<thead><tr><th>Severity</th><th>Area</th><th>Server</th><th>Finding</th><th>Recommendation</th></tr></thead><tbody>
+<tr><td class="sev-critical">Critical</td><td>Status</td><td>CTPCTA04VMSQL02</td><td>Instance unreachable: Exception calling &quot;Open&quot; with &quot;0&quot; argument(s): &quot;A network-related or instance-specific error occurred while establishing a connection to SQL Server. The server was not found or was not accessible. Verify that the instance name is correct and that SQL Server is configured to allow remote connections. (provider: Named Pipes Provider, error: 40 - Could not open a connection to SQL Server)&quot;</td><td>Verify service state, network, firewall, and that this account can connect as a read-only monitor login.</td></tr>
+<tr><td class="sev-critical">Critical</td><td>Status</td><td>CTPCTA04VMSQL03</td><td>Instance unreachable: Exception calling &quot;Open&quot; with &quot;0&quot; argument(s): &quot;A network-related or instance-specific error occurred while establishing a connection to SQL Server. The server was not found or was not accessible. Verify that the instance name is correct and that SQL Server is configured to allow remote connections. (provider: Named Pipes Provider, error: 40 - Could not open a connection to SQL Server)&quot;</td><td>Verify service state, network, firewall, and that this account can connect as a read-only monitor login.</td></tr>
+<tr><td class="sev-critical">Critical</td><td>Status</td><td>CTUCTA03VMSQL01</td><td>Instance unreachable: Exception calling &quot;Open&quot; with &quot;0&quot; argument(s): &quot;A network-related or instance-specific error occurred while establishing a connection to SQL Server. The server was not found or was not accessible. Verify that the instance name is correct and that SQL Server is configured to allow remote connections. (provider: Named Pipes Provider, error: 40 - Could not open a connection to SQL Server)&quot;</td><td>Verify service state, network, firewall, and that this account can connect as a read-only monitor login.</td></tr>
+</tbody></table>
+
+
+  <h2>Estate status</h2>
+  <table>
+<thead><tr><th>Server</th><th>Reachable</th><th>Product</th><th>Support</th><th>Edition</th><th>Version</th><th>Cpu</th><th>MemoryMB</th><th>Started</th><th>Error</th></tr></thead><tbody>
+<tr><td>CTPCTA04VMSQL03</td><td>No</td><td></td><td>Unreachable</td><td></td><td></td><td></td><td></td><td></td><td>Exception calling &quot;Open&quot; with &quot;0&quot; argument(s): &quot;A network-related or instance-specific error occurred while establishing a connection to SQL Server. The server was not found or was not accessible. Verify that the instance name is correct and that SQL Server is configured to allow remote connections. (provider: Named Pipes Provider, error: 40 - Could not open a connection to SQL Server)&quot;</td></tr>
+<tr><td>CTPCTA04VMSQL02</td><td>No</td><td></td><td>Unreachable</td><td></td><td></td><td></td><td></td><td></td><td>Exception calling &quot;Open&quot; with &quot;0&quot; argument(s): &quot;A network-related or instance-specific error occurred while establishing a connection to SQL Server. The server was not found or was not accessible. Verify that the instance name is correct and that SQL Server is configured to allow remote connections. (provider: Named Pipes Provider, error: 40 - Could not open a connection to SQL Server)&quot;</td></tr>
+<tr><td>CTUCTA03VMSQL01</td><td>No</td><td></td><td>Unreachable</td><td></td><td></td><td></td><td></td><td></td><td>Exception calling &quot;Open&quot; with &quot;0&quot; argument(s): &quot;A network-related or instance-specific error occurred while establishing a connection to SQL Server. The server was not found or was not accessible. Verify that the instance name is correct and that SQL Server is configured to allow remote connections. (provider: Named Pipes Provider, error: 40 - Could not open a connection to SQL Server)&quot;</td></tr>
+</tbody></table>
+<h2>CTPCTA04VMSQL03</h2><h3>Volumes</h3><p class="muted">None</p><h3>Databases</h3><p class="muted">None</p><h3>Services</h3><p class="muted">None</p><h3>Top waits</h3><p class="muted">None</p><h3>Sysadmins</h3><p class="muted">None</p><h3>Availability groups</h3><p class="muted">None</p><h3>SQL Agent jobs</h3><p class="muted">None</p><h2>CTPCTA04VMSQL02</h2><h3>Volumes</h3><p class="muted">None</p><h3>Databases</h3><p class="muted">None</p><h3>Services</h3><p class="muted">None</p><h3>Top waits</h3><p class="muted">None</p><h3>Sysadmins</h3><p class="muted">None</p><h3>Availability groups</h3><p class="muted">None</p><h3>SQL Agent jobs</h3><p class="muted">None</p><h2>CTUCTA03VMSQL01</h2><h3>Volumes</h3><p class="muted">None</p><h3>Databases</h3><p class="muted">None</p><h3>Services</h3><p class="muted">None</p><h3>Top waits</h3><p class="muted">None</p><h3>Sysadmins</h3><p class="muted">None</p><h3>Availability groups</h3><p class="muted">None</p><h3>SQL Agent jobs</h3><p class="muted">None</p></main>
+</body>
+</html>

@@ -1,0 +1,25 @@
+@model string[]
+<tr>
+@foreach (var raw in Model)
+{
+    var name = raw ?? "";
+    var showLabel = !string.IsNullOrWhiteSpace(name);
+    var searchable = showLabel && !name.StartsWith("-", StringComparison.Ordinal);
+    var label = searchable ? name : name.TrimStart('-');
+    <th>@(showLabel ? label : null)</th>
+}
+</tr>
+<tr class="column-filters">
+@foreach (var raw in Model)
+{
+    var name = raw ?? "";
+    var searchable = !string.IsNullOrWhiteSpace(name) && !name.StartsWith("-", StringComparison.Ordinal);
+    var label = searchable ? name : name.TrimStart('-');
+    <th>
+        @if (searchable)
+        {
+            <input type="search" class="form-control form-control-sm column-search" placeholder="Search" title="Search @label" aria-label="Search @label" autocomplete="off" />
+        }
+    </th>
+}
+</tr>

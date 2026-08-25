@@ -1,0 +1,223 @@
+@model SqlEstatePortal.Models.AssessmentRun
+@{
+    var findings = Model.Findings
+        .OrderBy(f => f.Severity == "Critical" ? 0 : f.Severity == "High" ? 1 : f.Severity == "Medium" ? 2 : f.Severity == "Low" ? 3 : 4)
+        .ThenBy(f => f.ServerName)
+        .ToList();
+    var servers = Model.Servers.OrderBy(s => s.ServerName).ToList();
+    int CountSev(string sev) => findings.Count(f => string.Equals(f.Severity, sev, StringComparison.OrdinalIgnoreCase));
+}
+<div class="estate-report">
+    <ul class="nav nav-tabs estate-tabs" role="tablist">
+        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-summary" type="button">Summary</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-findings" type="button">Findings</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-status" type="button">Estate status</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-databases" type="button">Databases</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-volumes" type="button">Volumes</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-services" type="button">Services</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-waits" type="button">Top waits</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-sysadmins" type="button">Sysadmins</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-jobs" type="button">SQL Agent jobs</button></li>
+    </ul>
+
+    <div class="tab-content estate-tab-content">
+        <div class="tab-pane fade show active" id="tab-summary">
+            <div class="stat-grid">
+                <div class="stat-card"><div class="label">Servers assessed</div><div class="value">@Model.ServerCount</div></div>
+                <div class="stat-card"><div class="label">Reachable</div><div class="value">@Model.ReachableCount</div></div>
+                <div class="stat-card"><div class="label">Unreachable</div><div class="value">@Model.UnreachableCount</div></div>
+                <div class="stat-card"><div class="label">End of support</div><div class="value">@Model.EndOfSupportCount</div></div>
+                <div class="stat-card"><div class="label">Allocated GB</div><div class="value">@Model.AllocatedStorageGb.ToString("N2")</div></div>
+                <div class="stat-card"><div class="label">Licensed cores</div><div class="value">@Model.EstimatedLicensedCores</div></div>
+                <button type="button" class="stat-card crit sev-jump" data-severity="Critical"><div class="label">Critical</div><div class="value">@Model.CriticalCount</div></button>
+                <button type="button" class="stat-card high sev-jump" data-severity="High"><div class="label">High</div><div class="value">@Model.HighCount</div></button>
+                <button type="button" class="stat-card med sev-jump" data-severity="Medium"><div class="label">Medium</div><div class="value">@Model.MediumCount</div></button>
+                <button type="button" class="stat-card low sev-jump" data-severity="Low"><div class="label">Low</div><div class="value">@Model.LowCount</div></button>
+            </div>
+            <p class="muted">Use the server filter above, then open a tab. Click Critical / High / Medium / Low to jump to those findings.</p>
+        </div>
+
+        <div class="tab-pane fade" id="tab-findings">
+            <div class="severity-tabs" role="tablist">
+                <button type="button" class="sev-chip active" data-severity="">All (@findings.Count)</button>
+                <button type="button" class="sev-chip sev-critical" data-severity="Critical">Critical (@CountSev("Critical"))</button>
+                <button type="button" class="sev-chip sev-high" data-severity="High">High (@CountSev("High"))</button>
+                <button type="button" class="sev-chip sev-medium" data-severity="Medium">Medium (@CountSev("Medium"))</button>
+                <button type="button" class="sev-chip sev-low" data-severity="Low">Low (@CountSev("Low"))</button>
+                <button type="button" class="sev-chip sev-info" data-severity="Info">Info (@CountSev("Info"))</button>
+            </div>
+            <table class="table table-sm">
+                <thead>
+                    @await Html.PartialAsync("_ColumnFilters", new[] { "Severity", "Area", "Server", "Finding", "Recommendation" })
+                </thead>
+                <tbody>
+                @foreach (var f in findings)
+                {
+                    <tr data-server="@f.ServerName" data-severity="@f.Severity">
+                        <td class="sev-@f.Severity.ToLowerInvariant()">@f.Severity</td>
+                        <td>@f.Area</td>
+                        <td>@f.ServerName</td>
+                        <td>@f.Finding</td>
+                        <td>@f.Recommendation</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+            <p class="muted empty-hint" hidden>No matching rows.</p>
+        </div>
+
+        <div class="tab-pane fade" id="tab-status">
+            <table class="table table-sm">
+                <thead>
+                    @await Html.PartialAsync("_ColumnFilters", new[] { "Server", "Reachable", "Product", "Support", "Edition", "Version", "CPU", "Memory MB", "Started" })
+                </thead>
+                <tbody>
+                @foreach (var s in servers)
+                {
+                    <tr data-server="@s.ServerName">
+                        <td>@s.ServerName</td>
+                        <td>@(s.Reachable ? "Yes" : "No")</td>
+                        <td>@s.Product</td>
+                        <td>@s.SupportStatus</td>
+                        <td>@s.Edition</td>
+                        <td>@s.Version</td>
+                        <td>@s.CpuCount</td>
+                        <td>@s.MemoryMb?.ToString("N2")</td>
+                        <td>@s.StartedAt?.ToString("yyyy-MM-dd HH:mm")</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="tab-pane fade" id="tab-databases">
+            <table class="table table-sm">
+                <thead>
+                    @await Html.PartialAsync("_ColumnFilters", new[] { "Server", "Name", "State", "Recovery", "Compat", "Page verify", "Encrypted", "Data MB", "Log MB", "Owner" })
+                </thead>
+                <tbody>
+                @foreach (var d in Model.Databases.OrderBy(x => x.ServerName).ThenBy(x => x.Name))
+                {
+                    <tr data-server="@d.ServerName">
+                        <td>@d.ServerName</td>
+                        <td>@d.Name</td>
+                        <td>@d.State</td>
+                        <td>@d.RecoveryModel</td>
+                        <td>@d.CompatibilityLevel</td>
+                        <td>@d.PageVerify</td>
+                        <td>@(d.IsEncrypted ? "Yes" : "No")</td>
+                        <td>@d.DataMb?.ToString("N2")</td>
+                        <td>@d.LogMb?.ToString("N2")</td>
+                        <td>@d.OwnerName</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="tab-pane fade" id="tab-volumes">
+            <table class="table table-sm">
+                <thead>
+                    @await Html.PartialAsync("_ColumnFilters", new[] { "Server", "Mount", "Name", "Total GB", "Free GB", "Free %" })
+                </thead>
+                <tbody>
+                @foreach (var v in Model.Volumes.OrderBy(x => x.ServerName))
+                {
+                    <tr data-server="@v.ServerName">
+                        <td>@v.ServerName</td>
+                        <td>@v.MountPoint</td>
+                        <td>@v.LogicalName</td>
+                        <td>@v.TotalGb?.ToString("N2")</td>
+                        <td>@v.FreeGb?.ToString("N2")</td>
+                        <td>@v.FreePct?.ToString("N2")</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="tab-pane fade" id="tab-services">
+            <table class="table table-sm">
+                <thead>
+                    @await Html.PartialAsync("_ColumnFilters", new[] { "Server", "Service", "Startup", "Status", "Account", "IFI" })
+                </thead>
+                <tbody>
+                @foreach (var svc in Model.Services.OrderBy(x => x.ServerName))
+                {
+                    <tr data-server="@svc.ServerName">
+                        <td>@svc.ServerName</td>
+                        <td>@svc.ServiceName</td>
+                        <td>@svc.StartupType</td>
+                        <td>@svc.Status</td>
+                        <td>@svc.ServiceAccount</td>
+                        <td>@svc.InstantFileInitialization</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="tab-pane fade" id="tab-waits">
+            <table class="table table-sm">
+                <thead>
+                    @await Html.PartialAsync("_ColumnFilters", new[] { "Server", "Wait type", "Tasks", "Wait ms", "Signal ms", "%" })
+                </thead>
+                <tbody>
+                @foreach (var w in Model.Waits.OrderBy(x => x.ServerName).ThenByDescending(x => x.WaitTimeMs))
+                {
+                    <tr data-server="@w.ServerName">
+                        <td>@w.ServerName</td>
+                        <td>@w.WaitType</td>
+                        <td>@w.WaitingTasks</td>
+                        <td>@w.WaitTimeMs</td>
+                        <td>@w.SignalWaitTimeMs</td>
+                        <td>@w.WaitPct?.ToString("N2")</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="tab-pane fade" id="tab-sysadmins">
+            <table class="table table-sm">
+                <thead>
+                    @await Html.PartialAsync("_ColumnFilters", new[] { "Server", "Name", "Type", "Disabled", "Created" })
+                </thead>
+                <tbody>
+                @foreach (var a in Model.Sysadmins.OrderBy(x => x.ServerName))
+                {
+                    <tr data-server="@a.ServerName">
+                        <td>@a.ServerName</td>
+                        <td>@a.Name</td>
+                        <td>@a.TypeDesc</td>
+                        <td>@(a.IsDisabled ? "Yes" : "No")</td>
+                        <td>@a.CreateDate?.ToString("yyyy-MM-dd HH:mm")</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="tab-pane fade" id="tab-jobs">
+            <table class="table table-sm">
+                <thead>
+                    @await Html.PartialAsync("_ColumnFilters", new[] { "Server", "Job", "Enabled", "Last status", "Last run", "Message" })
+                </thead>
+                <tbody>
+                @foreach (var j in Model.Jobs.OrderBy(x => x.ServerName))
+                {
+                    <tr data-server="@j.ServerName">
+                        <td>@j.ServerName</td>
+                        <td>@j.JobName</td>
+                        <td>@(j.Enabled ? "Yes" : "No")</td>
+                        <td>@j.LastRunStatus</td>
+                        <td>@j.LastRun?.ToString("yyyy-MM-dd HH:mm")</td>
+                        <td>@j.Message</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script src="~/js/estate-report.js" asp-append-version="true"></script>

@@ -1,0 +1,25 @@
+@model SqlEstatePortal.ViewModels.LoginViewModel
+@{
+    ViewData["Title"] = "Login";
+    Layout = "_LoginLayout";
+}
+<div class="login-wrap">
+    <div class="panel login-panel">
+        <h1>Charles Taylor SQL Estate Management</h1>
+        <p class="muted">Sign in with your team member account.</p>
+        <form asp-action="Login" method="post">
+            <input type="hidden" asp-for="ReturnUrl" />
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="mb-3">
+                <label asp-for="Username"></label>
+                <input asp-for="Username" class="form-control" autofocus />
+            </div>
+            <div class="mb-3">
+                <label asp-for="Password"></label>
+                <input asp-for="Password" class="form-control" />
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Sign in</button>
+        </form>
+        <p class="muted mt-3 mb-0">Default: <code>admin</code> / <code>Admin@123</code></p>
+    </div>
+</div>
