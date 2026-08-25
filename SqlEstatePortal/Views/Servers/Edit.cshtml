@@ -1,0 +1,47 @@
+@model SqlEstatePortal.ViewModels.EstateServerFormViewModel
+@{
+    ViewData["Title"] = Model.Id == 0 ? "Add Server" : "Update Server";
+    var action = Model.Id == 0 ? "Create" : "Edit";
+    var canInsert = await Permissions.HasAsync(User, AppModules.Servers, "insert");
+}
+<div class="page-toolbar">
+    <h1>@(Model.Id == 0 ? "Add server" : "Update server")</h1>
+    <div>
+        <a class="btn btn-outline-secondary" asp-action="Index">View all</a>
+        @if (canInsert)
+        {
+            <a class="btn btn-primary" asp-action="Create">Add server</a>
+        }
+    </div>
+</div>
+<div class="panel">
+    <form asp-action="@action" method="post">
+        <input type="hidden" asp-for="Id" />
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="form-grid">
+            <div>
+                <label asp-for="ServerName">Server Name <span class="req">*</span></label>
+                <input asp-for="ServerName" class="form-control" placeholder="HOST or HOST\INSTANCE" />
+                <span asp-validation-for="ServerName" class="text-danger"></span>
+            </div>
+            <div>
+                <label asp-for="Enabled">Enabled <span class="req">*</span></label>
+                <select asp-for="Enabled" class="form-select">
+                    <option value="true">Yes</option>
+                    <option value="false">No</option>
+                </select>
+            </div>
+            <div style="grid-column: 1 / -1;">
+                <label asp-for="Notes">Notes</label>
+                <input asp-for="Notes" class="form-control" />
+            </div>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">SAVE INFORMATION</button>
+            <a class="btn btn-secondary" asp-action="Index">CANCEL</a>
+        </div>
+    </form>
+</div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

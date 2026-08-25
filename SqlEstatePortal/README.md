@@ -78,7 +78,9 @@ On startup the app runs schema ensure/seed (roles, default admin).
 
 ### 2. Server list
 
-Copy `servers.example.txt` to `servers.txt` and list instances (one per line). Lines starting with `#` are ignored.
+Use **Servers** in the portal (sidebar) to add SQL instances and toggle **Enabled**.  
+On first startup, rows are seeded from `servers.example.txt` if the table is empty.  
+Only enabled servers are assessed.
 
 ### 3. Run the portal
 

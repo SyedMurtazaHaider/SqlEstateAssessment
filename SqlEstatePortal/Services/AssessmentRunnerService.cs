@@ -10,7 +10,6 @@ namespace SqlEstatePortal.Services;
 public class AssessmentOptions
 {
     public string ScriptPath { get; set; } = string.Empty;
-    public string ServerListPath { get; set; } = string.Empty;
     public string WorkingDirectory { get; set; } = string.Empty;
     public int SampleSeconds { get; set; } = 2;
     public bool TrustServerCertificate { get; set; } = true;
@@ -34,29 +33,41 @@ public class AssessmentRunnerService
 
     public async Task<AssessmentRun> RunAsync(string? triggeredBy, CancellationToken cancellationToken = default)
     {
+        var servers = await _db.EstateServers
+            .Where(x => x.Enabled)
+            .OrderBy(x => x.ServerName)
+            .Select(x => x.ServerName)
+            .ToListAsync(cancellationToken);
+
         var run = new AssessmentRun
         {
             StartedAt = DateTime.UtcNow,
             Status = "Running",
             TriggeredBy = triggeredBy,
-            ServerListPath = _options.ServerListPath
+            ServerListPath = servers.Count == 0 ? null : string.Join("; ", servers)
         };
         _db.AssessmentRuns.Add(run);
         await _db.SaveChangesAsync(cancellationToken);
 
+        string? tempListPath = null;
         try
         {
             if (!File.Exists(_options.ScriptPath))
                 throw new FileNotFoundException("Assessment script not found.", _options.ScriptPath);
-            if (!File.Exists(_options.ServerListPath))
-                throw new FileNotFoundException("Server list not found.", _options.ServerListPath);
+            if (servers.Count == 0)
+                throw new InvalidOperationException("No enabled servers found. Add servers under Servers and mark them Enabled.");
+
+            tempListPath = Path.Combine(
+                Path.GetTempPath(),
+                $"sql-estate-servers-{run.Id}-{Guid.NewGuid():N}.txt");
+            await File.WriteAllLinesAsync(tempListPath, servers, cancellationToken);
 
             var args = new List<string>
             {
                 "-NoProfile",
                 "-ExecutionPolicy", "Bypass",
                 "-File", Quote(_options.ScriptPath),
-                "-ServerListPath", Quote(_options.ServerListPath),
+                "-ServerListPath", Quote(tempListPath),
                 "-SampleSeconds", _options.SampleSeconds.ToString()
             };
             if (_options.TrustServerCertificate)
@@ -120,6 +131,13 @@ public class AssessmentRunnerService
             run.CompletedAt = DateTime.UtcNow;
             await _db.SaveChangesAsync(cancellationToken);
             return run;
+        }
+        finally
+        {
+            if (!string.IsNullOrWhiteSpace(tempListPath) && File.Exists(tempListPath))
+            {
+                try { File.Delete(tempListPath); } catch { /* ignore */ }
+            }
         }
     }
 

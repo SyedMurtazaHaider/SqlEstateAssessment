@@ -6,12 +6,14 @@ public static class AppModules
     public const string TeamMembers = "TeamMembers";
     public const string Roles = "Roles";
     public const string Assessments = "Assessments";
+    public const string Servers = "Servers";
 
     public static readonly string[] All =
     [
         Dashboard,
         TeamMembers,
         Roles,
-        Assessments
+        Assessments,
+        Servers
     ];
 }

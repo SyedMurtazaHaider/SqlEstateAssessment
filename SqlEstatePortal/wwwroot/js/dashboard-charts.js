@@ -1,11 +1,4 @@
 (function () {
-  var form = document.getElementById('dashboardFilters');
-  if (form) {
-    form.querySelectorAll('select').forEach(function (sel) {
-      sel.addEventListener('change', function () { form.submit(); });
-    });
-  }
-
   var el = document.getElementById('dashboard-charts');
   if (!el || typeof Chart === 'undefined') return;
 
@@ -15,6 +8,10 @@
   } catch (e) {
     return;
   }
+
+  var root = document.getElementById('dashboardRoot');
+  var reportUrl = root ? (root.getAttribute('data-report-url') || '') : '';
+  var selectedServer = root ? (root.getAttribute('data-server') || '') : '';
 
   Chart.defaults.font.family = '"Segoe UI", Calibri, sans-serif';
   Chart.defaults.color = '#5c6b7a';
@@ -45,10 +42,36 @@
     });
   }
 
-  function doughnut(id, items) {
+  function buildUrl(query) {
+    if (!reportUrl) return null;
+    var params = new URLSearchParams();
+    Object.keys(query || {}).forEach(function (key) {
+      var value = query[key];
+      if (value != null && value !== '') params.set(key, value);
+    });
+    if (selectedServer && !params.has('server')) params.set('server', selectedServer);
+    var qs = params.toString();
+    return qs ? (reportUrl + (reportUrl.indexOf('?') >= 0 ? '&' : '?') + qs) : reportUrl;
+  }
+
+  function go(query) {
+    var url = buildUrl(query);
+    if (url) window.location.href = url;
+  }
+
+  function pointerCursor(chart) {
+    var canvas = chart.canvas;
+    canvas.style.cursor = 'pointer';
+    canvas.addEventListener('mousemove', function (evt) {
+      var points = chart.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
+      canvas.style.cursor = points.length ? 'pointer' : 'default';
+    });
+  }
+
+  function doughnut(id, items, clickHandler) {
     var canvas = document.getElementById(id);
     if (!canvas) return;
-    new Chart(canvas, {
+    var chart = new Chart(canvas, {
       type: 'doughnut',
       data: {
         labels: labels(items),
@@ -61,16 +84,31 @@
       options: {
         maintainAspectRatio: false,
         cutout: '58%',
-        plugins: { legend: { position: 'bottom' } }
+        plugins: {
+          legend: {
+            position: 'bottom',
+            onClick: function (e, legendItem) {
+              if (!clickHandler) return;
+              clickHandler(legendItem.text);
+            }
+          }
+        },
+        onClick: function (evt, elements) {
+          if (!clickHandler || !elements.length) return;
+          var label = chart.data.labels[elements[0].index];
+          clickHandler(label);
+        }
       }
     });
+    if (clickHandler) pointerCursor(chart);
   }
 
   function bar(id, items, opts) {
     var canvas = document.getElementById(id);
     if (!canvas) return;
     var horizontal = !opts || opts.horizontal !== false;
-    new Chart(canvas, {
+    var clickHandler = opts && opts.onClickLabel;
+    var chart = new Chart(canvas, {
       type: 'bar',
       data: {
         labels: labels(items),
@@ -88,27 +126,57 @@
         scales: {
           x: { grid: { display: !horizontal }, beginAtZero: true },
           y: { grid: { display: horizontal }, ticks: { autoSkip: false } }
+        },
+        onClick: function (evt, elements) {
+          if (!clickHandler || !elements.length) return;
+          var label = chart.data.labels[elements[0].index];
+          clickHandler(label);
         }
       }
     });
+    if (clickHandler) pointerCursor(chart);
   }
 
-  doughnut('chartSeverity', data.findingsBySeverity);
-  doughnut('chartSupport', data.supportStatus);
-  doughnut('chartRecovery', data.recoveryModels);
-  doughnut('chartJobs', data.jobStatus);
-  doughnut('chartServices', data.serviceStatus);
-  doughnut('chartEditions', data.editions);
-  bar('chartArea', data.findingsByArea);
-  bar('chartServer', data.findingsByServer);
-  bar('chartDatabases', data.topDatabasesMb);
-  bar('chartVolumes', data.volumeFreePct, { color: '#0e7490' });
-  bar('chartWaits', data.topWaits, { color: '#1f4e79' });
+  doughnut('chartSeverity', data.findingsBySeverity, function (label) {
+    go({ tab: 'findings', severity: label });
+  });
+  doughnut('chartSupport', data.supportStatus, function () {
+    go({ tab: 'status' });
+  });
+  doughnut('chartRecovery', data.recoveryModels, function () {
+    go({ tab: 'databases' });
+  });
+  doughnut('chartJobs', data.jobStatus, function () {
+    go({ tab: 'jobs' });
+  });
+  doughnut('chartServices', data.serviceStatus, function () {
+    go({ tab: 'services' });
+  });
+  doughnut('chartEditions', data.editions, function () {
+    go({ tab: 'status' });
+  });
+  bar('chartArea', data.findingsByArea, {
+    onClickLabel: function () { go({ tab: 'findings' }); }
+  });
+  bar('chartServer', data.findingsByServer, {
+    onClickLabel: function (label) { go({ tab: 'findings', server: label }); }
+  });
+  bar('chartDatabases', data.topDatabasesMb, {
+    onClickLabel: function () { go({ tab: 'databases' }); }
+  });
+  bar('chartVolumes', data.volumeFreePct, {
+    color: '#0e7490',
+    onClickLabel: function () { go({ tab: 'volumes' }); }
+  });
+  bar('chartWaits', data.topWaits, {
+    color: '#1f4e79',
+    onClickLabel: function () { go({ tab: 'waits' }); }
+  });
 
   var history = data.runHistory || [];
   var historyCanvas = document.getElementById('chartHistory');
   if (historyCanvas) {
-    new Chart(historyCanvas, {
+    var historyChart = new Chart(historyCanvas, {
       type: 'bar',
       data: {
         labels: history.map(function (x) { return x.label; }),
@@ -121,12 +189,25 @@
       },
       options: {
         maintainAspectRatio: false,
-        plugins: { legend: { position: 'bottom' } },
+        plugins: {
+          legend: {
+            position: 'bottom',
+            onClick: function (e, legendItem) {
+              go({ tab: 'findings', severity: legendItem.text });
+            }
+          }
+        },
         scales: {
           x: { stacked: true, grid: { display: false } },
           y: { stacked: true, beginAtZero: true }
+        },
+        onClick: function (evt, elements) {
+          if (!elements.length) return;
+          var ds = historyChart.data.datasets[elements[0].datasetIndex];
+          if (ds && ds.label) go({ tab: 'findings', severity: ds.label });
         }
       }
     });
+    pointerCursor(historyChart);
   }
 })();

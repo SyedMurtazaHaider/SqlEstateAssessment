@@ -7,10 +7,10 @@
     <h1>Assessments</h1>
     @if (canRun)
     {
-        <form asp-action="Run" method="post">
+        <form asp-action="Run" method="post" class="js-run-assessment">
             @Html.AntiForgeryToken()
-            <button type="submit" class="btn btn-primary" onclick="this.disabled=true; this.innerText='Running...'; this.form.submit();">
-                Run PowerShell assessment
+            <button type="submit" class="btn btn-primary">
+                Run Assessment
             </button>
         </form>
     }
@@ -27,7 +27,7 @@
             <tr>
                 <td>@run.Id</td>
                 <td>@run.StartedAt.ToLocalTime().ToString("g")</td>
-                <td><span class="badge @(run.Status == "Succeeded" ? "text-bg-success" : run.Status == "Failed" ? "text-bg-danger" : "text-bg-warning")">@run.Status</span></td>
+                <td><span class="badge @(run.Status == "Succeeded" ? "bg-success" : run.Status == "Failed" ? "bg-danger" : "bg-warning text-dark")">@run.Status</span></td>
                 <td>@run.TriggeredBy</td>
                 <td>@run.ReachableCount / @run.ServerCount</td>
                 <td>@run.CriticalCount</td>

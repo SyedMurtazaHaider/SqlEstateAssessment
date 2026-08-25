@@ -11,6 +11,7 @@ public class AppDbContext : DbContext
     public DbSet<AccessRole> AccessRoles => Set<AccessRole>();
     public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
     public DbSet<TeamMember> TeamMembers => Set<TeamMember>();
+    public DbSet<EstateServer> EstateServers => Set<EstateServer>();
     public DbSet<AssessmentRun> AssessmentRuns => Set<AssessmentRun>();
     public DbSet<AssessmentFinding> AssessmentFindings => Set<AssessmentFinding>();
     public DbSet<AssessmentServerSnapshot> AssessmentServerSnapshots => Set<AssessmentServerSnapshot>();
@@ -25,6 +26,10 @@ public class AppDbContext : DbContext
     {
         modelBuilder.Entity<TeamMember>()
             .HasIndex(x => x.Username)
+            .IsUnique();
+
+        modelBuilder.Entity<EstateServer>()
+            .HasIndex(x => x.ServerName)
             .IsUnique();
 
         modelBuilder.Entity<RolePermission>()

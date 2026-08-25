@@ -250,4 +250,114 @@
   }
 
   document.querySelectorAll('table').forEach(attachTable);
+
+  function bindAssessmentProgress() {
+    var overlay = document.getElementById('assessmentProgressOverlay');
+    var bar = document.getElementById('assessmentProgressBar');
+    var pctLabel = document.getElementById('assessmentProgressPct');
+    var track = overlay ? overlay.querySelector('.assessment-progress-track') : null;
+    if (!overlay || !bar || !pctLabel) return;
+    if (overlay.dataset.bound === '1') return;
+    overlay.dataset.bound = '1';
+
+    var timer = null;
+    var current = 1;
+
+    function setProgress(value) {
+      current = Math.max(1, Math.min(100, Math.round(value)));
+      bar.style.width = current + '%';
+      pctLabel.textContent = current + '%';
+      if (track) track.setAttribute('aria-valuenow', String(current));
+    }
+
+    function stopTicker() {
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+      }
+    }
+
+    function startTicker() {
+      stopTicker();
+      setProgress(1);
+      timer = setInterval(function () {
+        if (current >= 92) return;
+        var step = current < 40 ? 3 : current < 70 ? 2 : 1;
+        setProgress(current + step);
+      }, 450);
+    }
+
+    function showOverlay() {
+      overlay.hidden = false;
+      overlay.removeAttribute('hidden');
+      overlay.classList.add('is-visible');
+      overlay.setAttribute('aria-busy', 'true');
+      document.body.style.overflow = 'hidden';
+      startTicker();
+    }
+
+    function hideOverlay() {
+      stopTicker();
+      overlay.hidden = true;
+      overlay.classList.remove('is-visible');
+      overlay.setAttribute('aria-busy', 'false');
+      document.body.style.overflow = '';
+      setProgress(1);
+    }
+
+    function finishAndRedirect(url) {
+      stopTicker();
+      setProgress(100);
+      setTimeout(function () {
+        window.location.href = url;
+      }, 350);
+    }
+
+    document.querySelectorAll('form.js-run-assessment').forEach(function (form) {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var btn = form.querySelector('button[type="submit"]');
+        if (btn) {
+          btn.disabled = true;
+          btn.dataset.originalText = btn.textContent;
+          btn.textContent = 'Running...';
+        }
+
+        showOverlay();
+
+        fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+          },
+          credentials: 'same-origin'
+        })
+          .then(function (res) {
+            if (!res.ok) throw new Error('Assessment request failed (' + res.status + ').');
+            return res.json();
+          })
+          .then(function (data) {
+            var url = (data && data.redirectUrl) || form.getAttribute('data-fallback') || '/Assessments';
+            finishAndRedirect(url);
+          })
+          .catch(function (err) {
+            hideOverlay();
+            if (btn) {
+              btn.disabled = false;
+              btn.textContent = btn.dataset.originalText || 'Run assessment';
+            }
+            alert(err && err.message ? err.message : 'Assessment failed to start.');
+          });
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bindAssessmentProgress);
+  } else {
+    bindAssessmentProgress();
+  }
 })();

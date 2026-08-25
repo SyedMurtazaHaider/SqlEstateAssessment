@@ -28,7 +28,7 @@
                 <td>@m.AccessRole.Name</td>
                 <td>@(m.Team?.Name ?? "-")</td>
                 <td>@(m.AdminAccess ? "Yes" : "No")</td>
-                <td><span class="badge @(m.Status == "Active" ? "text-bg-success" : "text-bg-secondary")">@m.Status</span></td>
+                <td><span class="badge @(m.Status == "Active" ? "bg-success" : "bg-secondary")">@m.Status</span></td>
                 @if (canUpdate || canDelete)
                 {
                     <td class="text-end">

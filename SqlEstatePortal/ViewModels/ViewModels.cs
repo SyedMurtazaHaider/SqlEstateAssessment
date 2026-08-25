@@ -67,6 +67,20 @@ public class TeamMemberFormViewModel
     ];
 }
 
+public class EstateServerFormViewModel
+{
+    public int Id { get; set; }
+
+    [Required, MaxLength(200), Display(Name = "Server Name")]
+    public string ServerName { get; set; } = string.Empty;
+
+    [Display(Name = "Enabled")]
+    public bool Enabled { get; set; } = true;
+
+    [MaxLength(500)]
+    public string? Notes { get; set; }
+}
+
 public class RolePermissionRow
 {
     public string Module { get; set; } = string.Empty;

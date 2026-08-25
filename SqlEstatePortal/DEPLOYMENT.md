@@ -54,7 +54,6 @@ On the target server, create:
 C:\Apps\SqlEstateAssessment\
   SqlEstatePortal\
     Assess-SqlEstate.ps1
-    servers.txt
     reports\
 ```
 
@@ -62,6 +61,7 @@ PowerShell:
 
 ```powershell
 New-Item -ItemType Directory -Force -Path C:\Apps\SqlEstateAssessment\SqlEstatePortal\reports | Out-Null
+New-Item -ItemType Directory -Force -Path C:\Apps\SqlEstateAssessment\SqlEstatePortal\logs | Out-Null
 ```
 
 ---
@@ -91,22 +91,10 @@ Confirm these files exist on the server:
 
 ---
 
-### A4. Copy collector files
+### A4. Server list (database — not a text file)
 
-`dotnet publish` copies `Assess-SqlEstate.ps1` and `servers.example.txt` into the publish output. On the server, in `C:\Apps\SqlEstateAssessment\SqlEstatePortal\`:
-
-| Source | Destination |
-|--------|-------------|
-| `Assess-SqlEstate.ps1` | Already in the publish folder |
-| `servers.example.txt` | Copy to `servers.txt` (rename and edit) |
-
-Edit `servers.txt` — one SQL instance per line:
-
-```text
-SQLPROD01
-SQLPROD01\INST2
-# comments start with #
-```
+SQL instances to assess are managed in the portal **Servers** page after first login.  
+`servers.example.txt` only seeds the table on first startup if empty.
 
 ---
 
@@ -123,7 +111,7 @@ CREATE DATABASE SqlEstatePortal;
 
 3. Note the server name (e.g. `APPSERVER\SQL2022` or `sqlhost.domain.com`).
 
-Tables, roles, and the default admin user are created automatically the first time the website starts.
+Tables, roles, default admin, and `EstateServers` are created/seeded automatically the first time the website starts.
 
 ---
 
@@ -140,7 +128,6 @@ Edit:
   },
   "Assessment": {
     "ScriptPath": "C:\\Apps\\SqlEstateAssessment\\SqlEstatePortal\\Assess-SqlEstate.ps1",
-    "ServerListPath": "C:\\Apps\\SqlEstateAssessment\\SqlEstatePortal\\servers.txt",
     "WorkingDirectory": "C:\\Apps\\SqlEstateAssessment\\SqlEstatePortal",
     "SampleSeconds": 2,
     "TrustServerCertificate": true
@@ -155,7 +142,7 @@ Edit:
 }
 ```
 
-Replace `TARGET\\INSTANCE` with your portal SQL server.
+Replace `TARGET\\INSTANCE` with the **client SQL Server** that hosts `SqlEstatePortal` (SQL can be on the same machine as IIS or another host).
 
 **SQL authentication** (if not using Windows auth):
 
@@ -165,9 +152,10 @@ Server=TARGET\\INSTANCE;Database=SqlEstatePortal;User Id=portal_user;Password=Yo
 
 Important:
 
-- Use **absolute paths** for `ScriptPath`, `ServerListPath`, and `WorkingDirectory`.
+- Use **absolute paths** for `ScriptPath` and `WorkingDirectory` on IIS.
 - Do **not** use `ASPNETCORE_ENVIRONMENT=Development` in production.
 - You can delete or ignore `appsettings.Development.json` on the server.
+- Assessment targets are managed under **Servers** in the UI (not in a text file).
 
 ---
 
@@ -386,8 +374,8 @@ stdoutLogEnabled="true"
 2. Sign in: **admin** / **Admin@123**.  
 3. Top-right → **Change password**.  
 4. Confirm **Dashboard** loads (charts / KPIs).  
-5. Confirm `servers.txt` lists the correct instances.  
-6. **Assessments** → **Run PowerShell assessment** (or Run from Dashboard if permitted).  
+5. Open **Servers** → add client SQL instances → leave **Enabled = Yes**.  
+6. **Assessments** → **Run PowerShell assessment**.  
 7. Open the latest assessment → check tabs, filters, search, paging.  
 8. Create Team Members / Roles as needed.  
 9. Confirm menu items and buttons hide correctly for Viewer / Operator roles.
@@ -413,7 +401,7 @@ stdoutLogEnabled="true"
 Test-NetConnection YOUR-PORTAL-SQL-HOST -Port 1433
 
 powershell -File C:\Apps\SqlEstateAssessment\SqlEstatePortal\Assess-SqlEstate.ps1 `
-  -ServerListPath C:\Apps\SqlEstateAssessment\SqlEstatePortal\servers.txt `
+  -Servers 'SQLPROD01','SQLPROD02' `
   -TrustServerCertificate
 ```
 

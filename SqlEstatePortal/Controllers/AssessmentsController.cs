@@ -72,10 +72,27 @@ public class AssessmentsController : Controller
     {
         var username = User.Identity?.Name ?? "unknown";
         var run = await _runner.RunAsync(username, cancellationToken);
-        TempData[run.Status == "Succeeded" ? "Success" : "Error"] =
-            run.Status == "Succeeded"
-                ? $"Assessment #{run.Id} completed."
-                : $"Assessment #{run.Id} failed: {run.ErrorMessage}";
+        var succeeded = run.Status == "Succeeded";
+        var message = succeeded
+            ? $"Assessment #{run.Id} completed."
+            : $"Assessment #{run.Id} failed: {run.ErrorMessage}";
+
+        var wantsJson = string.Equals(Request.Headers["X-Requested-With"], "XMLHttpRequest", StringComparison.OrdinalIgnoreCase)
+            || (Request.Headers.Accept.ToString()?.Contains("application/json", StringComparison.OrdinalIgnoreCase) ?? false);
+
+        if (wantsJson)
+        {
+            return Json(new
+            {
+                ok = succeeded,
+                id = run.Id,
+                status = run.Status,
+                message,
+                redirectUrl = Url.Action(nameof(Details), new { id = run.Id })
+            });
+        }
+
+        TempData[succeeded ? "Success" : "Error"] = message;
         return RedirectToAction(nameof(Details), new { id = run.Id });
     }
 }

@@ -17,7 +17,6 @@ builder.Services.PostConfigure<AssessmentOptions>(options =>
     }
 
     options.ScriptPath = Resolve(options.ScriptPath);
-    options.ServerListPath = Resolve(options.ServerListPath);
     options.WorkingDirectory = Resolve(options.WorkingDirectory);
 });
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -44,7 +43,7 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     await db.Database.EnsureCreatedAsync();
     await AssessmentSchema.ApplyAsync(db);
-    await DbSeeder.SeedAsync(db);
+    await DbSeeder.SeedAsync(db, app.Environment);
 
     var json = Path.GetFullPath(Path.Combine(app.Environment.ContentRootPath, "reports", "sql-estate-20260824-182501.json"));
     var html = Path.ChangeExtension(json, ".html");

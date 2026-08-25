@@ -104,7 +104,21 @@ public static class AssessmentSchema
                 TypeDesc nvarchar(50) NULL,
                 IsDisabled bit NOT NULL,
                 CreateDate datetime2 NULL
-              );"
+              );",
+            @"IF OBJECT_ID('EstateServers','U') IS NULL
+              CREATE TABLE EstateServers (
+                Id int IDENTITY PRIMARY KEY,
+                ServerName nvarchar(200) NOT NULL,
+                Enabled bit NOT NULL CONSTRAINT DF_EstateServers_Enabled DEFAULT 1,
+                Notes nvarchar(500) NULL,
+                CreatedAt datetime2 NOT NULL,
+                UpdatedAt datetime2 NULL
+              );",
+            @"IF OBJECT_ID('EstateServers','U') IS NOT NULL
+              AND NOT EXISTS (
+                SELECT 1 FROM sys.indexes
+                WHERE name = N'IX_EstateServers_ServerName' AND object_id = OBJECT_ID('EstateServers'))
+              CREATE UNIQUE INDEX IX_EstateServers_ServerName ON EstateServers(ServerName);"
         };
 
         foreach (var sql in statements)

@@ -39,6 +39,7 @@
                 <option value="@name">@name</option>
             }
         </select>
+        <button type="button" class="btn btn-primary filter-go-btn" id="assessmentGoBtn">Go</button>
     </div>
     @await Html.PartialAsync("_EstateReport", run)
 </div>
@@ -48,4 +49,7 @@
         <h2 class="section-title">PowerShell output</h2>
         <pre class="log-box">@run.OutputLog</pre>
     </div>
+}
+@section Scripts {
+    <script src="~/js/estate-report.js" asp-append-version="true"></script>
 }

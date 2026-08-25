@@ -35,7 +35,7 @@
         }
         @if (canRun)
         {
-            <form asp-controller="Assessments" asp-action="Run" method="post">
+            <form asp-controller="Assessments" asp-action="Run" method="post" class="js-run-assessment">
                 @Html.AntiForgeryToken()
                 <button type="submit" class="btn btn-primary">Run assessment</button>
             </form>
@@ -82,10 +82,11 @@
                 }
             }
         </select>
+        <button type="submit" class="btn btn-primary filter-go-btn">Go</button>
     </form>
 }
 
-<div class="kpi-grid">
+<div class="kpi-grid" id="dashboardRoot" data-report-url="@(selected != null ? Url.Action("Details", "Assessments", new { id = selected.Id }) : null)" data-server="@(Model.SelectedServer ?? "")">
     <div class="kpi-card accent-blue">
         <div class="label">Servers</div>
         <div class="value">@Model.ServerCount</div>
@@ -94,18 +95,36 @@
         <div class="label">Reachable</div>
         <div class="value">@Model.ReachableCount</div>
     </div>
-    <div class="kpi-card accent-red">
-        <div class="label">Critical</div>
-        <div class="value">@Model.CriticalCount</div>
-    </div>
-    <div class="kpi-card accent-amber">
-        <div class="label">High</div>
-        <div class="value">@Model.HighCount</div>
-    </div>
-    <div class="kpi-card accent-teal">
-        <div class="label">Databases</div>
-        <div class="value">@Model.DatabaseCount</div>
-    </div>
+    @if (canOpenAssessments && selected != null)
+    {
+        <a class="kpi-card accent-red kpi-link" href="@Url.Action("Details", "Assessments", new { id = selected.Id, tab = "findings", severity = "Critical", server = Model.SelectedServer })">
+            <div class="label">Critical</div>
+            <div class="value">@Model.CriticalCount</div>
+        </a>
+        <a class="kpi-card accent-amber kpi-link" href="@Url.Action("Details", "Assessments", new { id = selected.Id, tab = "findings", severity = "High", server = Model.SelectedServer })">
+            <div class="label">High</div>
+            <div class="value">@Model.HighCount</div>
+        </a>
+        <a class="kpi-card accent-teal kpi-link" href="@Url.Action("Details", "Assessments", new { id = selected.Id, tab = "databases", server = Model.SelectedServer })">
+            <div class="label">Databases</div>
+            <div class="value">@Model.DatabaseCount</div>
+        </a>
+    }
+    else
+    {
+        <div class="kpi-card accent-red">
+            <div class="label">Critical</div>
+            <div class="value">@Model.CriticalCount</div>
+        </div>
+        <div class="kpi-card accent-amber">
+            <div class="label">High</div>
+            <div class="value">@Model.HighCount</div>
+        </div>
+        <div class="kpi-card accent-teal">
+            <div class="label">Databases</div>
+            <div class="value">@Model.DatabaseCount</div>
+        </div>
+    }
     <div class="kpi-card accent-navy">
         <div class="label">Allocated GB</div>
         <div class="value">@Model.AllocatedStorageGb.ToString("N0")</div>

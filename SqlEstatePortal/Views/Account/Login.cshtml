@@ -5,7 +5,10 @@
 }
 <div class="login-wrap">
     <div class="panel login-panel">
-        <h1>Charles Taylor SQL Estate Management</h1>
+        <div class="login-brand">
+            <img src="~/img/logo.png" alt="Charles Taylor" class="brand-logo login-logo" asp-append-version="true" />
+        </div>
+        <h1>SQL Estate Management</h1>
         <p class="muted">Sign in with your team member account.</p>
         <form asp-action="Login" method="post">
             <input type="hidden" asp-for="ReturnUrl" />
@@ -20,6 +23,6 @@
             </div>
             <button type="submit" class="btn btn-primary w-100">Sign in</button>
         </form>
-        <p class="muted mt-3 mb-0">Default: <code>admin</code> / <code>Admin@123</code></p>
+        @* <p class="muted mt-3 mb-0">Default: <code>admin</code> / <code>Admin@123</code></p> *@
     </div>
 </div>

@@ -1,0 +1,61 @@
+@model IEnumerable<SqlEstatePortal.Models.EstateServer>
+@{
+    ViewData["Title"] = "Servers";
+    var canInsert = await Permissions.HasAsync(User, AppModules.Servers, "insert");
+    var canUpdate = await Permissions.HasAsync(User, AppModules.Servers, "update");
+    var canDelete = await Permissions.HasAsync(User, AppModules.Servers, "delete");
+}
+<div class="page-toolbar">
+    <h1>Servers</h1>
+    @if (canInsert)
+    {
+        <a class="btn btn-primary" asp-action="Create">Add server</a>
+    }
+</div>
+<p class="text-muted mb-3">Only <strong>enabled</strong> servers are included when you run an assessment.</p>
+<div class="panel">
+    <table class="table table-hover align-middle">
+        <thead>
+        @await Html.PartialAsync("_ColumnFilters", canUpdate || canDelete
+            ? new[] { "Server Name", "Enabled", "Notes", "Updated", "" }
+            : new[] { "Server Name", "Enabled", "Notes", "Updated" })
+        </thead>
+        <tbody>
+        @foreach (var s in Model)
+        {
+            <tr>
+                <td>@s.ServerName</td>
+                <td>
+                    <span class="badge @(s.Enabled ? "bg-success" : "bg-secondary")">
+                        @(s.Enabled ? "Yes" : "No")
+                    </span>
+                </td>
+                <td>@(string.IsNullOrWhiteSpace(s.Notes) ? "-" : s.Notes)</td>
+                <td>@((s.UpdatedAt ?? s.CreatedAt).ToLocalTime().ToString("g"))</td>
+                @if (canUpdate || canDelete)
+                {
+                    <td class="text-end text-nowrap">
+                        @if (canUpdate)
+                        {
+                            <form asp-action="ToggleEnabled" asp-route-id="@s.Id" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm btn-outline-secondary">
+                                    @(s.Enabled ? "Disable" : "Enable")
+                                </button>
+                            </form>
+                            <a class="btn btn-sm btn-outline-primary" asp-action="Edit" asp-route-id="@s.Id">Edit</a>
+                        }
+                        @if (canDelete)
+                        {
+                            <form asp-action="Delete" asp-route-id="@s.Id" method="post" class="d-inline" onsubmit="return confirm('Delete this server?');">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                            </form>
+                        }
+                    </td>
+                }
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
