@@ -46,7 +46,7 @@ using (var scope = app.Services.CreateScope())
     await AssessmentSchema.ApplyAsync(db);
     await DbSeeder.SeedAsync(db);
 
-    var json = Path.GetFullPath(Path.Combine(app.Environment.ContentRootPath, "..", "reports", "sql-estate-20260824-182501.json"));
+    var json = Path.GetFullPath(Path.Combine(app.Environment.ContentRootPath, "reports", "sql-estate-20260824-182501.json"));
     var html = Path.ChangeExtension(json, ".html");
     if (File.Exists(json))
     {

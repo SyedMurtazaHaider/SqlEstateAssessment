@@ -52,17 +52,16 @@ On the target server, create:
 
 ```text
 C:\Apps\SqlEstateAssessment\
-  Assess-SqlEstate.ps1
-  servers.txt
-  reports\
   SqlEstatePortal\
+    Assess-SqlEstate.ps1
+    servers.txt
+    reports\
 ```
 
 PowerShell:
 
 ```powershell
-New-Item -ItemType Directory -Force -Path C:\Apps\SqlEstateAssessment\reports | Out-Null
-New-Item -ItemType Directory -Force -Path C:\Apps\SqlEstateAssessment\SqlEstatePortal | Out-Null
+New-Item -ItemType Directory -Force -Path C:\Apps\SqlEstateAssessment\SqlEstatePortal\reports | Out-Null
 ```
 
 ---
@@ -87,18 +86,19 @@ Confirm these files exist on the server:
 - `SqlEstatePortal.dll`
 - `web.config`
 - `appsettings.json`
+- `Assess-SqlEstate.ps1`
 - `wwwroot\` folder
 
 ---
 
 ### A4. Copy collector files
 
-From the project root, copy to `C:\Apps\SqlEstateAssessment\`:
+`dotnet publish` copies `Assess-SqlEstate.ps1` and `servers.example.txt` into the publish output. On the server, in `C:\Apps\SqlEstateAssessment\SqlEstatePortal\`:
 
 | Source | Destination |
 |--------|-------------|
-| `Assess-SqlEstate.ps1` | `C:\Apps\SqlEstateAssessment\Assess-SqlEstate.ps1` |
-| `servers.example.txt` | `C:\Apps\SqlEstateAssessment\servers.txt` (rename and edit) |
+| `Assess-SqlEstate.ps1` | Already in the publish folder |
+| `servers.example.txt` | Copy to `servers.txt` (rename and edit) |
 
 Edit `servers.txt` — one SQL instance per line:
 
@@ -139,9 +139,9 @@ Edit:
     "DefaultConnection": "Server=TARGET\\INSTANCE;Database=SqlEstatePortal;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true"
   },
   "Assessment": {
-    "ScriptPath": "C:\\Apps\\SqlEstateAssessment\\Assess-SqlEstate.ps1",
-    "ServerListPath": "C:\\Apps\\SqlEstateAssessment\\servers.txt",
-    "WorkingDirectory": "C:\\Apps\\SqlEstateAssessment",
+    "ScriptPath": "C:\\Apps\\SqlEstateAssessment\\SqlEstatePortal\\Assess-SqlEstate.ps1",
+    "ServerListPath": "C:\\Apps\\SqlEstateAssessment\\SqlEstatePortal\\servers.txt",
+    "WorkingDirectory": "C:\\Apps\\SqlEstateAssessment\\SqlEstatePortal",
     "SampleSeconds": 2,
     "TrustServerCertificate": true
   },
@@ -191,9 +191,8 @@ Decide which Windows account will run the site (IIS app pool identity). That acc
 
 | Resource | Permission |
 |----------|------------|
-| `C:\Apps\SqlEstateAssessment\` | Read & execute |
-| `C:\Apps\SqlEstateAssessment\reports\` | Modify (write reports) |
 | `C:\Apps\SqlEstateAssessment\SqlEstatePortal\` | Read & execute |
+| `C:\Apps\SqlEstateAssessment\SqlEstatePortal\reports\` | Modify (write reports) |
 | Database `SqlEstatePortal` | `db_owner` (or equivalent) |
 | Assessed SQL servers | Connect + read (Windows auth assessments) |
 
@@ -278,7 +277,7 @@ Without this bundle, ASP.NET Core sites fail with **500.19** / **500.30** / hand
 
 ### B5. Set folder permissions for the app pool
 
-1. In File Explorer, right-click `C:\Apps\SqlEstateAssessment` → **Properties** → **Security** → **Edit** → **Add…**
+1. In File Explorer, right-click `C:\Apps\SqlEstateAssessment\SqlEstatePortal` → **Properties** → **Security** → **Edit** → **Add…**
 2. Add the app-pool identity:
    - Custom domain account: `DOMAIN\SvcSqlEstate`
    - Or built-in pool identity: `IIS AppPool\SqlEstatePortalAppPool`
@@ -286,9 +285,8 @@ Without this bundle, ASP.NET Core sites fail with **500.19** / **500.30** / hand
 
 | Path | Rights |
 |------|--------|
-| `C:\Apps\SqlEstateAssessment` | Read & execute |
-| `C:\Apps\SqlEstateAssessment\reports` | Modify |
 | `C:\Apps\SqlEstateAssessment\SqlEstatePortal` | Read & execute |
+| `C:\Apps\SqlEstateAssessment\SqlEstatePortal\reports` | Modify |
 
 4. In SQL Server, map the same Windows login to `SqlEstatePortal` and grant `db_owner` (or suitable roles).
 
@@ -414,8 +412,8 @@ stdoutLogEnabled="true"
 ```powershell
 Test-NetConnection YOUR-PORTAL-SQL-HOST -Port 1433
 
-powershell -File C:\Apps\SqlEstateAssessment\Assess-SqlEstate.ps1 `
-  -ServerListPath C:\Apps\SqlEstateAssessment\servers.txt `
+powershell -File C:\Apps\SqlEstateAssessment\SqlEstatePortal\Assess-SqlEstate.ps1 `
+  -ServerListPath C:\Apps\SqlEstateAssessment\SqlEstatePortal\servers.txt `
   -TrustServerCertificate
 ```
 
