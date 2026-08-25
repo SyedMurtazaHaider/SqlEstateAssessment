@@ -328,18 +328,19 @@ function ConvertTo-HtmlTable {
         [object[]]$Rows,
         [string[]]$Columns
     )
-    if (-not $Rows -or $Rows.Count -eq 0) {
+    $rowList = @($Rows)
+    if ($rowList.Count -eq 0) {
         return '<p class="muted">None</p>'
     }
     if (-not $Columns) {
-        $Columns = @($Rows[0].PSObject.Properties.Name)
+        $Columns = @($rowList[0].PSObject.Properties.Name)
     }
     $sb = New-Object System.Text.StringBuilder
     [void]$sb.AppendLine('<table>')
     [void]$sb.Append('<thead><tr>')
     foreach ($c in $Columns) { [void]$sb.Append("<th>$(HtmlEncode $c)</th>") }
     [void]$sb.AppendLine('</tr></thead><tbody>')
-    foreach ($row in $Rows) {
+    foreach ($row in $rowList) {
         [void]$sb.Append('<tr>')
         foreach ($c in $Columns) {
             $val = $row.$c
@@ -1074,16 +1075,19 @@ function Write-Reports {
     }
 
     $stamp = Get-Date -Format 'yyyyMMdd-HHmmss'
-    $allFindings = @($Estate | ForEach-Object { $_.Findings }) | Sort-Object @{ Expression = { Get-SeverityOrder $_.Severity } }, Server, Area
-    $reachable = @($Estate | Where-Object { $_.Reachable }).Count
+    $estateList = @($Estate)
+    $allFindings = @(@($estateList | ForEach-Object {
+            if ($null -ne $_.Findings) { $_.Findings }
+        }) | Sort-Object @{ Expression = { Get-SeverityOrder $_.Severity } }, Server, Area)
+    $reachable = @($estateList | Where-Object { $_.Reachable }).Count
     $critical = @($allFindings | Where-Object { $_.Severity -eq 'Critical' }).Count
     $high = @($allFindings | Where-Object { $_.Severity -eq 'High' }).Count
     $medium = @($allFindings | Where-Object { $_.Severity -eq 'Medium' }).Count
     $low = @($allFindings | Where-Object { $_.Severity -eq 'Low' }).Count
-    $eol = @($Estate | Where-Object { $_.Support -and $_.Support.Status -eq 'End of support' }).Count
+    $eol = @($estateList | Where-Object { $_.Support -and $_.Support.Status -eq 'End of support' }).Count
     $totalGb = 0d
     $totalCores = 0
-    foreach ($s in $Estate) {
+    foreach ($s in $estateList) {
         if ($s.Cost) {
             $totalGb += [decimal]$s.Cost.AllocatedDataAndLogGB
             $totalCores += [int]$s.Cost.EstimatedLicensedCores
@@ -1093,9 +1097,9 @@ function Write-Reports {
     $summary = [pscustomobject]@{
         GeneratedLocal       = Get-Date
         GeneratedUtc         = [datetime]::UtcNow
-        ServerCount          = $Estate.Count
+        ServerCount          = $estateList.Count
         ReachableCount       = $reachable
-        UnreachableCount     = $Estate.Count - $reachable
+        UnreachableCount     = $estateList.Count - $reachable
         EndOfSupportCount    = $eol
         AllocatedStorageGB   = [math]::Round($totalGb, 2)
         EstimatedLicensedCores = $totalCores
@@ -1115,7 +1119,7 @@ function Write-Reports {
         Mode             = 'Read-only (SELECT and monitoring queries only)'
         ExecutiveSummary = $summary
         Findings         = $allFindings
-        Servers          = $Estate
+        Servers          = $estateList
     }
 
     $jsonPath = Join-Path $Directory "sql-estate-$stamp.json"
@@ -1158,7 +1162,7 @@ function Write-Reports {
         [pscustomobject]@{ Metric = 'Low findings'; Value = $low }
     )
 
-    $instanceRows = foreach ($s in $Estate) {
+    $instanceRows = foreach ($s in $estateList) {
         $i = $s.Instance
         [pscustomobject]@{
             Server          = $s.Server
@@ -1222,7 +1226,7 @@ function Write-Reports {
   $statusHtml
 "@
 
-    foreach ($s in $Estate) {
+    foreach ($s in $estateList) {
         $html += "<h2>$(HtmlEncode $s.Server)</h2>"
         if ($s.Cost) {
             $html += "<h3>Cost drivers</h3>"
@@ -1259,10 +1263,10 @@ function Write-Reports {
 
 # --- main --------------------------------------------------------------------
 
-$serverList = Get-ServerList
+$serverList = @(Get-ServerList)
 Write-Host "Charles Taylor SQL Estate Management (read-only) - $($serverList.Count) server(s)" -ForegroundColor Cyan
 
-$estate = foreach ($name in $serverList) {
+$estate = @(foreach ($name in $serverList) {
     Write-Host "Assessing $name ..."
     try {
         Assess-Server -ServerName $name
@@ -1307,7 +1311,7 @@ $estate = foreach ($name in $serverList) {
             )
         }
     }
-}
+})
 
 $report = Write-Reports -Estate @($estate) -Directory $OutputDirectory
 
