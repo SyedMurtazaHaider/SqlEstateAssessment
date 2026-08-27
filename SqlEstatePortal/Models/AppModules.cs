@@ -7,6 +7,10 @@ public static class AppModules
     public const string Roles = "Roles";
     public const string Assessments = "Assessments";
     public const string Servers = "Servers";
+    public const string Applications = "Applications";
+    public const string Databases = "Databases";
+    public const string InventoryServers = "InventoryServers";
+    public const string Costs = "Costs";
 
     public static readonly string[] All =
     [
@@ -14,6 +18,10 @@ public static class AppModules
         TeamMembers,
         Roles,
         Assessments,
-        Servers
+        Servers,
+        Applications,
+        Databases,
+        InventoryServers,
+        Costs
     ];
 }

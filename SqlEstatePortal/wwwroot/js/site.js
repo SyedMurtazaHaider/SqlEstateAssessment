@@ -142,9 +142,14 @@
 
     var start = (state.page - 1) * state.pageSize;
     var end = start + state.pageSize;
-    rows.forEach(function (row) { row.hidden = true; });
+    rows.forEach(function (row) {
+      row.hidden = true;
+      row.style.display = 'none';
+    });
     matched.forEach(function (row, index) {
-      row.hidden = index < start || index >= end;
+      var show = index >= start && index < end;
+      row.hidden = !show;
+      row.style.display = show ? '' : 'none';
     });
 
     if (table._pager) renderPager(table._pager, state, matched.length, pages);
@@ -175,6 +180,9 @@
 
     var toolbar = table.previousElementSibling;
     if (!toolbar || !toolbar.classList.contains('table-toolbar')) {
+      toolbar = table.parentElement && table.parentElement.querySelector(':scope > .table-toolbar');
+    }
+    if (!toolbar || !toolbar.classList.contains('table-toolbar')) {
       toolbar = document.createElement('div');
       toolbar.className = 'table-toolbar';
 
@@ -191,7 +199,7 @@
         sizeSelect.appendChild(opt);
       });
       sizeWrap.appendChild(sizeSelect);
-      sizeWrap.appendChild(document.createTextNode(' rows'));
+      sizeWrap.appendChild(document.createTextNode(' entries'));
 
       var input = document.createElement('input');
       input.type = 'search';
@@ -203,17 +211,21 @@
       toolbar.appendChild(sizeWrap);
       toolbar.appendChild(input);
       table.parentNode.insertBefore(toolbar, table);
-      table._searchInput = input;
-      table._pageSizeSelect = sizeSelect;
+    }
 
-      input.addEventListener('input', function () { refreshTable(table, { resetPage: true }); });
-      input.addEventListener('keydown', function (e) {
+    table._searchInput = toolbar.querySelector('.table-search-input');
+    table._pageSizeSelect = toolbar.querySelector('.table-page-size');
+
+    if (table._searchInput && table._searchInput.dataset.bound !== '1') {
+      table._searchInput.dataset.bound = '1';
+      table._searchInput.addEventListener('input', function () { refreshTable(table, { resetPage: true }); });
+      table._searchInput.addEventListener('keydown', function (e) {
         if (e.key === 'Enter') e.preventDefault();
       });
-      sizeSelect.addEventListener('change', function () { refreshTable(table, { resetPage: true }); });
-    } else {
-      table._searchInput = toolbar.querySelector('.table-search-input');
-      table._pageSizeSelect = toolbar.querySelector('.table-page-size');
+    }
+    if (table._pageSizeSelect && table._pageSizeSelect.dataset.bound !== '1') {
+      table._pageSizeSelect.dataset.bound = '1';
+      table._pageSizeSelect.addEventListener('change', function () { refreshTable(table, { resetPage: true }); });
     }
 
     bindColumnFilters(table);

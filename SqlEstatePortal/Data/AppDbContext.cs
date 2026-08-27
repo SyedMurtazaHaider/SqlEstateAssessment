@@ -12,6 +12,10 @@ public class AppDbContext : DbContext
     public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
     public DbSet<TeamMember> TeamMembers => Set<TeamMember>();
     public DbSet<EstateServer> EstateServers => Set<EstateServer>();
+    public DbSet<CtApplication> CtApplications => Set<CtApplication>();
+    public DbSet<CtDatabase> CtDatabases => Set<CtDatabase>();
+    public DbSet<CtServer> CtServers => Set<CtServer>();
+    public DbSet<CtCost> CtCosts => Set<CtCost>();
     public DbSet<AssessmentRun> AssessmentRuns => Set<AssessmentRun>();
     public DbSet<AssessmentFinding> AssessmentFindings => Set<AssessmentFinding>();
     public DbSet<AssessmentServerSnapshot> AssessmentServerSnapshots => Set<AssessmentServerSnapshot>();

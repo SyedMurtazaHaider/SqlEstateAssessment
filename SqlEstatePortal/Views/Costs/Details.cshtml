@@ -1,0 +1,78 @@
+@model SqlEstatePortal.Models.CtCost
+@{
+    ViewData["Title"] = string.IsNullOrWhiteSpace(Model.Name) ? $"Cost #{Model.Id}" : Model.Name;
+    string Dash(string? v) => string.IsNullOrWhiteSpace(v) ? "—" : v;
+    string Money(string? raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw)) return "—";
+        var cleaned = raw.Replace("£", "").Replace(",", "").Trim();
+        return decimal.TryParse(cleaned, System.Globalization.NumberStyles.Any,
+            System.Globalization.CultureInfo.InvariantCulture, out var n)
+            ? "£" + n.ToString("N0")
+            : raw;
+    }
+}
+<div class="page-toolbar">
+    <div>
+        <p class="app-detail-back">
+            <a asp-action="Index">← Cost Register</a>
+        </p>
+        <h1>@Dash(Model.Name)</h1>
+        <p class="estate-line app-detail-sub">
+            <span>@Dash(Model.ServiceName)</span>
+            @if (!string.IsNullOrWhiteSpace(Model.CostGrade))
+            {
+                <span>· Grade @Model.CostGrade</span>
+            }
+        </p>
+    </div>
+</div>
+
+<div class="app-detail-hero">
+    <div class="app-detail-hero-main">
+        <h2>Cost narrative</h2>
+        <p>@(string.IsNullOrWhiteSpace(Model.CostNarrative) ? "No narrative recorded." : Model.CostNarrative)</p>
+    </div>
+    <div class="app-detail-hero-stats">
+        <div><span class="label">TCO</span><strong>@Money(Model.Tco)</strong></div>
+        <div><span class="label">Users</span><strong>@Dash(Model.TotalUsers)</strong></div>
+        <div><span class="label">Cost / head</span><strong>@Money(Model.CostPerHead)</strong></div>
+        <div><span class="label">Grade</span><strong>@Dash(Model.CostGrade)</strong></div>
+    </div>
+</div>
+
+<div class="app-detail-grid">
+    <section class="panel">
+        <h2 class="section-title">Cost breakdown</h2>
+        <dl class="app-detail-dl">
+            <div><dt>Hosting</dt><dd>@Money(Model.HostingCost)</dd></div>
+            <div><dt>License</dt><dd>@Money(Model.LicenseCost)</dd></div>
+            <div><dt>Support</dt><dd>@Money(Model.SupportCost)</dd></div>
+            <div><dt>Change</dt><dd>@Money(Model.ChangeCost)</dd></div>
+            <div><dt>TCO</dt><dd>@Money(Model.Tco)</dd></div>
+            <div><dt>Estimated revenue</dt><dd>@Money(Model.EstimatedRevenue)</dd></div>
+        </dl>
+    </section>
+
+    <section class="panel">
+        <h2 class="section-title">Ownership</h2>
+        <dl class="app-detail-dl">
+            <div><dt>Application</dt><dd>
+                @if (Model.ApplicationId.HasValue)
+                {
+                    <a asp-controller="Applications" asp-action="Details" asp-route-id="@Model.ApplicationId">@Dash(Model.Name)</a>
+                }
+                else
+                {
+                    @Dash(Model.Name)
+                }
+            </dd></div>
+            <div><dt>Service</dt><dd>@Dash(Model.ServiceName)</dd></div>
+            <div><dt>L1 support</dt><dd>@Dash(Model.L1Support)</dd></div>
+            <div><dt>Users</dt><dd>@Dash(Model.TotalUsers)</dd></div>
+            <div><dt>Azure hosting</dt><dd>@(Model.AzureHostingCost.HasValue ? "£" + Model.AzureHostingCost.Value.ToString("N2") : "—")</dd></div>
+            <div><dt>Azure period</dt><dd>@Dash(Model.AzureCostPeriod)</dd></div>
+            <div><dt>Azure synced</dt><dd>@(Model.AzureCostSyncedAt?.ToLocalTime().ToString("g") ?? "—")</dd></div>
+        </dl>
+    </section>
+</div>

@@ -42,7 +42,11 @@ public static class DbSeeder
                     new RolePermission { Module = AppModules.Assessments, CanView = true },
                     new RolePermission { Module = AppModules.TeamMembers, CanView = true },
                     new RolePermission { Module = AppModules.Roles, CanView = true },
-                    new RolePermission { Module = AppModules.Servers, CanView = true }
+                    new RolePermission { Module = AppModules.Servers, CanView = true },
+                    new RolePermission { Module = AppModules.Applications, CanView = true },
+                    new RolePermission { Module = AppModules.Databases, CanView = true },
+                    new RolePermission { Module = AppModules.InventoryServers, CanView = true },
+                    new RolePermission { Module = AppModules.Costs, CanView = true }
                 ]
             };
 
@@ -56,7 +60,11 @@ public static class DbSeeder
                     new RolePermission { Module = AppModules.Assessments, CanView = true, CanInsert = true },
                     new RolePermission { Module = AppModules.TeamMembers, CanView = true },
                     new RolePermission { Module = AppModules.Roles, CanView = true },
-                    new RolePermission { Module = AppModules.Servers, CanView = true, CanInsert = true, CanUpdate = true }
+                    new RolePermission { Module = AppModules.Servers, CanView = true, CanInsert = true, CanUpdate = true },
+                    new RolePermission { Module = AppModules.Applications, CanView = true },
+                    new RolePermission { Module = AppModules.Databases, CanView = true },
+                    new RolePermission { Module = AppModules.InventoryServers, CanView = true },
+                    new RolePermission { Module = AppModules.Costs, CanView = true }
                 ]
             };
 

@@ -1,0 +1,176 @@
+@model SqlEstatePortal.ViewModels.CostRegisterViewModel
+@{
+    ViewData["Title"] = "Cost Register";
+    string Dash(string? v) => string.IsNullOrWhiteSpace(v) ? "" : v;
+    bool Sel(string? current, string option) =>
+        string.Equals(current, option, StringComparison.OrdinalIgnoreCase);
+    string GradeClass(string? g)
+    {
+        if (string.IsNullOrWhiteSpace(g)) return "grade-badge grade-na";
+        var t = g.Trim();
+        if (t.Equals("N/A", StringComparison.OrdinalIgnoreCase) || t.Equals("NA", StringComparison.OrdinalIgnoreCase))
+            return "grade-badge grade-na";
+        var c = char.ToUpperInvariant(t[0]);
+        return c switch
+        {
+            'A' => "grade-badge grade-a",
+            'B' => "grade-badge grade-b",
+            'C' => "grade-badge grade-c",
+            'D' => "grade-badge grade-d",
+            _ => "grade-badge grade-na"
+        };
+    }
+    string GradeLabel(string? g)
+    {
+        if (string.IsNullOrWhiteSpace(g)) return "";
+        var t = g.Trim();
+        if (t.Equals("N/A", StringComparison.OrdinalIgnoreCase) || t.Equals("NA", StringComparison.OrdinalIgnoreCase))
+            return "N/A";
+        return t.Length == 1 ? t.ToUpperInvariant() : t;
+    }
+    string Money(decimal? v) => v.HasValue && v.Value != 0 ? "£" + v.Value.ToString("N0") : (v.HasValue ? "£0" : "");
+    string MoneyOrBlank(decimal? v) => v.HasValue && v.Value > 0 ? "£" + v.Value.ToString("N0") : "";
+    string Users(string? u)
+    {
+        if (string.IsNullOrWhiteSpace(u)) return "";
+        return int.TryParse(u.Replace(",", ""), out var n) ? n.ToString("N0") : u;
+    }
+}
+<div class="register-heading">
+    <h1>Charles Taylor Group - @Model.TotalCount cost records</h1>
+</div>
+
+<div class="panel register-filters-panel">
+    <button type="button" class="register-filters-toggle" data-bs-toggle="collapse" data-bs-target="#costFiltersBody" aria-expanded="true" aria-controls="costFiltersBody">
+        <span>FILTERS</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+    </button>
+    <div class="collapse show" id="costFiltersBody">
+        <form method="get" asp-action="Index" class="register-filters-form">
+            <div class="register-filter-grid">
+                <div>
+                    <label for="application">Application</label>
+                    <select id="application" name="application" class="form-select form-select-sm">
+                        <option value="">All</option>
+                        @foreach (var o in Model.ApplicationOptions)
+                        {
+                            if (Sel(Model.Application, o)) { <option value="@o" selected>@o</option> }
+                            else { <option value="@o">@o</option> }
+                        }
+                    </select>
+                </div>
+                <div>
+                    <label for="service">Service</label>
+                    <select id="service" name="service" class="form-select form-select-sm">
+                        <option value="">All</option>
+                        @foreach (var o in Model.ServiceOptions)
+                        {
+                            if (Sel(Model.Service, o)) { <option value="@o" selected>@o</option> }
+                            else { <option value="@o">@o</option> }
+                        }
+                    </select>
+                </div>
+                <div>
+                    <label for="grade">Grade</label>
+                    <select id="grade" name="grade" class="form-select form-select-sm">
+                        <option value="">All</option>
+                        @foreach (var o in Model.GradeOptions)
+                        {
+                            if (Sel(Model.Grade, o)) { <option value="@o" selected>@o</option> }
+                            else { <option value="@o">@o</option> }
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="register-filter-actions">
+                <button type="submit" class="btn btn-primary register-filter-btn">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z"/></svg>
+                    FILTER
+                </button>
+                <a class="btn btn-outline-secondary" asp-action="Index">RESET</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="panel register-table-panel">
+    <div class="table-scroll">
+        <div class="table-toolbar">
+            <label class="table-page-size-label">
+                Show
+                <select class="form-select form-select-sm table-page-size">
+                    <option value="10">10</option>
+                    <option value="25" selected>25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+                entries
+            </label>
+            <input type="search" class="form-control table-search-input" placeholder="Search all columns..." aria-label="Search all columns" autocomplete="off" />
+        </div>
+        <table class="table table-hover align-middle register-table cost-register-table">
+            <thead>
+            @await Html.PartialAsync("_ColumnFilters", new[]
+            {
+                "Application", "Service", "Grade", "Cost Component",
+                "Hosting", "License", "Support", "Change", "TCO", "Users", "-Actions"
+            })
+            </thead>
+            <tbody>
+            @foreach (var c in Model.Costs)
+            {
+                <tr>
+                    <td>
+                        @if (c.ApplicationId.HasValue)
+                        {
+                            <a class="app-name-link" asp-controller="Applications" asp-action="Details" asp-route-id="@c.ApplicationId">@c.Name</a>
+                        }
+                        else
+                        {
+                            <a class="app-name-link" asp-action="Details" asp-route-id="@c.Id">@c.Name</a>
+                        }
+                    </td>
+                    <td>@Dash(c.ServiceName)</td>
+                    <td>
+                        @if (!string.IsNullOrWhiteSpace(c.CostGrade))
+                        {
+                            <span class="@GradeClass(c.CostGrade)">@GradeLabel(c.CostGrade)</span>
+                        }
+                    </td>
+                    <td>
+                        <div class="cost-component-pills">
+                            @if (c.HasHosting) { <span class="cost-pill cost-pill-hosting">Hosting</span> }
+                            @if (c.HasLicense) { <span class="cost-pill cost-pill-license">License</span> }
+                            @if (c.HasSupport) { <span class="cost-pill cost-pill-support">Support</span> }
+                            @if (c.HasChange) { <span class="cost-pill cost-pill-change">Change</span> }
+                        </div>
+                    </td>
+                    <td>@MoneyOrBlank(c.HostingCost)</td>
+                    <td>@MoneyOrBlank(c.LicenseCost)</td>
+                    <td>@MoneyOrBlank(c.SupportCost)</td>
+                    <td>@MoneyOrBlank(c.ChangeCost)</td>
+                    <td class="tco-cell">@Money(c.Tco)</td>
+                    <td>@Users(c.TotalUsers)</td>
+                    <td class="text-nowrap register-actions">
+                        <a class="action-icon action-edit" asp-action="Details" asp-route-id="@c.Id" title="View details">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1.003 1.003 0 0 0 0-1.42l-2.34-2.34a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82z"/></svg>
+                        </a>
+                    </td>
+                </tr>
+            }
+            </tbody>
+            <tfoot>
+            <tr class="cost-totals-row">
+                <td colspan="4"><strong>TOTALS</strong></td>
+                <td><strong>£@Model.TotalHosting.ToString("N0")</strong></td>
+                <td><strong>£@Model.TotalLicense.ToString("N0")</strong></td>
+                <td><strong>£@Model.TotalSupport.ToString("N0")</strong></td>
+                <td><strong>£@Model.TotalChange.ToString("N0")</strong></td>
+                <td class="tco-cell"><strong>£@Model.TotalTco.ToString("N0")</strong></td>
+                <td></td>
+                <td></td>
+            </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>

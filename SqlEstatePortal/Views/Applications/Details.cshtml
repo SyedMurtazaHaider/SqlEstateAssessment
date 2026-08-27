@@ -1,0 +1,277 @@
+@model SqlEstatePortal.ViewModels.ApplicationDetailsViewModel
+@{
+    var app = Model.Application;
+    ViewData["Title"] = string.IsNullOrWhiteSpace(app.Name) ? $"Application #{app.Id}" : app.Name;
+    string Dash(string? v) => string.IsNullOrWhiteSpace(v) ? "—" : v;
+    string StatusClass(string? s)
+    {
+        if (string.IsNullOrWhiteSpace(s)) return "app-status-neutral";
+        if (s.Contains("EOL", StringComparison.OrdinalIgnoreCase) ||
+            s.Contains("retired", StringComparison.OrdinalIgnoreCase) ||
+            s.Contains("decommission", StringComparison.OrdinalIgnoreCase))
+            return "app-status-eol";
+        if (s.Contains("prod", StringComparison.OrdinalIgnoreCase) ||
+            s.Contains("live", StringComparison.OrdinalIgnoreCase) ||
+            s.Contains("active", StringComparison.OrdinalIgnoreCase))
+            return "app-status-live";
+        return "app-status-neutral";
+    }
+    string DbStatusClass(string? s)
+    {
+        if (string.IsNullOrWhiteSpace(s)) return "status-pill status-neutral";
+        var t = s.Trim();
+        if (t.Equals("Normal", StringComparison.OrdinalIgnoreCase) || t.Equals("Online", StringComparison.OrdinalIgnoreCase))
+            return "status-pill status-active";
+        if (t.Equals("DELETED", StringComparison.OrdinalIgnoreCase) || t.Equals("Offline", StringComparison.OrdinalIgnoreCase))
+            return "status-pill status-eol";
+        if (t.Equals("Paused", StringComparison.OrdinalIgnoreCase))
+            return "status-pill status-limited";
+        return "status-pill status-neutral";
+    }
+}
+<div class="page-toolbar">
+    <div>
+        <p class="app-detail-back">
+            <a asp-action="Index">← Application Register</a>
+        </p>
+        <h1>@Dash(app.Name)</h1>
+        <p class="estate-line app-detail-sub">
+            <span class="app-status-pill @StatusClass(app.Status)">@Dash(app.Status)</span>
+            <span>@Dash(app.ApplicationType)</span>
+            @if (!string.IsNullOrWhiteSpace(app.Code))
+            {
+                <span>· @app.Code</span>
+            }
+        </p>
+    </div>
+</div>
+
+<div class="app-detail-hero">
+    <div class="app-detail-hero-main">
+        <h2>Summary</h2>
+        <p>@(string.IsNullOrWhiteSpace(app.Summary) ? "No summary recorded." : app.Summary)</p>
+    </div>
+    <div class="app-detail-hero-stats">
+        <div><span class="label">Criticality</span><strong>@Dash(app.BusinessCriticality)</strong></div>
+        <div><span class="label">Tech grade</span><strong>@Dash(app.TechGrade)</strong></div>
+        <div><span class="label">Users</span><strong>@Dash(app.Users)</strong></div>
+        <div><span class="label">Location</span><strong>@Dash(app.Location)</strong></div>
+    </div>
+</div>
+
+<div class="app-detail-grid">
+    <section class="panel">
+        <h2 class="section-title">Overview</h2>
+        <dl class="app-detail-dl">
+            <div><dt>Function</dt><dd>@Dash(app.Function)</dd></div>
+            <div><dt>Type</dt><dd>@Dash(app.Type)</dd></div>
+            <div><dt>Vendor</dt><dd>@Dash(app.Vendor)</dd></div>
+            <div><dt>Service owner</dt><dd>@Dash(app.ServiceOwner)</dd></div>
+            <div><dt>Service name</dt><dd>@Dash(app.ServiceName)</dd></div>
+            <div><dt>Service type</dt><dd>@Dash(app.ServiceType)</dd></div>
+            <div><dt>Acquired</dt><dd>@Dash(app.AquiredDate)</dd></div>
+            <div><dt>Asset tag</dt><dd>@Dash(app.AssetTag)</dd></div>
+            <div><dt>External URL</dt><dd>
+                @if (!string.IsNullOrWhiteSpace(app.ExternalUrl))
+                {
+                    <a href="@app.ExternalUrl" target="_blank" rel="noopener noreferrer">@app.ExternalUrl</a>
+                }
+                else
+                {
+                    <text>—</text>
+                }
+            </dd></div>
+            <div><dt>Mapped</dt><dd>@Dash(app.IsMapped)</dd></div>
+        </dl>
+    </section>
+
+    <section class="panel">
+        <h2 class="section-title">Support</h2>
+        <dl class="app-detail-dl">
+            <div><dt>L1 support</dt><dd>@Dash(app.L1Support)</dd></div>
+            <div><dt>L2 support</dt><dd>@Dash(app.L2Support)</dd></div>
+            <div><dt>Application SME</dt><dd>@Dash(app.ApplicationSme)</dd></div>
+            <div><dt>Support partner / MSP</dt><dd>@Dash(app.SupportPartnerMsp)</dd></div>
+            <div><dt>Service grade</dt><dd>@Dash(app.ServiceGrade)</dd></div>
+            <div><dt>Incidents / year</dt><dd>@Dash(app.IncidentsPerYear)</dd></div>
+            <div><dt>Incidents / user</dt><dd>@Dash(app.IncidentsPerUser)</dd></div>
+        </dl>
+        @if (!string.IsNullOrWhiteSpace(app.SupportNarrative))
+        {
+            <h3>Support narrative</h3>
+            <p class="app-narrative">@app.SupportNarrative</p>
+        }
+    </section>
+
+    <section class="panel">
+        <h2 class="section-title">Technical</h2>
+        <dl class="app-detail-dl">
+            <div><dt>Tech grade</dt><dd>@Dash(app.TechGrade)</dd></div>
+            <div><dt>Age of tech</dt><dd>@Dash(app.AgeOfTech)</dd></div>
+            <div><dt>Technical debt</dt><dd>@Dash(app.TechnicalDebt)</dd></div>
+            <div><dt>Tech stack</dt><dd>@Dash(app.TechStack)</dd></div>
+            <div><dt>Host platform</dt><dd>@Dash(app.TargetHostPlatform)</dd></div>
+            <div><dt>Servers</dt><dd>@Dash(app.Servers)</dd></div>
+            <div><dt>Connected systems</dt><dd>@Dash(app.ConnectedSystems)</dd></div>
+            <div><dt>Source code</dt><dd>@Dash(app.SourceCodeLocation)</dd></div>
+            <div><dt>Authentication</dt><dd>@Dash(app.AuthenticationType)</dd></div>
+            <div><dt>Monitoring grade</dt><dd>@Dash(app.MonitoringGrade)</dd></div>
+            <div><dt>Roadmap</dt><dd>@Dash(app.Roadmap)</dd></div>
+            <div><dt>Time roadmap</dt><dd>@Dash(app.TimeRoadmap)</dd></div>
+        </dl>
+    </section>
+
+    <section class="panel">
+        <h2 class="section-title">Data &amp; compliance</h2>
+        <dl class="app-detail-dl">
+            <div><dt>Data classification</dt><dd>@Dash(app.DataClassification)</dd></div>
+            <div><dt>Type of data</dt><dd>@Dash(app.TypeOfData)</dd></div>
+            <div><dt>Data location</dt><dd>@Dash(app.DataLocation)</dd></div>
+            <div><dt>File / data storage</dt><dd>@Dash(app.FileDataStorage)</dd></div>
+            <div><dt>Operating region</dt><dd>@Dash(app.OperatingRegion)</dd></div>
+            <div><dt>Compliance grade</dt><dd>@Dash(app.ComplianceGrade)</dd></div>
+            <div><dt>Disaster recovery</dt><dd>@Dash(app.DisasterRecovery)</dd></div>
+            <div><dt>Last DR test</dt><dd>@Dash(app.LastDrTest)</dd></div>
+            <div><dt>Backup location</dt><dd>@Dash(app.BackedUpDataLocation)</dd></div>
+            <div><dt>Has docs</dt><dd>@Dash(app.HasDocs)</dd></div>
+        </dl>
+        @if (!string.IsNullOrWhiteSpace(app.ComplianceNarrative))
+        {
+            <h3>Compliance narrative</h3>
+            <p class="app-narrative">@app.ComplianceNarrative</p>
+        }
+    </section>
+
+    <section class="panel">
+        <h2 class="section-title">Contract &amp; impact</h2>
+        <dl class="app-detail-dl">
+            <div><dt>Contract type</dt><dd>@Dash(app.ContractType)</dd></div>
+            <div><dt>Renewal date</dt><dd>@Dash(app.ContractRenewalDate)</dd></div>
+            <div><dt>Consumption</dt><dd>@Dash(app.Consumption)</dd></div>
+            <div><dt>Maintenance revenue impact</dt><dd>@Dash(app.MaintenanceRevenueImpact)</dd></div>
+            <div><dt>Maintenance business impact</dt><dd>@Dash(app.MaintenanceBusinessImpact)</dd></div>
+            <div><dt>Outage revenue impact</dt><dd>@Dash(app.OuttageRevenueImpact)</dd></div>
+            <div><dt>Outage business impact</dt><dd>@Dash(app.OuttageBusinessImpact)</dd></div>
+            <div><dt>Manual alternative</dt><dd>@Dash(app.ManualAlternativeProcess)</dd></div>
+        </dl>
+        @if (!string.IsNullOrWhiteSpace(app.ContractNarrative))
+        {
+            <h3>Contract narrative</h3>
+            <p class="app-narrative">@app.ContractNarrative</p>
+        }
+    </section>
+
+    @if (!string.IsNullOrWhiteSpace(app.Features) || !string.IsNullOrWhiteSpace(app.Review))
+    {
+        <section class="panel">
+            <h2 class="section-title">Notes</h2>
+            @if (!string.IsNullOrWhiteSpace(app.Features))
+            {
+                <h3>Features</h3>
+                <p class="app-narrative">@app.Features</p>
+            }
+            @if (!string.IsNullOrWhiteSpace(app.Review))
+            {
+                <h3>Review</h3>
+                <p class="app-narrative">@app.Review</p>
+            }
+        </section>
+    }
+
+    <section class="panel app-detail-wide">
+        <div class="app-detail-section-head">
+            <h2 class="section-title mb-0">Linked databases</h2>
+            <span class="linked-db-count-badge">@Model.LinkedDatabases.Count linked</span>
+        </div>
+        @if (Model.LinkedDatabases.Count == 0)
+        {
+            <p class="muted mb-0">No linked databases.</p>
+        }
+        else
+        {
+            <div class="table-scroll">
+                <table class="table table-hover align-middle register-table linked-db-grid">
+                    <thead>
+                    <tr>
+                        <th>Database</th>
+                        <th>Server</th>
+                        <th>Status</th>
+                        <th>Environment</th>
+                        <th>Edition</th>
+                        <th>Location</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var d in Model.LinkedDatabases)
+                    {
+                        <tr>
+                            <td><a class="app-name-link" asp-controller="Databases" asp-action="Details" asp-route-id="@d.DatabaseId">@d.DatabaseName</a></td>
+                            <td>@Dash(d.ServerName)</td>
+                            <td>
+                                @if (!string.IsNullOrWhiteSpace(d.DatabaseStatus))
+                                {
+                                    <span class="@DbStatusClass(d.DatabaseStatus)">@d.DatabaseStatus</span>
+                                }
+                            </td>
+                            <td>@Dash(d.Environment)</td>
+                            <td>@Dash(d.DatabaseEdition)</td>
+                            <td>@Dash(d.DataCentreLocation)</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+
+    <section class="panel app-detail-wide">
+        <div class="app-detail-section-head">
+            <h2 class="section-title mb-0">Linked servers</h2>
+            <span class="linked-db-count-badge">@Model.LinkedServers.Count linked</span>
+        </div>
+        @if (Model.LinkedServers.Count == 0)
+        {
+            <p class="muted mb-0">No linked servers.</p>
+        }
+        else
+        {
+            <div class="table-scroll">
+                <table class="table table-hover align-middle register-table linked-db-grid">
+                    <thead>
+                    <tr>
+                        <th>Server</th>
+                        <th>Environment</th>
+                        <th>Status</th>
+                        <th>Tower</th>
+                        <th>Subscription</th>
+                        <th>Data centre</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var s in Model.LinkedServers)
+                    {
+                        <tr>
+                            <td>
+                                @if (s.ServerId.HasValue)
+                                {
+                                    <a class="app-name-link" asp-controller="InventoryServers" asp-action="Details" asp-route-id="@s.ServerId">@s.ServerName</a>
+                                }
+                                else
+                                {
+                                    @s.ServerName
+                                }
+                            </td>
+                            <td>@Dash(s.Environment)</td>
+                            <td>@Dash(s.ServerStatus)</td>
+                            <td>@Dash(s.Tower)</td>
+                            <td>@Dash(s.Subscription)</td>
+                            <td>@Dash(s.DataCentreLocation)</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+</div>
+

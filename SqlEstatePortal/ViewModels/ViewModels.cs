@@ -199,3 +199,232 @@ public class ServerSummary
     public string? SupportStatus { get; set; }
     public string? Edition { get; set; }
 }
+
+public class ApplicationRegisterViewModel
+{
+    public string? Application { get; set; }
+    public string? Status { get; set; }
+    public string? Function { get; set; }
+    public string? TimeRoadmap { get; set; }
+    public string? TechGrade { get; set; }
+    public string? Location { get; set; }
+    public string? ComplianceGrade { get; set; }
+    public string? TechnicalDebt { get; set; }
+    public string? OperatingRegion { get; set; }
+    public string? Monitoring { get; set; }
+    public string? Vendor { get; set; }
+
+    public int TotalCount { get; set; }
+
+    public IReadOnlyList<string> ApplicationOptions { get; set; } = [];
+    public IReadOnlyList<string> StatusOptions { get; set; } = [];
+    public IReadOnlyList<string> FunctionOptions { get; set; } = [];
+    public IReadOnlyList<string> TimeRoadmapOptions { get; set; } = [];
+    public IReadOnlyList<string> TechGradeOptions { get; set; } = [];
+    public IReadOnlyList<string> LocationOptions { get; set; } = [];
+    public IReadOnlyList<string> ComplianceGradeOptions { get; set; } = [];
+    public IReadOnlyList<string> TechnicalDebtOptions { get; set; } = [];
+    public IReadOnlyList<string> OperatingRegionOptions { get; set; } = [];
+    public IReadOnlyList<string> MonitoringOptions { get; set; } = [];
+    public IReadOnlyList<string> VendorOptions { get; set; } = [];
+
+    public IReadOnlyList<ApplicationRowViewModel> Applications { get; set; } = [];
+}
+
+public class ApplicationRowViewModel
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string? Status { get; set; }
+    public string? Function { get; set; }
+    public string? ApplicationType { get; set; }
+    public string? TimeRoadmap { get; set; }
+    public string? TechGrade { get; set; }
+    public string? ComplianceGrade { get; set; }
+    public string? Location { get; set; }
+    public string? BusinessCriticality { get; set; }
+    public string? Tco { get; set; }
+    public int LinkedDbCount { get; set; }
+    public int LinkedServerCount { get; set; }
+    public string? ServiceOwner { get; set; }
+    public string? OperatingRegion { get; set; }
+    public string? Vendor { get; set; }
+    public string? TechnicalDebt { get; set; }
+    public string? MonitoringGrade { get; set; }
+}
+
+public class DatabaseRegisterViewModel
+{
+    public string? DatabaseName { get; set; }
+    public string? ServerName { get; set; }
+    public string? Status { get; set; }
+    public string? Environment { get; set; }
+    public string? Tower { get; set; }
+    public string? Edition { get; set; }
+    public string? Location { get; set; }
+    public string? Active { get; set; }
+
+    public int TotalCount { get; set; }
+
+    public IReadOnlyList<string> DatabaseNameOptions { get; set; } = [];
+    public IReadOnlyList<string> ServerNameOptions { get; set; } = [];
+    public IReadOnlyList<string> StatusOptions { get; set; } = [];
+    public IReadOnlyList<string> EnvironmentOptions { get; set; } = [];
+    public IReadOnlyList<string> TowerOptions { get; set; } = [];
+    public IReadOnlyList<string> EditionOptions { get; set; } = [];
+    public IReadOnlyList<string> LocationOptions { get; set; } = [];
+
+    public IReadOnlyList<DatabaseRowViewModel> Databases { get; set; } = [];
+}
+
+public class DatabaseRowViewModel
+{
+    public int TxId { get; set; }
+    public string DatabaseName { get; set; } = string.Empty;
+    public string? ServerName { get; set; }
+    public int? ServerId { get; set; }
+    public string? DatabaseStatus { get; set; }
+    public string? Environment { get; set; }
+    public string? Tower { get; set; }
+    public string? DatabaseEdition { get; set; }
+    public string? ServiceObjective { get; set; }
+    public string? DataCentreLocation { get; set; }
+    public int? CurrentSizeMb { get; set; }
+    public int? MaxSizeGb { get; set; }
+    public int? FreeSpaceMb { get; set; }
+    public bool IsActive { get; set; }
+    public string? ElasticPoolName { get; set; }
+    public string? CompatibilityLevel { get; set; }
+    public string? RecoveryModel { get; set; }
+    public int LinkedApplicationCount { get; set; }
+}
+
+public class ServerRegisterViewModel
+{
+    public string? ServerName { get; set; }
+    public string? Environment { get; set; }
+    public string? Status { get; set; }
+    public string? Tower { get; set; }
+    public string? Subscription { get; set; }
+    public string? DataCentre { get; set; }
+
+    public int TotalCount { get; set; }
+
+    public IReadOnlyList<string> ServerNameOptions { get; set; } = [];
+    public IReadOnlyList<string> EnvironmentOptions { get; set; } = [];
+    public IReadOnlyList<string> StatusOptions { get; set; } = [];
+    public IReadOnlyList<string> TowerOptions { get; set; } = [];
+    public IReadOnlyList<string> SubscriptionOptions { get; set; } = [];
+    public IReadOnlyList<string> DataCentreOptions { get; set; } = [];
+
+    public IReadOnlyList<ServerRowViewModel> Servers { get; set; } = [];
+}
+
+public class ServerRowViewModel
+{
+    public int TxId { get; set; }
+    public string ServerName { get; set; } = string.Empty;
+    public string? Environment { get; set; }
+    public string? ServerStatus { get; set; }
+    public string? Tower { get; set; }
+    public string? Subscription { get; set; }
+    public string? DataCentreLocation { get; set; }
+    public int DatabaseCount { get; set; }
+    public int OnlineDatabaseCount { get; set; }
+    public int PoolCount { get; set; }
+    public int LinkedApplicationCount { get; set; }
+}
+
+public class CostRegisterViewModel
+{
+    public string? Application { get; set; }
+    public string? Service { get; set; }
+    public string? Grade { get; set; }
+
+    public int TotalCount { get; set; }
+    public decimal TotalHosting { get; set; }
+    public decimal TotalLicense { get; set; }
+    public decimal TotalSupport { get; set; }
+    public decimal TotalChange { get; set; }
+    public decimal TotalTco { get; set; }
+
+    public IReadOnlyList<string> ApplicationOptions { get; set; } = [];
+    public IReadOnlyList<string> ServiceOptions { get; set; } = [];
+    public IReadOnlyList<string> GradeOptions { get; set; } = [];
+
+    public IReadOnlyList<CostRowViewModel> Costs { get; set; } = [];
+}
+
+public class CostRowViewModel
+{
+    public int Id { get; set; }
+    public int? ApplicationId { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string? ServiceName { get; set; }
+    public string? CostGrade { get; set; }
+    public decimal? HostingCost { get; set; }
+    public decimal? LicenseCost { get; set; }
+    public decimal? SupportCost { get; set; }
+    public decimal? ChangeCost { get; set; }
+    public decimal? Tco { get; set; }
+    public string? TotalUsers { get; set; }
+    public bool HasHosting { get; set; }
+    public bool HasLicense { get; set; }
+    public bool HasSupport { get; set; }
+    public bool HasChange { get; set; }
+}
+
+public class ApplicationDetailsViewModel
+{
+    public CtApplication Application { get; set; } = null!;
+    public IReadOnlyList<LinkedDatabaseItemViewModel> LinkedDatabases { get; set; } = [];
+    public IReadOnlyList<LinkedServerItemViewModel> LinkedServers { get; set; } = [];
+}
+
+public class ServerDetailsViewModel
+{
+    public CtServer Server { get; set; } = null!;
+    public IReadOnlyList<LinkedDatabaseItemViewModel> LinkedDatabases { get; set; } = [];
+    public IReadOnlyList<LinkedApplicationItemViewModel> LinkedApplications { get; set; } = [];
+}
+
+public class DatabaseDetailsViewModel
+{
+    public CtDatabase Database { get; set; } = null!;
+    public LinkedServerItemViewModel? LinkedServer { get; set; }
+    public IReadOnlyList<LinkedApplicationItemViewModel> LinkedApplications { get; set; } = [];
+}
+
+public class LinkedDatabaseItemViewModel
+{
+    public int DatabaseId { get; set; }
+    public string DatabaseName { get; set; } = string.Empty;
+    public string? ServerName { get; set; }
+    public string? Environment { get; set; }
+    public string? DatabaseStatus { get; set; }
+    public string? DatabaseEdition { get; set; }
+    public string? DataCentreLocation { get; set; }
+}
+
+public class LinkedServerItemViewModel
+{
+    public int? ServerId { get; set; }
+    public string ServerName { get; set; } = string.Empty;
+    public string? Environment { get; set; }
+    public string? ServerStatus { get; set; }
+    public string? Tower { get; set; }
+    public string? Subscription { get; set; }
+    public string? DataCentreLocation { get; set; }
+}
+
+public class LinkedApplicationItemViewModel
+{
+    public int ApplicationId { get; set; }
+    public string? ApplicationName { get; set; }
+    public string? Status { get; set; }
+    public string? Function { get; set; }
+    public string? ApplicationType { get; set; }
+    public string? Location { get; set; }
+    public string? ServiceOwner { get; set; }
+    public string? OperatingRegion { get; set; }
+}

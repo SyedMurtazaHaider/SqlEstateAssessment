@@ -1,0 +1,333 @@
+@model SqlEstatePortal.ViewModels.DatabaseRegisterViewModel
+@{
+    ViewData["Title"] = "Database Register";
+    string Dash(string? v) => string.IsNullOrWhiteSpace(v) ? "" : v;
+    bool Sel(string? current, string option) =>
+        string.Equals(current, option, StringComparison.OrdinalIgnoreCase);
+    string StatusClass(string? s)
+    {
+        if (string.IsNullOrWhiteSpace(s)) return "status-pill status-neutral";
+        var t = s.Trim();
+        if (t.Equals("Normal", StringComparison.OrdinalIgnoreCase) || t.Equals("Online", StringComparison.OrdinalIgnoreCase))
+            return "status-pill status-active";
+        if (t.Equals("DELETED", StringComparison.OrdinalIgnoreCase) || t.Equals("Offline", StringComparison.OrdinalIgnoreCase))
+            return "status-pill status-eol";
+        if (t.Equals("Paused", StringComparison.OrdinalIgnoreCase))
+            return "status-pill status-limited";
+        return "status-pill status-neutral";
+    }
+}
+<div class="register-heading">
+    <h1>Charles Taylor Group - @Model.TotalCount databases</h1>
+</div>
+
+<div class="panel register-filters-panel">
+    <button type="button" class="register-filters-toggle" data-bs-toggle="collapse" data-bs-target="#dbFiltersBody" aria-expanded="true" aria-controls="dbFiltersBody">
+        <span>FILTERS</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+    </button>
+    <div class="collapse show" id="dbFiltersBody">
+        <form method="get" asp-action="Index" class="register-filters-form">
+            <div class="register-filter-grid">
+                <div>
+                    <label for="databaseName">Database</label>
+                    <select id="databaseName" name="databaseName" class="form-select form-select-sm">
+                        <option value="">All</option>
+                        @foreach (var o in Model.DatabaseNameOptions)
+                        {
+                            if (Sel(Model.DatabaseName, o)) { <option value="@o" selected>@o</option> }
+                            else { <option value="@o">@o</option> }
+                        }
+                    </select>
+                </div>
+                <div>
+                    <label for="serverName">Server</label>
+                    <select id="serverName" name="serverName" class="form-select form-select-sm">
+                        <option value="">All</option>
+                        @foreach (var o in Model.ServerNameOptions)
+                        {
+                            if (Sel(Model.ServerName, o)) { <option value="@o" selected>@o</option> }
+                            else { <option value="@o">@o</option> }
+                        }
+                    </select>
+                </div>
+                <div>
+                    <label for="status">Status</label>
+                    <select id="status" name="status" class="form-select form-select-sm">
+                        <option value="">All</option>
+                        @foreach (var o in Model.StatusOptions)
+                        {
+                            if (Sel(Model.Status, o)) { <option value="@o" selected>@o</option> }
+                            else { <option value="@o">@o</option> }
+                        }
+                    </select>
+                </div>
+                <div>
+                    <label for="environment">Environment</label>
+                    <select id="environment" name="environment" class="form-select form-select-sm">
+                        <option value="">All</option>
+                        @foreach (var o in Model.EnvironmentOptions)
+                        {
+                            if (Sel(Model.Environment, o)) { <option value="@o" selected>@o</option> }
+                            else { <option value="@o">@o</option> }
+                        }
+                    </select>
+                </div>
+                <div>
+                    <label for="tower">Tower</label>
+                    <select id="tower" name="tower" class="form-select form-select-sm">
+                        <option value="">All</option>
+                        @foreach (var o in Model.TowerOptions)
+                        {
+                            if (Sel(Model.Tower, o)) { <option value="@o" selected>@o</option> }
+                            else { <option value="@o">@o</option> }
+                        }
+                    </select>
+                </div>
+                <div>
+                    <label for="edition">Edition</label>
+                    <select id="edition" name="edition" class="form-select form-select-sm">
+                        <option value="">All</option>
+                        @foreach (var o in Model.EditionOptions)
+                        {
+                            if (Sel(Model.Edition, o)) { <option value="@o" selected>@o</option> }
+                            else { <option value="@o">@o</option> }
+                        }
+                    </select>
+                </div>
+                <div>
+                    <label for="location">Location</label>
+                    <select id="location" name="location" class="form-select form-select-sm">
+                        <option value="">All</option>
+                        @foreach (var o in Model.LocationOptions)
+                        {
+                            if (Sel(Model.Location, o)) { <option value="@o" selected>@o</option> }
+                            else { <option value="@o">@o</option> }
+                        }
+                    </select>
+                </div>
+                <div>
+                    <label for="active">Active</label>
+                    <select id="active" name="active" class="form-select form-select-sm">
+                        <option value="">All</option>
+                        @if (Model.Active == "1")
+                        {
+                            <option value="1" selected>Yes</option>
+                            <option value="0">No</option>
+                        }
+                        else if (Model.Active == "0")
+                        {
+                            <option value="1">Yes</option>
+                            <option value="0" selected>No</option>
+                        }
+                        else
+                        {
+                            <option value="1">Yes</option>
+                            <option value="0">No</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="register-filter-actions">
+                <button type="submit" class="btn btn-primary register-filter-btn">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z"/></svg>
+                    FILTER
+                </button>
+                <a class="btn btn-outline-secondary" asp-action="Index">RESET</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="panel register-table-panel">
+    <div class="table-scroll">
+        <div class="table-toolbar">
+            <label class="table-page-size-label">
+                Show
+                <select class="form-select form-select-sm table-page-size">
+                    <option value="10">10</option>
+                    <option value="25" selected>25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+                entries
+            </label>
+            <input type="search" class="form-control table-search-input" placeholder="Search all columns..." aria-label="Search all columns" autocomplete="off" />
+        </div>
+        <table class="table table-hover align-middle register-table">
+            <thead>
+            @await Html.PartialAsync("_ColumnFilters", new[]
+            {
+                "Database", "Server", "Status", "Environment", "Tower", "Edition",
+                "Location", "Linked Apps", "Linked Server"
+            })
+            </thead>
+            <tbody>
+            @foreach (var db in Model.Databases)
+            {
+                <tr>
+                    <td>
+                        <a class="app-name-link" asp-action="Details" asp-route-id="@db.TxId">@db.DatabaseName</a>
+                    </td>
+                    <td>
+                        @if (db.ServerId is int sid && !string.IsNullOrWhiteSpace(db.ServerName))
+                        {
+                            <a class="app-name-link" asp-controller="InventoryServers" asp-action="Details" asp-route-id="@sid">@db.ServerName</a>
+                        }
+                        else
+                        {
+                            @Dash(db.ServerName)
+                        }
+                    </td>
+                    <td>
+                        @if (!string.IsNullOrWhiteSpace(db.DatabaseStatus))
+                        {
+                            <span class="@StatusClass(db.DatabaseStatus)">@db.DatabaseStatus</span>
+                        }
+                    </td>
+                    <td>@Dash(db.Environment)</td>
+                    <td>@Dash(db.Tower)</td>
+                    <td>@Dash(db.DatabaseEdition)</td>
+                    <td>@Dash(db.DataCentreLocation)</td>
+                    <td>
+                        @if (db.LinkedApplicationCount > 0)
+                        {
+                            <button type="button"
+                                    class="linked-db linked-db-on linked-db-btn db-app-btn"
+                                    data-db-id="@db.TxId"
+                                    data-db-name="@db.DatabaseName"
+                                    title="View linked applications">@db.LinkedApplicationCount</button>
+                        }
+                        else
+                        {
+                            <span class="linked-db linked-db-off">0</span>
+                        }
+                    </td>
+                    <td>
+                        @if (db.ServerId is int linkedServerId && !string.IsNullOrWhiteSpace(db.ServerName))
+                        {
+                            <a class="linked-db linked-db-on"
+                               asp-controller="InventoryServers"
+                               asp-action="Details"
+                               asp-route-id="@linkedServerId"
+                               title="Open linked server">1</a>
+                        }
+                        else if (!string.IsNullOrWhiteSpace(db.ServerName))
+                        {
+                            <span class="linked-db linked-db-on" title="@db.ServerName">1</span>
+                        }
+                        else
+                        {
+                            <span class="linked-db linked-db-off">0</span>
+                        }
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="dbAppsModal" tabindex="-1" aria-labelledby="dbAppsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content linked-db-modal">
+            <div class="modal-header">
+                <div>
+                    <h2 class="modal-title" id="dbAppsModalLabel">LINKED APPLICATIONS GRID</h2>
+                    <p class="linked-db-modal-sub muted mb-0" id="dbAppsName"></p>
+                </div>
+                <div class="linked-db-modal-meta">
+                    <span class="linked-db-count-badge" id="dbAppsCount">0 linked</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="table-scroll">
+                    <table class="table table-hover align-middle register-table linked-db-grid">
+                        <thead>
+                        <tr>
+                            <th>Application</th>
+                            <th>Status</th>
+                            <th>Function</th>
+                            <th>Type</th>
+                            <th>Location</th>
+                            <th>Owner</th>
+                            <th>Region</th>
+                        </tr>
+                        </thead>
+                        <tbody id="dbAppsBody">
+                        <tr><td colspan="7" class="muted">Loading…</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+(function () {
+  if (typeof bootstrap === 'undefined') return;
+
+  function esc(v) {
+    if (v == null || v === '') return '';
+    return String(v)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  var listUrl = '@Url.Action("LinkedApplications", "Databases")';
+  var detailsBase = '@Url.Action("Details", "Applications")';
+  var modalEl = document.getElementById('dbAppsModal');
+  if (!modalEl) return;
+  var modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+  var body = document.getElementById('dbAppsBody');
+  var countEl = document.getElementById('dbAppsCount');
+  var nameEl = document.getElementById('dbAppsName');
+
+  function renderRows(rows) {
+    if (!rows.length) {
+      body.innerHTML = '<tr><td colspan="7" class="muted">No linked applications.</td></tr>';
+      return;
+    }
+    body.innerHTML = rows.map(function (a) {
+      var name = esc(a.applicationName || ('#' + a.applicationId));
+      var href = detailsBase + '/' + encodeURIComponent(a.applicationId);
+      return '<tr>' +
+        '<td><a class="app-name-link" href="' + href + '">' + name + '</a></td>' +
+        '<td>' + esc(a.status) + '</td>' +
+        '<td>' + esc(a.function) + '</td>' +
+        '<td>' + esc(a.applicationType) + '</td>' +
+        '<td>' + esc(a.location) + '</td>' +
+        '<td>' + esc(a.serviceOwner) + '</td>' +
+        '<td>' + esc(a.operatingRegion) + '</td>' +
+        '</tr>';
+    }).join('');
+  }
+
+  document.querySelectorAll('.db-app-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var id = btn.getAttribute('data-db-id');
+      var name = btn.getAttribute('data-db-name') || '';
+      nameEl.textContent = name;
+      countEl.textContent = 'Loading…';
+      body.innerHTML = '<tr><td colspan="7" class="muted">Loading…</td></tr>';
+      modal.show();
+      fetch(listUrl + '?id=' + encodeURIComponent(id), { headers: { 'Accept': 'application/json' } })
+        .then(function (r) { if (!r.ok) throw new Error('Failed'); return r.json(); })
+        .then(function (data) {
+          countEl.textContent = (data.count || 0) + ' linked';
+          renderRows(data.applications || []);
+        })
+        .catch(function () {
+          countEl.textContent = '0 linked';
+          body.innerHTML = '<tr><td colspan="7" class="muted">Unable to load linked applications.</td></tr>';
+        });
+    });
+  });
+})();
+</script>
+}

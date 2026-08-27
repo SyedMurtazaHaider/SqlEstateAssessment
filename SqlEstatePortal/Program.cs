@@ -43,15 +43,16 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     await db.Database.EnsureCreatedAsync();
     await AssessmentSchema.ApplyAsync(db);
+    await CtInventorySchema.ApplyAsync(db);
     await DbSeeder.SeedAsync(db, app.Environment);
 
-    var json = Path.GetFullPath(Path.Combine(app.Environment.ContentRootPath, "reports", "sql-estate-20260824-182501.json"));
-    var html = Path.ChangeExtension(json, ".html");
-    if (File.Exists(json))
-    {
-        var runner = scope.ServiceProvider.GetRequiredService<AssessmentRunnerService>();
-        await runner.ImportFileAsync(json, "html-report", File.Exists(html) ? html : null, force: false);
-    }
+    // Remove auto-imported sample assessment data (never re-seed into the grid).
+    await db.Database.ExecuteSqlRawAsync(
+        """
+        DELETE FROM AssessmentRuns
+        WHERE TriggeredBy = N'html-report'
+           OR ReportJsonPath LIKE N'%sql-estate-20260824-182501.json';
+        """);
 }
 
 if (!app.Environment.IsDevelopment())
