@@ -48,6 +48,8 @@ public class AssessmentsController : Controller
             .Include(x => x.Waits)
             .Include(x => x.Jobs)
             .Include(x => x.Sysadmins)
+            .Include(x => x.Configurations)
+            .Include(x => x.Backups)
             .AsSplitQuery()
             .FirstOrDefaultAsync(x => x.Id == id);
         if (run == null) return NotFound();

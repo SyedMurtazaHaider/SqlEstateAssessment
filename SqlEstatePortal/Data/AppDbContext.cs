@@ -25,6 +25,8 @@ public class AppDbContext : DbContext
     public DbSet<AssessmentWait> AssessmentWaits => Set<AssessmentWait>();
     public DbSet<AssessmentJob> AssessmentJobs => Set<AssessmentJob>();
     public DbSet<AssessmentSysadmin> AssessmentSysadmins => Set<AssessmentSysadmin>();
+    public DbSet<AssessmentConfiguration> AssessmentConfigurations => Set<AssessmentConfiguration>();
+    public DbSet<AssessmentBackup> AssessmentBackups => Set<AssessmentBackup>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -103,6 +105,18 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<AssessmentSysadmin>()
             .HasOne(x => x.AssessmentRun)
             .WithMany(x => x.Sysadmins)
+            .HasForeignKey(x => x.AssessmentRunId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<AssessmentConfiguration>()
+            .HasOne(x => x.AssessmentRun)
+            .WithMany(x => x.Configurations)
+            .HasForeignKey(x => x.AssessmentRunId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<AssessmentBackup>()
+            .HasOne(x => x.AssessmentRun)
+            .WithMany(x => x.Backups)
             .HasForeignKey(x => x.AssessmentRunId)
             .OnDelete(DeleteBehavior.Cascade);
 

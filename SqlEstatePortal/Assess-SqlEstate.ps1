@@ -385,26 +385,20 @@ FROM sys.dm_os_sys_info AS i;
 '@
 
 $QueryConfig = @'
-SELECT name, CAST(value_in_use AS bigint) AS value_in_use
-FROM sys.configurations
-WHERE name IN (
-    N'max server memory (MB)',
-    N'min server memory (MB)',
-    N'max degree of parallelism',
-    N'cost threshold for parallelism',
-    N'backup compression default',
-    N'clr enabled',
-    N'xp_cmdshell',
-    N'Ole Automation Procedures',
-    N'remote access',
-    N'remote admin connections',
-    N'optimize for ad hoc workloads',
-    N'Database Mail XPs',
-    N'scan for startup procs',
-    N'cross db ownership chaining',
-    N'contained database authentication',
-    N'show advanced options'
-);
+-- Full sp_configure catalogue (incl. advanced). Uses sys.configurations so we do not
+-- need to run RECONFIGURE / change show advanced options on the target instance.
+SELECT
+    c.name,
+    CAST(c.minimum AS bigint) AS minimum,
+    CAST(c.maximum AS bigint) AS maximum,
+    CAST(c.value AS bigint) AS config_value,
+    CAST(c.value_in_use AS bigint) AS run_value,
+    CAST(c.value_in_use AS bigint) AS value_in_use,
+    c.description,
+    CAST(c.is_dynamic AS bit) AS is_dynamic,
+    CAST(c.is_advanced AS bit) AS is_advanced
+FROM sys.configurations AS c
+ORDER BY c.name;
 '@
 
 $QueryDatabases = @'
@@ -440,12 +434,19 @@ LEFT JOIN sys.server_principals AS sp
 
 $QueryBackups = @'
 SELECT
-    bs.database_name,
+    d.name AS database_name,
+    d.name AS DatabaseName,
     MAX(CASE WHEN bs.type = 'D' THEN bs.backup_finish_date END) AS LastFull,
+    MAX(CASE WHEN bs.type = 'D' THEN bs.backup_finish_date END) AS LastFullBackup,
     MAX(CASE WHEN bs.type = 'I' THEN bs.backup_finish_date END) AS LastDiff,
-    MAX(CASE WHEN bs.type = 'L' THEN bs.backup_finish_date END) AS LastLog
-FROM msdb.dbo.backupset AS bs
-GROUP BY bs.database_name;
+    MAX(CASE WHEN bs.type = 'I' THEN bs.backup_finish_date END) AS LastDifferentialBackup,
+    MAX(CASE WHEN bs.type = 'L' THEN bs.backup_finish_date END) AS LastLog,
+    MAX(CASE WHEN bs.type = 'L' THEN bs.backup_finish_date END) AS LastLogBackup
+FROM sys.databases AS d
+LEFT JOIN msdb.dbo.backupset AS bs
+    ON d.name = bs.database_name
+GROUP BY d.name
+ORDER BY d.name;
 '@
 
 $QueryJobs = @'
@@ -1241,6 +1242,8 @@ function Write-Reports {
         $html += "<h3>Services</h3>" + (ConvertTo-HtmlTable @($s.Services))
         $html += "<h3>Top waits</h3>" + (ConvertTo-HtmlTable @($s.Waits) @('wait_type','waiting_tasks_count','wait_time_ms','signal_wait_time_ms','WaitPct'))
         $html += "<h3>Sysadmins</h3>" + (ConvertTo-HtmlTable @($s.Sysadmins))
+        $html += "<h3>Last backups</h3>" + (ConvertTo-HtmlTable @($s.Backups) @('DatabaseName','LastFullBackup','LastDifferentialBackup','LastLogBackup'))
+        $html += "<h3>sp_configure</h3>" + (ConvertTo-HtmlTable @($s.Configuration) @('name','minimum','maximum','config_value','run_value','is_dynamic','is_advanced','description'))
         $html += "<h3>Availability groups</h3>" + (ConvertTo-HtmlTable @($s.AvailabilityGroups))
         $html += "<h3>SQL Agent jobs</h3>" + (ConvertTo-HtmlTable @($s.Jobs) @('JobName','enabled','LastRunStatus','LastRun','Message'))
     }

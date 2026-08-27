@@ -13,11 +13,13 @@
         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-findings" type="button">Findings</button></li>
         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-status" type="button">Estate status</button></li>
         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-databases" type="button">Databases</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-backups" type="button">Last backups</button></li>
         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-volumes" type="button">Volumes</button></li>
         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-services" type="button">Services</button></li>
         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-waits" type="button">Top waits</button></li>
         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-sysadmins" type="button">Sysadmins</button></li>
         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-jobs" type="button">SQL Agent jobs</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-configure" type="button">sp_configure</button></li>
     </ul>
 
     <div class="tab-content estate-tab-content">
@@ -109,6 +111,30 @@
                         <td>@d.DataMb?.ToString("N2")</td>
                         <td>@d.LogMb?.ToString("N2")</td>
                         <td>@d.OwnerName</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="tab-pane fade" id="tab-backups">
+            <p class="muted">Last full / differential / log backup times from <code>msdb.dbo.backupset</code> for each database.</p>
+            <table class="table table-sm">
+                <thead>
+                    @await Html.PartialAsync("_ColumnFilters", new[]
+                    {
+                        "Server", "Database", "Last full backup", "Last differential backup", "Last log backup"
+                    })
+                </thead>
+                <tbody>
+                @foreach (var b in Model.Backups.OrderBy(x => x.ServerName).ThenBy(x => x.DatabaseName))
+                {
+                    <tr data-server="@b.ServerName">
+                        <td>@b.ServerName</td>
+                        <td>@b.DatabaseName</td>
+                        <td>@(b.LastFullBackup?.ToString("yyyy-MM-dd HH:mm") ?? "—")</td>
+                        <td>@(b.LastDifferentialBackup?.ToString("yyyy-MM-dd HH:mm") ?? "—")</td>
+                        <td>@(b.LastLogBackup?.ToString("yyyy-MM-dd HH:mm") ?? "—")</td>
                     </tr>
                 }
                 </tbody>
@@ -213,6 +239,35 @@
                         <td>@j.LastRunStatus</td>
                         <td>@j.LastRun?.ToString("yyyy-MM-dd HH:mm")</td>
                         <td>@j.Message</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="tab-pane fade" id="tab-configure">
+            <p class="muted">Full <code>sp_configure</code> catalogue from <code>sys.configurations</code> (includes advanced options).</p>
+            <table class="table table-sm">
+                <thead>
+                    @await Html.PartialAsync("_ColumnFilters", new[]
+                    {
+                        "Server", "Name", "Minimum", "Maximum", "Config value", "Run value",
+                        "Dynamic", "Advanced", "Description"
+                    })
+                </thead>
+                <tbody>
+                @foreach (var c in Model.Configurations.OrderBy(x => x.ServerName).ThenBy(x => x.Name))
+                {
+                    <tr data-server="@c.ServerName">
+                        <td>@c.ServerName</td>
+                        <td>@c.Name</td>
+                        <td>@c.Minimum</td>
+                        <td>@c.Maximum</td>
+                        <td>@c.ConfigValue</td>
+                        <td>@c.RunValue</td>
+                        <td>@(c.IsDynamic ? "Yes" : "No")</td>
+                        <td>@(c.IsAdvanced ? "Yes" : "No")</td>
+                        <td>@c.Description</td>
                     </tr>
                 }
                 </tbody>

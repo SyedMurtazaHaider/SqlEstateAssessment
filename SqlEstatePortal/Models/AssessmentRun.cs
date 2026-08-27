@@ -49,4 +49,6 @@ public class AssessmentRun
     public ICollection<AssessmentWait> Waits { get; set; } = new List<AssessmentWait>();
     public ICollection<AssessmentJob> Jobs { get; set; } = new List<AssessmentJob>();
     public ICollection<AssessmentSysadmin> Sysadmins { get; set; } = new List<AssessmentSysadmin>();
+    public ICollection<AssessmentConfiguration> Configurations { get; set; } = new List<AssessmentConfiguration>();
+    public ICollection<AssessmentBackup> Backups { get; set; } = new List<AssessmentBackup>();
 }

@@ -129,7 +129,9 @@ public class DashboardController : Controller
             Services = run.Services.Where(s => Match(s.ServerName)).ToList(),
             Waits = run.Waits.Where(w => Match(w.ServerName)).ToList(),
             Jobs = run.Jobs.Where(j => Match(j.ServerName)).ToList(),
-            Sysadmins = run.Sysadmins.Where(a => Match(a.ServerName)).ToList()
+            Sysadmins = run.Sysadmins.Where(a => Match(a.ServerName)).ToList(),
+            Configurations = run.Configurations.Where(c => Match(c.ServerName)).ToList(),
+            Backups = run.Backups.Where(b => Match(b.ServerName)).ToList()
         };
     }
 
@@ -219,6 +221,8 @@ public class DashboardController : Controller
             .Include(x => x.Waits)
             .Include(x => x.Jobs)
             .Include(x => x.Sysadmins)
+            .Include(x => x.Configurations)
+            .Include(x => x.Backups)
             .AsSplitQuery()
             .FirstOrDefaultAsync(x => x.Id == id);
 }

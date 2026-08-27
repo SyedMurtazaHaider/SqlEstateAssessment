@@ -343,6 +343,38 @@ public class AssessmentRunnerService
                     CreateDate = GetDate(admin, "create_date")
                 });
             }
+
+            foreach (var cfg in Enumerate(s, "Configuration"))
+            {
+                run.Configurations.Add(new AssessmentConfiguration
+                {
+                    ServerName = serverName,
+                    Name = GetString(cfg, "name"),
+                    Minimum = GetLongOrNull(cfg, "minimum"),
+                    Maximum = GetLongOrNull(cfg, "maximum"),
+                    ConfigValue = GetLongOrNull(cfg, "config_value") ?? GetLongOrNull(cfg, "value"),
+                    RunValue = GetLongOrNull(cfg, "run_value") ?? GetLongOrNull(cfg, "value_in_use"),
+                    Description = NullIfEmpty(GetString(cfg, "description")),
+                    IsDynamic = GetBool(cfg, "is_dynamic"),
+                    IsAdvanced = GetBool(cfg, "is_advanced")
+                });
+            }
+
+            foreach (var b in Enumerate(s, "Backups"))
+            {
+                var dbName = FirstNonEmpty(GetString(b, "DatabaseName"), GetString(b, "database_name"));
+                if (string.IsNullOrWhiteSpace(dbName))
+                    continue;
+
+                run.Backups.Add(new AssessmentBackup
+                {
+                    ServerName = serverName,
+                    DatabaseName = dbName,
+                    LastFullBackup = GetDate(b, "LastFullBackup") ?? GetDate(b, "LastFull"),
+                    LastDifferentialBackup = GetDate(b, "LastDifferentialBackup") ?? GetDate(b, "LastDiff"),
+                    LastLogBackup = GetDate(b, "LastLogBackup") ?? GetDate(b, "LastLog")
+                });
+            }
         }
 
         await _db.SaveChangesAsync(cancellationToken);
@@ -389,11 +421,16 @@ public class AssessmentRunnerService
     }
 
     private static long GetLong(JsonElement el, string name)
+        => GetLongOrNull(el, name) ?? 0;
+
+    private static long? GetLongOrNull(JsonElement el, string name)
     {
-        if (!el.TryGetProperty(name, out var p) || p.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined) return 0;
+        if (el.ValueKind is JsonValueKind.Undefined or JsonValueKind.Null) return null;
+        if (!el.TryGetProperty(name, out var p) || p.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined) return null;
         if (p.TryGetInt64(out var i)) return i;
         if (p.TryGetDecimal(out var d)) return (long)d;
-        return 0;
+        if (p.ValueKind == JsonValueKind.String && long.TryParse(p.GetString(), out var s)) return s;
+        return null;
     }
 
     private static decimal? GetDecimal(JsonElement el, string name)
@@ -426,6 +463,16 @@ public class AssessmentRunnerService
     }
 
     private static string? NullIfEmpty(string value) => string.IsNullOrWhiteSpace(value) ? null : value;
+
+    private static string FirstNonEmpty(params string?[] values)
+    {
+        foreach (var v in values)
+        {
+            if (!string.IsNullOrWhiteSpace(v))
+                return v.Trim();
+        }
+        return string.Empty;
+    }
 
     private static DateTime? SanitizeCheckDb(DateTime? value)
         => value is { Year: < 1990 } ? null : value;

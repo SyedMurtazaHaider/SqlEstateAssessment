@@ -137,3 +137,44 @@ public class AssessmentSysadmin
     public bool IsDisabled { get; set; }
     public DateTime? CreateDate { get; set; }
 }
+
+public class AssessmentConfiguration
+{
+    public int Id { get; set; }
+    public int AssessmentRunId { get; set; }
+    public AssessmentRun AssessmentRun { get; set; } = null!;
+
+    [MaxLength(200)]
+    public string ServerName { get; set; } = string.Empty;
+
+    [MaxLength(128)]
+    public string Name { get; set; } = string.Empty;
+
+    public long? Minimum { get; set; }
+    public long? Maximum { get; set; }
+    public long? ConfigValue { get; set; }
+    public long? RunValue { get; set; }
+
+    [MaxLength(500)]
+    public string? Description { get; set; }
+
+    public bool IsDynamic { get; set; }
+    public bool IsAdvanced { get; set; }
+}
+
+public class AssessmentBackup
+{
+    public int Id { get; set; }
+    public int AssessmentRunId { get; set; }
+    public AssessmentRun AssessmentRun { get; set; } = null!;
+
+    [MaxLength(200)]
+    public string ServerName { get; set; } = string.Empty;
+
+    [MaxLength(128)]
+    public string DatabaseName { get; set; } = string.Empty;
+
+    public DateTime? LastFullBackup { get; set; }
+    public DateTime? LastDifferentialBackup { get; set; }
+    public DateTime? LastLogBackup { get; set; }
+}

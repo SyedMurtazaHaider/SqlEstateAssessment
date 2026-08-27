@@ -105,6 +105,30 @@ public static class AssessmentSchema
                 IsDisabled bit NOT NULL,
                 CreateDate datetime2 NULL
               );",
+            @"IF OBJECT_ID('AssessmentConfigurations','U') IS NULL
+              CREATE TABLE AssessmentConfigurations (
+                Id int IDENTITY PRIMARY KEY,
+                AssessmentRunId int NOT NULL REFERENCES AssessmentRuns(Id) ON DELETE CASCADE,
+                ServerName nvarchar(200) NOT NULL,
+                Name nvarchar(128) NOT NULL,
+                Minimum bigint NULL,
+                Maximum bigint NULL,
+                ConfigValue bigint NULL,
+                RunValue bigint NULL,
+                Description nvarchar(500) NULL,
+                IsDynamic bit NOT NULL CONSTRAINT DF_AssessmentConfigurations_IsDynamic DEFAULT 0,
+                IsAdvanced bit NOT NULL CONSTRAINT DF_AssessmentConfigurations_IsAdvanced DEFAULT 0
+              );",
+            @"IF OBJECT_ID('AssessmentBackups','U') IS NULL
+              CREATE TABLE AssessmentBackups (
+                Id int IDENTITY PRIMARY KEY,
+                AssessmentRunId int NOT NULL REFERENCES AssessmentRuns(Id) ON DELETE CASCADE,
+                ServerName nvarchar(200) NOT NULL,
+                DatabaseName nvarchar(128) NOT NULL,
+                LastFullBackup datetime2 NULL,
+                LastDifferentialBackup datetime2 NULL,
+                LastLogBackup datetime2 NULL
+              );",
             @"IF OBJECT_ID('EstateServers','U') IS NULL
               CREATE TABLE EstateServers (
                 Id int IDENTITY PRIMARY KEY,

@@ -20,11 +20,13 @@
     findings: '#tab-findings',
     status: '#tab-status',
     databases: '#tab-databases',
+    backups: '#tab-backups',
     volumes: '#tab-volumes',
     services: '#tab-services',
     waits: '#tab-waits',
     sysadmins: '#tab-sysadmins',
-    jobs: '#tab-jobs'
+    jobs: '#tab-jobs',
+    configure: '#tab-configure'
   };
 
   function activateTab(root, tabKey) {
