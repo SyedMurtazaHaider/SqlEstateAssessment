@@ -1,4 +1,4 @@
-@model IEnumerable<SqlEstatePortal.Models.AssessmentRun>
+@model IEnumerable<SqlEstatePortal.ViewModels.AssessmentListItemViewModel>
 @{
     ViewData["Title"] = "Assessments";
     var canRun = await Permissions.HasAsync(User, AppModules.Assessments, "insert");
@@ -42,8 +42,9 @@
         @await Html.PartialAsync("_ColumnFilters", new[] { "Run #", "Started", "Status", "By", "Servers", "Critical", "High", "Medium", "Low", "" })
         </thead>
         <tbody>
-        @foreach (var run in Model)
+        @foreach (var row in Model)
         {
+            var run = row.Run;
             <tr>
                 <td>@run.Id</td>
                 <td>@run.StartedAt.ToLocalTime().ToString("g")</td>
@@ -54,7 +55,31 @@
                 <td>@run.HighCount</td>
                 <td>@run.MediumCount</td>
                 <td>@run.LowCount</td>
-                <td class="text-end"><a class="btn btn-sm btn-outline-primary" asp-action="Details" asp-route-id="@run.Id">Open</a></td>
+                <td class="text-end text-nowrap">
+                    <a class="btn btn-sm btn-outline-primary" asp-action="Details" asp-route-id="@run.Id">Open</a>
+                    @if (row.ShowSyncToRegister)
+                    {
+                        if (row.SyncBatchId is int batchId
+                            && string.Equals(row.SyncStatus, "PendingApproval", StringComparison.OrdinalIgnoreCase))
+                        {
+                            <a class="btn btn-sm btn-outline-secondary"
+                               asp-controller="InventorySync"
+                               asp-action="Review"
+                               asp-route-id="@batchId">Sync to register</a>
+                        }
+                        else
+                        {
+                            <a class="btn btn-sm btn-outline-secondary"
+                               asp-controller="InventorySync"
+                               asp-action="Generate"
+                               asp-route-assessmentRunId="@run.Id">Sync to register</a>
+                        }
+                    }
+                    else if (row.ShowNoChangesFound)
+                    {
+                        <span class="muted small">No changes found</span>
+                    }
+                </td>
             </tr>
         }
         </tbody>

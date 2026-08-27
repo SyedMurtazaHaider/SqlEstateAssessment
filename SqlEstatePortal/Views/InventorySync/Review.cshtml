@@ -1,0 +1,509 @@
+@model SqlEstatePortal.Models.InventorySyncBatch
+@{
+    ViewData["Title"] = $"Sync #{Model.Id}";
+    var canEdit = Model.Status == "PendingApproval";
+    var serverItems = Model.Items
+        .Where(i => string.Equals(i.EntityType, "Server", StringComparison.OrdinalIgnoreCase))
+        .OrderBy(i => i.ServerName)
+        .ThenBy(i => i.ChangeType)
+        .ToList();
+    var dbItems = Model.Items
+        .Where(i => !string.Equals(i.EntityType, "Server", StringComparison.OrdinalIgnoreCase))
+        .OrderBy(i => i.ServerName)
+        .ThenBy(i => i.ChangeType)
+        .ThenBy(i => i.DatabaseName)
+        .ToList();
+    var dbServerGroups = dbItems
+        .GroupBy(i => i.ServerName, StringComparer.OrdinalIgnoreCase)
+        .OrderBy(g => g.Key)
+        .ToList();
+
+    string Label(string name) => name switch
+    {
+        "DatabaseStatus" => "Status",
+        "RecoveryModel" => "Recovery",
+        "CompatibilityLevel" => "Compatibility",
+        "CurrentSizeMb" => "Size (MB)",
+        "CollationName" => "Collation",
+        "CreationDate" => "Created",
+        "BackupInfo" => "Backup info",
+        "LastFullBackup" => "Last full backup",
+        "LastDifferentialBackup" => "Last differential",
+        "LastLogBackup" => "Last log backup",
+        "DatabaseOwner" => "Owner",
+        "DataCentreLocation" => "Data centre",
+        "ServerStatus" => "Status",
+        "SqlProduct" => "Product",
+        "SupportStatus" => "Support",
+        "SqlEdition" => "Edition",
+        "SqlVersion" => "Version",
+        "VmCpu" => "CPU",
+        "VmRam" => "Memory (MB)",
+        "VmStorageGb" => "Storage (GB)",
+        "SqlStartedAt" => "SQL started",
+        "IsActive" => "Active",
+        "SubscriptionId" => "Subscription ID",
+        "Environment" => "Environment",
+        "Tower" => "Tower",
+        "Subscription" => "Subscription",
+        _ => name
+    };
+
+    string FmtVal(string? v)
+    {
+        if (string.IsNullOrWhiteSpace(v)) return "—";
+        if (v.Contains('T', StringComparison.Ordinal)
+            && DateTime.TryParse(v, System.Globalization.CultureInfo.InvariantCulture,
+                System.Globalization.DateTimeStyles.RoundtripKind, out var dt))
+            return dt.ToLocalTime().ToString("yyyy-MM-dd HH:mm");
+        return v;
+    }
+
+    string ChangeClass(string t) => t switch
+    {
+        "New" => "sync-change-new",
+        "Removed" => "sync-change-removed",
+        _ => "sync-change-changed"
+    };
+
+    string FieldSummary(IEnumerable<SqlEstatePortal.Models.InventorySyncField> fields)
+    {
+        var labels = fields.Select(f => Label(f.FieldName)).Take(3).ToList();
+        if (labels.Count == 0) return "—";
+        var more = fields.Count() - labels.Count;
+        return more > 0 ? string.Join(", ", labels) + $" +{more}" : string.Join(", ", labels);
+    }
+}
+<div class="page-toolbar">
+    <div>
+        <p class="app-detail-back"><a asp-action="Index">← Sync History</a></p>
+        <h1>Sync batch #@Model.Id</h1>
+        <p class="estate-line">
+            Assessment #@Model.AssessmentRunId
+            @if (Model.AssessmentRun != null)
+            {
+                <text>· @Model.AssessmentRun.StartedAt.ToLocalTime().ToString("g")</text>
+            }
+            · <span class="badge @(Model.Status == "Applied" ? "bg-success" : Model.Status == "Rejected" ? "bg-danger" : "bg-warning text-dark")">@Model.Status</span>
+        </p>
+    </div>
+</div>
+
+@if (TempData["Success"] is string success)
+{
+    <div class="alert alert-success">@success</div>
+}
+@if (TempData["Error"] is string error)
+{
+    <div class="alert alert-danger">@error</div>
+}
+
+<div class="stat-grid mb-3">
+    <div class="stat-card"><div class="label">New</div><div class="value">@Model.NewCount</div></div>
+    <div class="stat-card"><div class="label">Changed</div><div class="value">@Model.ChangedCount</div></div>
+    <div class="stat-card"><div class="label">Removed / unlink</div><div class="value">@Model.RemovedCount</div></div>
+    <div class="stat-card"><div class="label">Unchanged</div><div class="value">@Model.UnchangedCount</div></div>
+</div>
+
+@if (!Model.Items.Any())
+{
+    <div class="panel"><p class="muted mb-0">No differences — register already matches this assessment.</p></div>
+}
+else
+{
+<form method="post" id="syncReviewForm" class="sync-review">
+    @Html.AntiForgeryToken()
+
+    <div class="panel sync-workspace mb-3">
+        <div class="sync-toolbar">
+            <div class="sync-tabs" role="tablist">
+                <button type="button" class="sync-tab is-active" data-sync-tab="servers" @(serverItems.Count == 0 ? "disabled" : null)>
+                    Servers <span class="sync-tab-count">@serverItems.Count</span>
+                </button>
+                <button type="button" class="sync-tab @(serverItems.Count == 0 ? "is-active" : null)" data-sync-tab="databases" @(dbItems.Count == 0 ? "disabled" : null)>
+                    Databases <span class="sync-tab-count">@dbItems.Count</span>
+                </button>
+            </div>
+            <div class="sync-toolbar-tools">
+                <input type="search" class="form-control form-control-sm sync-search" placeholder="Filter by name…" autocomplete="off" />
+                <select class="form-select form-select-sm sync-type-filter">
+                    <option value="">All types</option>
+                    <option value="New">New</option>
+                    <option value="Changed">Changed</option>
+                    <option value="Removed">Removed</option>
+                </select>
+                <button type="button" class="btn btn-sm btn-outline-secondary sync-expand-all">Expand all</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary sync-collapse-all">Collapse all</button>
+                @if (canEdit)
+                {
+                    <button type="button" class="btn btn-sm btn-outline-secondary sync-select-visible" title="Select all visible rows">Select visible</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary sync-clear-visible" title="Clear visible rows">Clear visible</button>
+                }
+            </div>
+        </div>
+
+        <div class="sync-tab-panel @(serverItems.Count > 0 ? "is-active" : null)" data-sync-panel="servers">
+            @if (serverItems.Count == 0)
+            {
+                <p class="muted sync-empty-panel mb-0">No server changes in this batch.</p>
+            }
+            else
+            {
+                <div class="sync-master-table @(canEdit ? null : "sync-master-readonly")">
+                    <div class="sync-master-head">
+                        @if (canEdit) { <span class="sync-col-check"></span> }
+                        <span class="sync-col-type">Type</span>
+                        <span class="sync-col-name">Server</span>
+                        <span class="sync-col-summary">Changes</span>
+                        <span class="sync-col-count">Fields</span>
+                        <span class="sync-col-toggle"></span>
+                    </div>
+                    @foreach (var item in serverItems)
+                    {
+                        var panelId = $"srv-{item.Id}";
+                        <div class="sync-master-block"
+                             data-sync-row
+                             data-name="@item.ServerName"
+                             data-type="@item.ChangeType">
+                            <div class="sync-master-row @ChangeClass(item.ChangeType)"
+                                 role="button"
+                                 tabindex="0"
+                                 data-bs-toggle="collapse"
+                                 data-bs-target="#@panelId"
+                                 aria-expanded="false"
+                                 aria-controls="@panelId">
+                                @if (canEdit)
+                                {
+                                    <label class="sync-item-check sync-col-check" data-sync-stop>
+                                        <input type="hidden" name="itemId" value="@item.Id" />
+                                        <input type="checkbox" class="sync-row-check" name="selectedItem" value="@item.Id" @(item.Selected ? "checked" : null) />
+                                        <span class="sync-check-box" aria-hidden="true"></span>
+                                    </label>
+                                }
+                                <span class="sync-col-type"><span class="sync-pill @ChangeClass(item.ChangeType)">@item.ChangeType</span></span>
+                                <span class="sync-col-name"><strong>@item.ServerName</strong></span>
+                                <span class="sync-col-summary muted">@FieldSummary(item.Fields)</span>
+                                <span class="sync-col-count"><span class="sync-count-chip">@item.Fields.Count</span></span>
+                                <span class="sync-toggle">
+                                    <span class="sync-toggle-label">Details</span>
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+                                </span>
+                            </div>
+                            <div class="collapse sync-detail-panel" id="@panelId">
+                                @if (item.Fields.Count == 0)
+                                {
+                                    <p class="muted mb-0">No field details</p>
+                                }
+                                else
+                                {
+                                    <div class="sync-diff-table @(canEdit ? null : "sync-diff-readonly")">
+                                        <div class="sync-diff-row sync-diff-head">
+                                            @if (canEdit) { <span></span> }
+                                            <span>Field</span>
+                                            <span>Current</span>
+                                            <span></span>
+                                            <span>Proposed</span>
+                                        </div>
+                                        @foreach (var f in item.Fields)
+                                        {
+                                            <div class="sync-diff-row">
+                                                @if (canEdit)
+                                                {
+                                                    <label class="sync-field-check">
+                                                        <input type="hidden" name="fieldId_@item.Id" value="@f.Id" />
+                                                        <input type="checkbox" name="selectedField_@item.Id" value="@f.Id" @(f.Selected ? "checked" : null) />
+                                                        <span class="sync-check-box" aria-hidden="true"></span>
+                                                    </label>
+                                                }
+                                                <span class="sync-field-name">@Label(f.FieldName)</span>
+                                                <span class="sync-val sync-val-old">@FmtVal(f.OldValue)</span>
+                                                <span class="sync-arrow" aria-hidden="true">→</span>
+                                                <span class="sync-val sync-val-new">@FmtVal(f.NewValue)</span>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        <div class="sync-tab-panel @(serverItems.Count == 0 && dbItems.Count > 0 ? "is-active" : null)" data-sync-panel="databases">
+            @if (dbItems.Count == 0)
+            {
+                <p class="muted sync-empty-panel mb-0">No database changes in this batch.</p>
+            }
+            else
+            {
+                <div class="sync-db-groups">
+                @foreach (var g in dbServerGroups)
+                {
+                    var groupId = $"dbg-{Math.Abs(StringComparer.OrdinalIgnoreCase.GetHashCode(g.Key)):x8}";
+                    var newN = g.Count(i => i.ChangeType == "New");
+                    var chN = g.Count(i => i.ChangeType == "Changed");
+                    var rmN = g.Count(i => i.ChangeType == "Removed");
+                    <section class="sync-db-group" data-sync-group data-name="@g.Key">
+                        <button type="button" class="sync-db-group-head collapsed" data-bs-toggle="collapse" data-bs-target="#@groupId" aria-expanded="false">
+                            <svg class="sync-group-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+                            <div class="sync-db-group-title">
+                                <strong>@g.Key</strong>
+                                <span class="muted">@g.Count() database@(g.Count() == 1 ? "" : "s")</span>
+                            </div>
+                            <div class="sync-db-group-stats">
+                                @if (newN > 0) { <span class="sync-mini sync-change-new">@newN new</span> }
+                                @if (chN > 0) { <span class="sync-mini sync-change-changed">@chN changed</span> }
+                                @if (rmN > 0) { <span class="sync-mini sync-change-removed">@rmN unlink</span> }
+                            </div>
+                        </button>
+                        <div class="collapse" id="@groupId">
+                            <div class="sync-master-table sync-master-nested @(canEdit ? null : "sync-master-readonly")">
+                                <div class="sync-master-head">
+                                    @if (canEdit) { <span class="sync-col-check"></span> }
+                                    <span class="sync-col-type">Type</span>
+                                    <span class="sync-col-name">Database</span>
+                                    <span class="sync-col-summary">Changes</span>
+                                    <span class="sync-col-count">Fields</span>
+                                    <span class="sync-col-toggle"></span>
+                                </div>
+                                @foreach (var item in g)
+                                {
+                                    var panelId = $"db-{item.Id}";
+                                    <div class="sync-master-block"
+                                         data-sync-row
+                                         data-name="@item.DatabaseName @item.ServerName"
+                                         data-type="@item.ChangeType">
+                                        <div class="sync-master-row @ChangeClass(item.ChangeType)"
+                                             role="button"
+                                             tabindex="0"
+                                             data-bs-toggle="collapse"
+                                             data-bs-target="#@panelId"
+                                             aria-expanded="false"
+                                             aria-controls="@panelId">
+                                            @if (canEdit)
+                                            {
+                                                <label class="sync-item-check sync-col-check" data-sync-stop>
+                                                    <input type="hidden" name="itemId" value="@item.Id" />
+                                                    <input type="checkbox" class="sync-row-check" name="selectedItem" value="@item.Id" @(item.Selected ? "checked" : null) />
+                                                    <span class="sync-check-box" aria-hidden="true"></span>
+                                                </label>
+                                            }
+                                            <span class="sync-col-type"><span class="sync-pill @ChangeClass(item.ChangeType)">@item.ChangeType</span></span>
+                                            <span class="sync-col-name"><strong>@item.DatabaseName</strong></span>
+                                            <span class="sync-col-summary muted">
+                                                @if (item.ChangeType == "Removed")
+                                                {
+                                                    <text>Set inactive (never delete)</text>
+                                                }
+                                                else
+                                                {
+                                                    @FieldSummary(item.Fields)
+                                                }
+                                            </span>
+                                            <span class="sync-col-count"><span class="sync-count-chip">@item.Fields.Count</span></span>
+                                            <span class="sync-toggle">
+                                                <span class="sync-toggle-label">Details</span>
+                                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+                                            </span>
+                                        </div>
+                                        <div class="collapse sync-detail-panel" id="@panelId">
+                                            @if (item.Fields.Count == 0 && item.ChangeType == "Removed")
+                                            {
+                                                <p class="sync-note mb-0">Will set <code>is_active = 0</code> for this server only.</p>
+                                            }
+                                            else if (item.Fields.Count == 0)
+                                            {
+                                                <p class="muted mb-0">No field details</p>
+                                            }
+                                            else
+                                            {
+                                                <div class="sync-diff-table @(item.ChangeType == "New" ? "sync-diff-new-only" : null) @(canEdit ? null : "sync-diff-readonly")">
+                                                    <div class="sync-diff-row sync-diff-head">
+                                                        @if (canEdit) { <span></span> }
+                                                        <span>Field</span>
+                                                        @if (item.ChangeType != "New")
+                                                        {
+                                                            <span>Current</span>
+                                                            <span></span>
+                                                        }
+                                                        <span>@(item.ChangeType == "New" ? "Value" : "Proposed")</span>
+                                                    </div>
+                                                    @foreach (var f in item.Fields)
+                                                    {
+                                                        <div class="sync-diff-row">
+                                                            @if (canEdit)
+                                                            {
+                                                                <label class="sync-field-check">
+                                                                    <input type="hidden" name="fieldId_@item.Id" value="@f.Id" />
+                                                                    <input type="checkbox" name="selectedField_@item.Id" value="@f.Id" @(f.Selected ? "checked" : null) />
+                                                                    <span class="sync-check-box" aria-hidden="true"></span>
+                                                                </label>
+                                                            }
+                                                            <span class="sync-field-name">@Label(f.FieldName)</span>
+                                                            @if (item.ChangeType != "New")
+                                                            {
+                                                                <span class="sync-val sync-val-old">@FmtVal(f.OldValue)</span>
+                                                                <span class="sync-arrow" aria-hidden="true">→</span>
+                                                            }
+                                                            <span class="sync-val sync-val-new">@FmtVal(f.NewValue)</span>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </section>
+                }
+                </div>
+            }
+        </div>
+    </div>
+
+    @if (canEdit)
+    {
+        <div class="sync-actions toolbar-actions mb-4">
+            <button type="submit" formaction="@Url.Action("Save", new { id = Model.Id })" class="btn btn-outline-secondary">Save for later</button>
+            <button type="submit" formaction="@Url.Action("Reject", new { id = Model.Id })" class="btn btn-outline-danger" onclick="return confirm('Reject this sync batch?');">Reject</button>
+            <button type="submit" formaction="@Url.Action("Approve", new { id = Model.Id })" class="btn btn-primary" onclick="return confirm('Approve and apply selected changes to the Server and Database Registers?');">Approve &amp; apply</button>
+        </div>
+    }
+</form>
+}
+
+<div class="panel">
+    <h2 class="section-title">Audit timeline</h2>
+    <table class="table table-sm">
+        <thead>
+        <tr><th>When</th><th>Event</th><th>Actor</th><th>Detail</th></tr>
+        </thead>
+        <tbody>
+        @foreach (var a in Model.Audits.OrderBy(x => x.OccurredAtUtc))
+        {
+            <tr>
+                <td>@a.OccurredAtUtc.ToLocalTime().ToString("g")</td>
+                <td>@a.EventType</td>
+                <td>@a.Actor</td>
+                <td><code class="small">@a.DetailJson</code></td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
+
+@section Scripts {
+<script>
+(function () {
+  var root = document.querySelector('.sync-review');
+  if (!root) return;
+
+  var tabs = root.querySelectorAll('.sync-tab');
+  var panels = root.querySelectorAll('.sync-tab-panel');
+  var search = root.querySelector('.sync-search');
+  var typeFilter = root.querySelector('.sync-type-filter');
+
+  function activePanel() {
+    return root.querySelector('.sync-tab-panel.is-active');
+  }
+
+  function applyFilters() {
+    var q = (search && search.value || '').trim().toLowerCase();
+    var type = (typeFilter && typeFilter.value) || '';
+    var panel = activePanel();
+    if (!panel) return;
+
+    panel.querySelectorAll('[data-sync-row]').forEach(function (row) {
+      var name = (row.getAttribute('data-name') || '').toLowerCase();
+      var rowType = row.getAttribute('data-type') || '';
+      var matchName = !q || name.indexOf(q) >= 0;
+      var matchType = !type || rowType === type;
+      row.hidden = !(matchName && matchType);
+    });
+
+    panel.querySelectorAll('[data-sync-group]').forEach(function (group) {
+      var visible = Array.prototype.some.call(group.querySelectorAll('[data-sync-row]'), function (r) { return !r.hidden; });
+      var name = (group.getAttribute('data-name') || '').toLowerCase();
+      if (q && name.indexOf(q) >= 0) {
+        group.querySelectorAll('[data-sync-row]').forEach(function (r) {
+          var rowType = r.getAttribute('data-type') || '';
+          if (!type || rowType === type) r.hidden = false;
+        });
+        visible = Array.prototype.some.call(group.querySelectorAll('[data-sync-row]'), function (r) { return !r.hidden; });
+      }
+      group.hidden = !visible;
+    });
+  }
+
+  tabs.forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      if (tab.disabled) return;
+      var key = tab.getAttribute('data-sync-tab');
+      tabs.forEach(function (t) { t.classList.toggle('is-active', t === tab); });
+      panels.forEach(function (p) {
+        p.classList.toggle('is-active', p.getAttribute('data-sync-panel') === key);
+      });
+      applyFilters();
+    });
+  });
+
+  if (search) search.addEventListener('input', applyFilters);
+  if (typeFilter) typeFilter.addEventListener('change', applyFilters);
+
+  root.querySelector('.sync-expand-all')?.addEventListener('click', function () {
+    var panel = activePanel();
+    if (!panel) return;
+    panel.querySelectorAll('.collapse').forEach(function (el) {
+      bootstrap.Collapse.getOrCreateInstance(el, { toggle: false }).show();
+    });
+  });
+
+  root.querySelector('.sync-collapse-all')?.addEventListener('click', function () {
+    var panel = activePanel();
+    if (!panel) return;
+    panel.querySelectorAll('.collapse.show').forEach(function (el) {
+      bootstrap.Collapse.getOrCreateInstance(el, { toggle: false }).hide();
+    });
+  });
+
+  function setVisibleChecks(checked) {
+    var panel = activePanel();
+    if (!panel) return;
+    panel.querySelectorAll('[data-sync-row]:not([hidden]) .sync-row-check').forEach(function (cb) {
+      cb.checked = checked;
+    });
+  }
+  root.querySelector('.sync-select-visible')?.addEventListener('click', function () { setVisibleChecks(true); });
+  root.querySelector('.sync-clear-visible')?.addEventListener('click', function () { setVisibleChecks(false); });
+
+  // Clicking the row toggles details; checkbox clicks should not.
+  root.querySelectorAll('[data-sync-stop]').forEach(function (el) {
+    el.addEventListener('click', function (e) { e.stopPropagation(); });
+    el.addEventListener('keydown', function (e) { e.stopPropagation(); });
+  });
+
+  root.querySelectorAll('.sync-master-row[data-bs-toggle="collapse"]').forEach(function (row) {
+    row.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        row.click();
+      }
+    });
+  });
+
+  // Keep chevron state in sync with collapse events
+  root.querySelectorAll('.sync-detail-panel, [id^="dbg-"]').forEach(function (el) {
+    el.addEventListener('show.bs.collapse', function () {
+      var btn = root.querySelector('[data-bs-target="#' + el.id + '"]');
+      if (btn) btn.setAttribute('aria-expanded', 'true');
+    });
+    el.addEventListener('hide.bs.collapse', function () {
+      var btn = root.querySelector('[data-bs-target="#' + el.id + '"]');
+      if (btn) btn.setAttribute('aria-expanded', 'false');
+    });
+  });
+})();
+</script>
+}

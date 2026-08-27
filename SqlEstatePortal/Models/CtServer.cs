@@ -19,8 +19,23 @@ public class CtServer
     public string? Fqdn { get; set; }
 
     [Column("sql_version")]
-    [MaxLength(32)]
+    [MaxLength(150)]
     public string? SqlVersion { get; set; }
+
+    [Column("sql_product")]
+    [MaxLength(100)]
+    public string? SqlProduct { get; set; }
+
+    [Column("support_status")]
+    [MaxLength(50)]
+    public string? SupportStatus { get; set; }
+
+    [Column("sql_edition")]
+    [MaxLength(150)]
+    public string? SqlEdition { get; set; }
+
+    [Column("sql_started_at")]
+    public DateTime? SqlStartedAt { get; set; }
 
     [Column("administrator_login")]
     [MaxLength(128)]
@@ -87,6 +102,9 @@ public class CtServer
 
     [Column("updated_on")]
     public DateTime? UpdatedOn { get; set; }
+
+    [Column("status_checked_at")]
+    public DateTime? StatusCheckedAt { get; set; }
 
     [Column("ip_address")]
     [MaxLength(50)]

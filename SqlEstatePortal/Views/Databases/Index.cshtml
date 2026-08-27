@@ -74,17 +74,6 @@
                     </select>
                 </div>
                 <div>
-                    <label for="tower">Tower</label>
-                    <select id="tower" name="tower" class="form-select form-select-sm">
-                        <option value="">All</option>
-                        @foreach (var o in Model.TowerOptions)
-                        {
-                            if (Sel(Model.Tower, o)) { <option value="@o" selected>@o</option> }
-                            else { <option value="@o">@o</option> }
-                        }
-                    </select>
-                </div>
-                <div>
                     <label for="edition">Edition</label>
                     <select id="edition" name="edition" class="form-select form-select-sm">
                         <option value="">All</option>
@@ -158,7 +147,7 @@
             <thead>
             @await Html.PartialAsync("_ColumnFilters", new[]
             {
-                "Database", "Server", "Status", "Environment", "Tower", "Edition",
+                "Database", "Server", "Status", "Owner", "Environment", "Edition",
                 "Location", "Linked Apps", "Linked Server"
             })
             </thead>
@@ -185,8 +174,8 @@
                             <span class="@StatusClass(db.DatabaseStatus)">@db.DatabaseStatus</span>
                         }
                     </td>
+                    <td>@Dash(db.DatabaseOwner)</td>
                     <td>@Dash(db.Environment)</td>
-                    <td>@Dash(db.Tower)</td>
                     <td>@Dash(db.DatabaseEdition)</td>
                     <td>@Dash(db.DataCentreLocation)</td>
                     <td>
@@ -204,17 +193,13 @@
                         }
                     </td>
                     <td>
-                        @if (db.ServerId is int linkedServerId && !string.IsNullOrWhiteSpace(db.ServerName))
+                        @if (!string.IsNullOrWhiteSpace(db.ServerName))
                         {
-                            <a class="linked-db linked-db-on"
-                               asp-controller="InventoryServers"
-                               asp-action="Details"
-                               asp-route-id="@linkedServerId"
-                               title="Open linked server">1</a>
-                        }
-                        else if (!string.IsNullOrWhiteSpace(db.ServerName))
-                        {
-                            <span class="linked-db linked-db-on" title="@db.ServerName">1</span>
+                            <button type="button"
+                                    class="linked-db linked-db-on linked-db-btn db-server-btn"
+                                    data-db-id="@db.TxId"
+                                    data-db-name="@db.DatabaseName"
+                                    title="View linked server">1</button>
                         }
                         else
                         {
@@ -265,6 +250,42 @@
     </div>
 </div>
 
+<div class="modal fade" id="dbServerModal" tabindex="-1" aria-labelledby="dbServerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content linked-db-modal">
+            <div class="modal-header">
+                <div>
+                    <h2 class="modal-title" id="dbServerModalLabel">LINKED SERVER GRID</h2>
+                    <p class="linked-db-modal-sub muted mb-0" id="dbServerDbName"></p>
+                </div>
+                <div class="linked-db-modal-meta">
+                    <span class="linked-db-count-badge" id="dbServerCount">0 linked</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="table-scroll">
+                    <table class="table table-hover align-middle register-table linked-db-grid">
+                        <thead>
+                        <tr>
+                            <th>Server</th>
+                            <th>Environment</th>
+                            <th>Status</th>
+                            <th>Tower</th>
+                            <th>Subscription</th>
+                            <th>Data centre</th>
+                        </tr>
+                        </thead>
+                        <tbody id="dbServerBody">
+                        <tr><td colspan="6" class="muted">Loading…</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
 <script>
 (function () {
@@ -279,23 +300,32 @@
       .replace(/"/g, '&quot;');
   }
 
-  var listUrl = '@Url.Action("LinkedApplications", "Databases")';
-  var detailsBase = '@Url.Action("Details", "Applications")';
-  var modalEl = document.getElementById('dbAppsModal');
-  if (!modalEl) return;
-  var modal = bootstrap.Modal.getOrCreateInstance(modalEl);
-  var body = document.getElementById('dbAppsBody');
-  var countEl = document.getElementById('dbAppsCount');
-  var nameEl = document.getElementById('dbAppsName');
+  var appsUrl = '@Url.Action("LinkedApplications", "Databases")';
+  var serverUrl = '@Url.Action("LinkedServer", "Databases")';
+  var appDetailsBase = '@Url.Action("Details", "Applications")';
+  var serverDetailsBase = '@Url.Action("Details", "InventoryServers")';
 
-  function renderRows(rows) {
+  var appsModalEl = document.getElementById('dbAppsModal');
+  var serverModalEl = document.getElementById('dbServerModal');
+  if (!appsModalEl || !serverModalEl) return;
+
+  var appsModal = bootstrap.Modal.getOrCreateInstance(appsModalEl);
+  var serverModal = bootstrap.Modal.getOrCreateInstance(serverModalEl);
+  var appsBody = document.getElementById('dbAppsBody');
+  var appsCountEl = document.getElementById('dbAppsCount');
+  var appsNameEl = document.getElementById('dbAppsName');
+  var serverBody = document.getElementById('dbServerBody');
+  var serverCountEl = document.getElementById('dbServerCount');
+  var serverDbNameEl = document.getElementById('dbServerDbName');
+
+  function renderAppRows(rows) {
     if (!rows.length) {
-      body.innerHTML = '<tr><td colspan="7" class="muted">No linked applications.</td></tr>';
+      appsBody.innerHTML = '<tr><td colspan="7" class="muted">No linked applications.</td></tr>';
       return;
     }
-    body.innerHTML = rows.map(function (a) {
+    appsBody.innerHTML = rows.map(function (a) {
       var name = esc(a.applicationName || ('#' + a.applicationId));
-      var href = detailsBase + '/' + encodeURIComponent(a.applicationId);
+      var href = appDetailsBase + '/' + encodeURIComponent(a.applicationId);
       return '<tr>' +
         '<td><a class="app-name-link" href="' + href + '">' + name + '</a></td>' +
         '<td>' + esc(a.status) + '</td>' +
@@ -308,23 +338,66 @@
     }).join('');
   }
 
+  function renderServerRows(rows) {
+    if (!rows.length) {
+      serverBody.innerHTML = '<tr><td colspan="6" class="muted">No linked server.</td></tr>';
+      return;
+    }
+    serverBody.innerHTML = rows.map(function (s) {
+      var name = esc(s.serverName || '');
+      var cell = name;
+      if (s.serverId) {
+        cell = '<a class="app-name-link" href="' + serverDetailsBase + '/' + encodeURIComponent(s.serverId) + '">' + name + '</a>';
+      }
+      return '<tr>' +
+        '<td>' + cell + '</td>' +
+        '<td>' + esc(s.environment) + '</td>' +
+        '<td>' + esc(s.serverStatus) + '</td>' +
+        '<td>' + esc(s.tower) + '</td>' +
+        '<td>' + esc(s.subscription) + '</td>' +
+        '<td>' + esc(s.dataCentreLocation) + '</td>' +
+        '</tr>';
+    }).join('');
+  }
+
   document.querySelectorAll('.db-app-btn').forEach(function (btn) {
     btn.addEventListener('click', function () {
       var id = btn.getAttribute('data-db-id');
       var name = btn.getAttribute('data-db-name') || '';
-      nameEl.textContent = name;
-      countEl.textContent = 'Loading…';
-      body.innerHTML = '<tr><td colspan="7" class="muted">Loading…</td></tr>';
-      modal.show();
-      fetch(listUrl + '?id=' + encodeURIComponent(id), { headers: { 'Accept': 'application/json' } })
+      appsNameEl.textContent = name;
+      appsCountEl.textContent = 'Loading…';
+      appsBody.innerHTML = '<tr><td colspan="7" class="muted">Loading…</td></tr>';
+      appsModal.show();
+      fetch(appsUrl + '?id=' + encodeURIComponent(id), { headers: { 'Accept': 'application/json' } })
         .then(function (r) { if (!r.ok) throw new Error('Failed'); return r.json(); })
         .then(function (data) {
-          countEl.textContent = (data.count || 0) + ' linked';
-          renderRows(data.applications || []);
+          appsCountEl.textContent = (data.count || 0) + ' linked';
+          renderAppRows(data.applications || []);
         })
         .catch(function () {
-          countEl.textContent = '0 linked';
-          body.innerHTML = '<tr><td colspan="7" class="muted">Unable to load linked applications.</td></tr>';
+          appsCountEl.textContent = '0 linked';
+          appsBody.innerHTML = '<tr><td colspan="7" class="muted">Unable to load linked applications.</td></tr>';
+        });
+    });
+  });
+
+  document.querySelectorAll('.db-server-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var id = btn.getAttribute('data-db-id');
+      var name = btn.getAttribute('data-db-name') || '';
+      serverDbNameEl.textContent = name;
+      serverCountEl.textContent = 'Loading…';
+      serverBody.innerHTML = '<tr><td colspan="6" class="muted">Loading…</td></tr>';
+      serverModal.show();
+      fetch(serverUrl + '?id=' + encodeURIComponent(id), { headers: { 'Accept': 'application/json' } })
+        .then(function (r) { if (!r.ok) throw new Error('Failed'); return r.json(); })
+        .then(function (data) {
+          serverCountEl.textContent = (data.count || 0) + ' linked';
+          renderServerRows(data.servers || []);
+        })
+        .catch(function () {
+          serverCountEl.textContent = '0 linked';
+          serverBody.innerHTML = '<tr><td colspan="6" class="muted">Unable to load linked server.</td></tr>';
         });
     });
   });

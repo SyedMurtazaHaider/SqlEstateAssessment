@@ -371,7 +371,11 @@ BEGIN
     [tx_id] int IDENTITY(1,1) NOT NULL,
     [server_name] nvarchar(200) NOT NULL,
     [fqdn] nvarchar(255) NULL,
-    [sql_version] nvarchar(32) NULL,
+    [sql_version] nvarchar(150) NULL,
+    [sql_product] nvarchar(100) NULL,
+    [support_status] nvarchar(50) NULL,
+    [sql_edition] nvarchar(150) NULL,
+    [sql_started_at] datetime2 NULL,
     [administrator_login] nvarchar(128) NULL,
     [public_network_access] nvarchar(32) NULL,
     [environment] nvarchar(100) NULL,
@@ -390,6 +394,7 @@ BEGIN
     [created_on] datetime2 NULL,
     [updated_by] nvarchar(100) NULL,
     [updated_on] datetime2 NULL,
+    [status_checked_at] datetime2 NULL,
     [ip_address] nvarchar(50) NULL,
     [vm_cpu] nvarchar(20) NULL,
     [vm_ram] nvarchar(20) NULL,
@@ -436,6 +441,10 @@ BEGIN
     [recovery_model] nvarchar(30) NULL,
     [free_space_mb] int NULL,
     [backup_info] nvarchar(500) NULL,
+    [last_full_backup] datetime2 NULL,
+    [last_differential_backup] datetime2 NULL,
+    [last_log_backup] datetime2 NULL,
+    [database_owner] nvarchar(128) NULL,
     CONSTRAINT [PK_ct_database] PRIMARY KEY CLUSTERED ([tx_id])
     );
     IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_ct_database_server_name' AND object_id = OBJECT_ID(N'dbo.ct_database'))

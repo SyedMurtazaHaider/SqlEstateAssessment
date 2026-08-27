@@ -9,8 +9,40 @@
         <h1>Assessment #@run.Id</h1>
         <p class="estate-line">@run.StartedAt.ToLocalTime().ToString("g") · @run.Status</p>
     </div>
-    <a class="btn btn-outline-secondary" asp-action="Index">History</a>
+    <div class="toolbar-actions">
+        @if (Model.ShowSyncToRegister)
+        {
+            if (Model.SyncBatchId is int batchId
+                && string.Equals(Model.SyncStatus, "PendingApproval", StringComparison.OrdinalIgnoreCase))
+            {
+                <a class="btn btn-outline-primary"
+                   asp-controller="InventorySync"
+                   asp-action="Review"
+                   asp-route-id="@batchId">Sync to register</a>
+            }
+            else
+            {
+                <a class="btn btn-outline-primary"
+                   asp-controller="InventorySync"
+                   asp-action="Generate"
+                   asp-route-assessmentRunId="@run.Id">Sync to register</a>
+            }
+        }
+        else if (Model.ShowNoChangesFound)
+        {
+            <span class="muted align-self-center">No changes found</span>
+        }
+        <a class="btn btn-outline-secondary" asp-action="Index">History</a>
+    </div>
 </div>
+@if (TempData["Success"] is string syncOk)
+{
+    <div class="alert alert-success">@syncOk</div>
+}
+@if (TempData["Error"] is string syncErr)
+{
+    <div class="alert alert-warning">@syncErr</div>
+}
 @if (!string.IsNullOrWhiteSpace(run.ErrorMessage))
 {
     <div class="alert alert-danger">@run.ErrorMessage</div>
@@ -43,13 +75,13 @@
     </div>
     @await Html.PartialAsync("_EstateReport", run)
 </div>
-@if (!string.IsNullOrWhiteSpace(run.OutputLog))
+@* @if (!string.IsNullOrWhiteSpace(run.OutputLog))
 {
     <div class="panel">
         <h2 class="section-title">PowerShell output</h2>
         <pre class="log-box">@run.OutputLog</pre>
     </div>
-}
+} *@
 @section Scripts {
     <script src="~/js/estate-report.js" asp-append-version="true"></script>
 }

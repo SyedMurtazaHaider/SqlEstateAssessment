@@ -174,8 +174,17 @@ else
         </section>
         <section class="chart-panel wide">
             <h2>Findings by area</h2>
-            <p>Top assessment areas</p>
+            <p>Top assessment areas · hover a bar or label for what each area means</p>
             <div class="chart-frame tall"><canvas id="chartArea"></canvas></div>
+            <ul class="chart-area-guide" aria-label="Finding area definitions">
+                <li><strong title="Backup and DBCC CHECKDB service levels — missing or overdue full/log backups and integrity checks.">SLA</strong></li>
+                <li><strong title="Instance and database best-practice settings (configuration standards).">Standards</strong></li>
+                <li><strong title="Cost and efficiency opportunities (for example backup compression defaults).">Cost</strong></li>
+                <li><strong title="Security posture — privileged access, surface area, and risky settings.">Security</strong></li>
+                <li><strong title="Performance health — memory, waits, and related runtime risks.">Performance</strong></li>
+                <li><strong title="Edition, core count, and licensing alignment risks.">Licensing</strong></li>
+                <li><strong title="Microsoft support lifecycle — versions near or past end of support.">Supportability</strong></li>
+            </ul>
         </section>
         <section class="chart-panel">
             <h2>Findings by server</h2>

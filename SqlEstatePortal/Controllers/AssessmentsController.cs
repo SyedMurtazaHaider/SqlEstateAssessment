@@ -15,25 +15,74 @@ public class AssessmentsController : Controller
     private readonly AppDbContext _db;
     private readonly AssessmentRunnerService _runner;
     private readonly ServerReachabilityService _reachability;
+    private readonly InventorySyncService _inventorySync;
 
     public AssessmentsController(
         AppDbContext db,
         AssessmentRunnerService runner,
-        ServerReachabilityService reachability)
+        ServerReachabilityService reachability,
+        InventorySyncService inventorySync)
     {
         _db = db;
         _runner = runner;
         _reachability = reachability;
+        _inventorySync = inventorySync;
     }
 
     [RequirePermission(AppModules.Assessments, "view")]
     public async Task<IActionResult> Index()
     {
         var runs = await _db.AssessmentRuns
+            .AsNoTracking()
             .OrderByDescending(x => x.StartedAt)
             .Take(50)
             .ToListAsync();
-        return View(runs);
+
+        var runIds = runs.Select(r => r.Id).ToList();
+        var syncBatches = await _db.InventorySyncBatches.AsNoTracking()
+            .Where(b => runIds.Contains(b.AssessmentRunId))
+            .OrderByDescending(b => b.CreatedAtUtc)
+            .ToListAsync();
+
+        // Latest batch per assessment run
+        var syncByRun = syncBatches
+            .GroupBy(b => b.AssessmentRunId)
+            .ToDictionary(g => g.Key, g => g.First());
+
+        var rows = new List<AssessmentListItemViewModel>();
+        foreach (var r in runs)
+        {
+            syncByRun.TryGetValue(r.Id, out var batch);
+            var syncStatus = batch?.Status;
+            var syncEligible = string.Equals(r.Status, "Succeeded", StringComparison.OrdinalIgnoreCase)
+                && (syncStatus == null
+                    || string.Equals(syncStatus, InventorySyncService.StatusPending, StringComparison.OrdinalIgnoreCase));
+
+            var hasChanges = false;
+            if (syncEligible)
+            {
+                if (batch != null
+                    && string.Equals(syncStatus, InventorySyncService.StatusPending, StringComparison.OrdinalIgnoreCase))
+                {
+                    hasChanges = batch.NewCount + batch.ChangedCount + batch.RemovedCount > 0;
+                }
+                else
+                {
+                    hasChanges = await _inventorySync.HasChangesAsync(r.Id);
+                }
+            }
+
+            rows.Add(new AssessmentListItemViewModel
+            {
+                Run = r,
+                SyncBatchId = batch?.Id,
+                SyncStatus = syncStatus,
+                ShowSyncToRegister = syncEligible && hasChanges,
+                ShowNoChangesFound = syncEligible && !hasChanges
+            });
+        }
+
+        return View(rows);
     }
 
     [RequirePermission(AppModules.Assessments, "view")]
@@ -65,20 +114,88 @@ public class AssessmentsController : Controller
             })
             .ToListAsync();
 
+        var syncBatch = await _db.InventorySyncBatches.AsNoTracking()
+            .Where(b => b.AssessmentRunId == id)
+            .OrderByDescending(b => b.CreatedAtUtc)
+            .FirstOrDefaultAsync();
+
+        var syncStatus = syncBatch?.Status;
+        var syncEligible = string.Equals(run.Status, "Succeeded", StringComparison.OrdinalIgnoreCase)
+            && (syncStatus == null
+                || string.Equals(syncStatus, InventorySyncService.StatusPending, StringComparison.OrdinalIgnoreCase));
+
+        var hasChanges = false;
+        if (syncEligible)
+        {
+            if (syncBatch != null
+                && string.Equals(syncStatus, InventorySyncService.StatusPending, StringComparison.OrdinalIgnoreCase))
+            {
+                hasChanges = syncBatch.NewCount + syncBatch.ChangedCount + syncBatch.RemovedCount > 0;
+            }
+            else
+            {
+                hasChanges = await _inventorySync.HasChangesAsync(id);
+            }
+        }
+
         return View(new AssessmentDetailsViewModel
         {
             Run = run,
-            AvailableRuns = available
+            AvailableRuns = available,
+            SyncBatchId = syncBatch?.Id,
+            SyncStatus = syncStatus,
+            ShowSyncToRegister = syncEligible && hasChanges,
+            ShowNoChangesFound = syncEligible && !hasChanges
         });
+    }
+
+    [HttpGet]
+    [RequirePermission(AppModules.Assessments, "view")]
+    public async Task<IActionResult> ReachableServers()
+    {
+        var servers = await _db.CtServers.AsNoTracking()
+            .Where(s => s.ServerStatus == ServerReachabilityService.StatusReachable)
+            .OrderBy(s => s.ServerName)
+            .Select(s => new
+            {
+                id = s.TxId,
+                name = s.ServerName,
+                environment = s.Environment,
+                status = s.ServerStatus
+            })
+            .ToListAsync();
+
+        return Json(new { count = servers.Count, servers });
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
     [RequirePermission(AppModules.Assessments, "insert")]
-    public async Task<IActionResult> Run(CancellationToken cancellationToken)
+    public async Task<IActionResult> Run(string[]? servers, CancellationToken cancellationToken)
     {
         var username = User.Identity?.Name ?? "unknown";
-        var run = await _runner.RunAsync(username, cancellationToken);
+        var selected = (servers ?? Array.Empty<string>())
+            .Where(s => !string.IsNullOrWhiteSpace(s))
+            .Select(s => s.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        AssessmentRun run;
+        try
+        {
+            run = await _runner.RunAsync(username, selected, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            var wantsJsonError = string.Equals(Request.Headers["X-Requested-With"], "XMLHttpRequest", StringComparison.OrdinalIgnoreCase)
+                || (Request.Headers.Accept.ToString()?.Contains("application/json", StringComparison.OrdinalIgnoreCase) ?? false);
+            if (wantsJsonError)
+                return BadRequest(new { ok = false, message = ex.Message });
+
+            TempData["Error"] = ex.Message;
+            return RedirectToAction(nameof(Index));
+        }
+
         var succeeded = run.Status == "Succeeded";
         var message = succeeded
             ? $"Assessment #{run.Id} completed."

@@ -33,6 +33,11 @@ public class AssessmentDatabase
     public string? OwnerName { get; set; }
 
     public DateTime? LastGoodCheckDbTime { get; set; }
+
+    [MaxLength(128)]
+    public string? CollationName { get; set; }
+
+    public DateTime? CreationDate { get; set; }
 }
 
 public class AssessmentVolume

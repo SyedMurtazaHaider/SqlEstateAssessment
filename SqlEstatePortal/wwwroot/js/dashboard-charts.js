@@ -108,6 +108,7 @@
     if (!canvas) return;
     var horizontal = !opts || opts.horizontal !== false;
     var clickHandler = opts && opts.onClickLabel;
+    var helpMap = (opts && opts.helpMap) || {};
     var chart = new Chart(canvas, {
       type: 'bar',
       data: {
@@ -122,17 +123,79 @@
       options: {
         indexAxis: horizontal ? 'y' : 'x',
         maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              afterBody: function (tooltipItems) {
+                if (!tooltipItems.length) return '';
+                var label = tooltipItems[0].label;
+                var help = helpMap[label];
+                return help ? ['', help] : '';
+              }
+            }
+          }
+        },
         scales: {
           x: { grid: { display: !horizontal }, beginAtZero: true },
-          y: { grid: { display: horizontal }, ticks: { autoSkip: false } }
+          y: {
+            grid: { display: horizontal },
+            ticks: {
+              autoSkip: false,
+              callback: function (value) {
+                var label = this.getLabelForValue(value);
+                return label;
+              }
+            }
+          }
         },
         onClick: function (evt, elements) {
           if (!clickHandler || !elements.length) return;
           var label = chart.data.labels[elements[0].index];
           clickHandler(label);
         }
-      }
+      },
+      plugins: [{
+        id: 'axisLabelHelp',
+        afterEvent: function (chartInstance, args) {
+          if (!horizontal || !Object.keys(helpMap).length) return;
+          var event = args.event;
+          if (!event || event.type !== 'mousemove') return;
+          var yScale = chartInstance.scales.y;
+          if (!yScale) return;
+          var tip = canvas._axisHelpTip;
+          if (!tip) {
+            tip = document.createElement('div');
+            tip.className = 'chart-axis-tip';
+            tip.setAttribute('role', 'tooltip');
+            canvas.parentNode.appendChild(tip);
+            canvas._axisHelpTip = tip;
+            if (getComputedStyle(canvas.parentNode).position === 'static') {
+              canvas.parentNode.style.position = 'relative';
+            }
+          }
+          var found = null;
+          for (var i = 0; i < chartInstance.data.labels.length; i++) {
+            var y = yScale.getPixelForTick(i);
+            if (Math.abs(event.y - y) <= 12 && event.x <= yScale.right + 8) {
+              found = chartInstance.data.labels[i];
+              break;
+            }
+          }
+          var help = found ? helpMap[found] : null;
+          if (!help) {
+            tip.style.display = 'none';
+            return;
+          }
+          tip.textContent = found + ': ' + help;
+          tip.style.display = 'block';
+          var rect = canvas.parentNode.getBoundingClientRect();
+          var left = Math.min(event.x + 14, rect.width - 280);
+          var top = Math.max(8, event.y - 10);
+          tip.style.left = left + 'px';
+          tip.style.top = top + 'px';
+        }
+      }]
     });
     if (clickHandler) pointerCursor(chart);
   }
@@ -155,7 +218,19 @@
   doughnut('chartEditions', data.editions, function () {
     go({ tab: 'status' });
   });
+  var areaHelp = {
+    SLA: 'Backup and DBCC CHECKDB service levels — missing or overdue full/log backups and integrity checks against expected schedules.',
+    Standards: 'Instance and database best-practice configuration (for example optimize for ad hoc workloads, CLR, page verify).',
+    Cost: 'Cost and efficiency opportunities (for example backup compression not enabled as the instance default).',
+    Security: 'Security posture — privileged logins, surface area, and risky settings.',
+    Performance: 'Performance health — memory limits, waits, and related runtime risks.',
+    Licensing: 'Edition, core count, and licensing alignment risks.',
+    Supportability: 'Microsoft support lifecycle — SQL versions approaching or past end of support.',
+    Status: 'Instance reachability and estate status signals.'
+  };
+
   bar('chartArea', data.findingsByArea, {
+    helpMap: areaHelp,
     onClickLabel: function () { go({ tab: 'findings' }); }
   });
   bar('chartServer', data.findingsByServer, {

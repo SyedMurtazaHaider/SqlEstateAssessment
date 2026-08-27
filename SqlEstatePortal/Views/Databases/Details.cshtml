@@ -1,218 +1,222 @@
-@model SqlEstatePortal.ViewModels.DatabaseDetailsViewModel
-@{
-    var db = Model.Database;
-    ViewData["Title"] = db.DatabaseName;
-    string Dash(string? v) => string.IsNullOrWhiteSpace(v) ? "—" : v;
-    string StatusClass(string? s)
-    {
-        if (string.IsNullOrWhiteSpace(s)) return "status-pill status-neutral";
-        var t = s.Trim();
-        if (t.Equals("Normal", StringComparison.OrdinalIgnoreCase) || t.Equals("Online", StringComparison.OrdinalIgnoreCase))
-            return "status-pill status-active";
-        if (t.Equals("DELETED", StringComparison.OrdinalIgnoreCase) || t.Equals("Offline", StringComparison.OrdinalIgnoreCase))
-            return "status-pill status-eol";
-        if (t.Equals("Paused", StringComparison.OrdinalIgnoreCase))
-            return "status-pill status-limited";
-        return "status-pill status-neutral";
-    }
-    string AppStatusClass(string? s)
-    {
-        if (string.IsNullOrWhiteSpace(s)) return "app-status-neutral";
-        if (s.Contains("EOL", StringComparison.OrdinalIgnoreCase) ||
-            s.Contains("retired", StringComparison.OrdinalIgnoreCase) ||
-            s.Contains("Removed", StringComparison.OrdinalIgnoreCase))
-            return "app-status-eol";
-        if (s.Contains("Active", StringComparison.OrdinalIgnoreCase) ||
-            s.Contains("live", StringComparison.OrdinalIgnoreCase) ||
-            s.Contains("prod", StringComparison.OrdinalIgnoreCase))
-            return "app-status-live";
-        return "app-status-neutral";
-    }
-}
-<div class="page-toolbar">
-    <div>
-        <p class="app-detail-back">
-            <a asp-action="Index">← Database Register</a>
-        </p>
-        <h1>@db.DatabaseName</h1>
-        <p class="estate-line app-detail-sub">
-            <span class="@StatusClass(db.DatabaseStatus)">@Dash(db.DatabaseStatus)</span>
-            <span>@Dash(db.ServerName)</span>
-            @if (!string.IsNullOrWhiteSpace(db.Environment))
-            {
-                <span>· @db.Environment</span>
-            }
-        </p>
-    </div>
-</div>
-
-<div class="app-detail-hero">
-    <div class="app-detail-hero-main">
-        <h2>Overview</h2>
-        <p>@Dash(db.DatabaseEdition) · @Dash(db.CurrentServiceObjectiveName) · Tower @Dash(db.Tower)</p>
-    </div>
-    <div class="app-detail-hero-stats">
-        <div><span class="label">Size</span><strong>@(db.CurrentSizeMb.HasValue ? $"{db.CurrentSizeMb:N0} MB" : "—")</strong></div>
-        <div><span class="label">Max</span><strong>@(db.MaxSizeGb.HasValue ? $"{db.MaxSizeGb:N0} GB" : "—")</strong></div>
-        <div><span class="label">Free</span><strong>@(db.FreeSpaceMb.HasValue ? $"{db.FreeSpaceMb:N0} MB" : "—")</strong></div>
-        <div><span class="label">Active</span><strong>@(db.IsActive ? "Yes" : "No")</strong></div>
-    </div>
-</div>
-
-<div class="app-detail-grid">
-    <section class="panel">
-        <h2 class="section-title">Placement</h2>
-        <dl class="app-detail-dl">
-            <div><dt>Server</dt><dd>
-                @if (Model.LinkedServer?.ServerId is int sid)
-                {
-                    <a class="app-name-link" asp-controller="InventoryServers" asp-action="Details" asp-route-id="@sid">@Dash(db.ServerName)</a>
-                }
-                else
-                {
-                    @Dash(db.ServerName)
-                }
-            </dd></div>
-            <div><dt>Elastic pool</dt><dd>@Dash(db.ElasticPoolName)</dd></div>
-            <div><dt>Environment</dt><dd>@Dash(db.Environment)</dd></div>
-            <div><dt>Tower</dt><dd>@Dash(db.Tower)</dd></div>
-            <div><dt>Location</dt><dd>@Dash(db.DataCentreLocation)</dd></div>
-            <div><dt>Resource group</dt><dd>@Dash(db.ResourceGroupName)</dd></div>
-            <div><dt>Subscription</dt><dd>@Dash(db.Subscription)</dd></div>
-            <div><dt>Subscription ID</dt><dd>@Dash(db.SubscriptionId)</dd></div>
-        </dl>
-    </section>
-
-    <section class="panel">
-        <h2 class="section-title">Configuration</h2>
-        <dl class="app-detail-dl">
-            <div><dt>Edition</dt><dd>@Dash(db.DatabaseEdition)</dd></div>
-            <div><dt>Service objective</dt><dd>@Dash(db.CurrentServiceObjectiveName)</dd></div>
-            <div><dt>SKU</dt><dd>@Dash(db.AzureSkuName)</dd></div>
-            <div><dt>SKU capacity</dt><dd>@(db.AzureSkuCapacity?.ToString() ?? "—")</dd></div>
-            <div><dt>Collation</dt><dd>@Dash(db.CollationName)</dd></div>
-            <div><dt>Compatibility</dt><dd>@Dash(db.CompatibilityLevel)</dd></div>
-            <div><dt>Recovery model</dt><dd>@Dash(db.RecoveryModel)</dd></div>
-            <div><dt>License</dt><dd>@Dash(db.LicenseType)</dd></div>
-            <div><dt>Zone redundant</dt><dd>@(db.ZoneRedundant == true ? "Yes" : db.ZoneRedundant == false ? "No" : "—")</dd></div>
-            <div><dt>Read scale</dt><dd>@Dash(db.ReadScale)</dd></div>
-        </dl>
-    </section>
-
-    <section class="panel">
-        <h2 class="section-title">Capacity &amp; backup</h2>
-        <dl class="app-detail-dl">
-            <div><dt>Current size</dt><dd>@(db.CurrentSizeMb.HasValue ? $"{db.CurrentSizeMb:N0} MB" : "—")</dd></div>
-            <div><dt>Max size</dt><dd>@(db.MaxSizeGb.HasValue ? $"{db.MaxSizeGb:N0} GB" : "—") / @(db.MaxSizeMb.HasValue ? $"{db.MaxSizeMb:N0} MB" : "—")</dd></div>
-            <div><dt>Free space</dt><dd>@(db.FreeSpaceMb.HasValue ? $"{db.FreeSpaceMb:N0} MB" : "—")</dd></div>
-            <div><dt>Backup info</dt><dd>@Dash(db.BackupInfo)</dd></div>
-            <div><dt>Created</dt><dd>@(db.CreationDate?.ToLocalTime().ToString("g") ?? "—")</dd></div>
-            <div><dt>Azure synced</dt><dd>@(db.AzureSyncedAt?.ToLocalTime().ToString("g") ?? "—")</dd></div>
-            <div><dt>Recorded</dt><dd>@db.CreatedAt.ToLocalTime().ToString("g")</dd></div>
-        </dl>
-    </section>
-
-    <section class="panel">
-        <h2 class="section-title">Azure</h2>
-        <dl class="app-detail-dl">
-            <div><dt>Resource ID</dt><dd>@Dash(db.AzureResourceId)</dd></div>
-            <div><dt>Tags</dt><dd>@Dash(db.AzureTags)</dd></div>
-        </dl>
-    </section>
-
-    <section class="panel app-detail-wide">
-        <div class="app-detail-section-head">
-            <h2 class="section-title mb-0">Linked server</h2>
-            <span class="linked-db-count-badge">@(Model.LinkedServer == null ? 0 : 1) linked</span>
-        </div>
-        @if (Model.LinkedServer == null)
-        {
-            <p class="muted mb-0">No linked server.</p>
-        }
-        else
-        {
-            <div class="table-scroll">
-                <table class="table table-hover align-middle register-table linked-db-grid">
-                    <thead>
-                    <tr>
-                        <th>Server</th>
-                        <th>Environment</th>
-                        <th>Status</th>
-                        <th>Tower</th>
-                        <th>Subscription</th>
-                        <th>Data centre</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td>
-                            @if (Model.LinkedServer.ServerId is int serverId)
-                            {
-                                <a class="app-name-link" asp-controller="InventoryServers" asp-action="Details" asp-route-id="@serverId">@Model.LinkedServer.ServerName</a>
-                            }
-                            else
-                            {
-                                @Model.LinkedServer.ServerName
-                            }
-                        </td>
-                        <td>@Dash(Model.LinkedServer.Environment)</td>
-                        <td>@Dash(Model.LinkedServer.ServerStatus)</td>
-                        <td>@Dash(Model.LinkedServer.Tower)</td>
-                        <td>@Dash(Model.LinkedServer.Subscription)</td>
-                        <td>@Dash(Model.LinkedServer.DataCentreLocation)</td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
-        }
-    </section>
-
-    <section class="panel app-detail-wide">
-        <div class="app-detail-section-head">
-            <h2 class="section-title mb-0">Linked applications</h2>
-            <span class="linked-db-count-badge">@Model.LinkedApplications.Count linked</span>
-        </div>
-        @if (Model.LinkedApplications.Count == 0)
-        {
-            <p class="muted mb-0">No linked applications.</p>
-        }
-        else
-        {
-            <div class="table-scroll">
-                <table class="table table-hover align-middle register-table linked-db-grid">
-                    <thead>
-                    <tr>
-                        <th>Application</th>
-                        <th>Status</th>
-                        <th>Function</th>
-                        <th>Type</th>
-                        <th>Location</th>
-                        <th>Owner</th>
-                        <th>Region</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    @foreach (var a in Model.LinkedApplications)
-                    {
-                        <tr>
-                            <td><a class="app-name-link" asp-controller="Applications" asp-action="Details" asp-route-id="@a.ApplicationId">@Dash(a.ApplicationName)</a></td>
-                            <td>
-                                @if (!string.IsNullOrWhiteSpace(a.Status))
-                                {
-                                    <span class="app-status-pill @AppStatusClass(a.Status)">@a.Status</span>
-                                }
-                            </td>
-                            <td>@Dash(a.Function)</td>
-                            <td>@Dash(a.ApplicationType)</td>
-                            <td>@Dash(a.Location)</td>
-                            <td>@Dash(a.ServiceOwner)</td>
-                            <td>@Dash(a.OperatingRegion)</td>
-                        </tr>
-                    }
-                    </tbody>
-                </table>
-            </div>
-        }
-    </section>
-</div>
-
+@model SqlEstatePortal.ViewModels.DatabaseDetailsViewModel
+@{
+    var db = Model.Database;
+    ViewData["Title"] = db.DatabaseName;
+    string Dash(string? v) => string.IsNullOrWhiteSpace(v) ? "—" : v;
+    string StatusClass(string? s)
+    {
+        if (string.IsNullOrWhiteSpace(s)) return "status-pill status-neutral";
+        var t = s.Trim();
+        if (t.Equals("Normal", StringComparison.OrdinalIgnoreCase) || t.Equals("Online", StringComparison.OrdinalIgnoreCase))
+            return "status-pill status-active";
+        if (t.Equals("DELETED", StringComparison.OrdinalIgnoreCase) || t.Equals("Offline", StringComparison.OrdinalIgnoreCase))
+            return "status-pill status-eol";
+        if (t.Equals("Paused", StringComparison.OrdinalIgnoreCase))
+            return "status-pill status-limited";
+        return "status-pill status-neutral";
+    }
+    string AppStatusClass(string? s)
+    {
+        if (string.IsNullOrWhiteSpace(s)) return "app-status-neutral";
+        if (s.Contains("EOL", StringComparison.OrdinalIgnoreCase) ||
+            s.Contains("retired", StringComparison.OrdinalIgnoreCase) ||
+            s.Contains("Removed", StringComparison.OrdinalIgnoreCase))
+            return "app-status-eol";
+        if (s.Contains("Active", StringComparison.OrdinalIgnoreCase) ||
+            s.Contains("live", StringComparison.OrdinalIgnoreCase) ||
+            s.Contains("prod", StringComparison.OrdinalIgnoreCase))
+            return "app-status-live";
+        return "app-status-neutral";
+    }
+}
+<div class="page-toolbar">
+    <div>
+        <p class="app-detail-back">
+            <a asp-action="Index">← Database Register</a>
+        </p>
+        <h1>@db.DatabaseName</h1>
+        <p class="estate-line app-detail-sub">
+            <span class="@StatusClass(db.DatabaseStatus)">@Dash(db.DatabaseStatus)</span>
+            <span>@Dash(db.ServerName)</span>
+            @if (!string.IsNullOrWhiteSpace(db.Environment))
+            {
+                <span>· @db.Environment</span>
+            }
+        </p>
+    </div>
+</div>
+
+<div class="app-detail-hero">
+    <div class="app-detail-hero-main">
+        <h2>Overview</h2>
+        <p>@Dash(db.DatabaseEdition) · @Dash(db.CurrentServiceObjectiveName) · Tower @Dash(db.Tower)</p>
+    </div>
+    <div class="app-detail-hero-stats">
+        <div><span class="label">Size</span><strong>@(db.CurrentSizeMb.HasValue ? $"{db.CurrentSizeMb:N0} MB" : "—")</strong></div>
+        <div><span class="label">Max</span><strong>@(db.MaxSizeGb.HasValue ? $"{db.MaxSizeGb:N0} GB" : "—")</strong></div>
+        <div><span class="label">Free</span><strong>@(db.FreeSpaceMb.HasValue ? $"{db.FreeSpaceMb:N0} MB" : "—")</strong></div>
+        <div><span class="label">Active</span><strong>@(db.IsActive ? "Yes" : "No")</strong></div>
+    </div>
+</div>
+
+<div class="app-detail-grid">
+    <section class="panel">
+        <h2 class="section-title">Placement</h2>
+        <dl class="app-detail-dl">
+            <div><dt>Server</dt><dd>
+                @if (Model.LinkedServer?.ServerId is int sid)
+                {
+                    <a class="app-name-link" asp-controller="InventoryServers" asp-action="Details" asp-route-id="@sid">@Dash(db.ServerName)</a>
+                }
+                else
+                {
+                    @Dash(db.ServerName)
+                }
+            </dd></div>
+            <div><dt>Elastic pool</dt><dd>@Dash(db.ElasticPoolName)</dd></div>
+            <div><dt>Environment</dt><dd>@Dash(db.Environment)</dd></div>
+            <div><dt>Tower</dt><dd>@Dash(db.Tower)</dd></div>
+            <div><dt>Location</dt><dd>@Dash(db.DataCentreLocation)</dd></div>
+            <div><dt>Resource group</dt><dd>@Dash(db.ResourceGroupName)</dd></div>
+            <div><dt>Subscription</dt><dd>@Dash(db.Subscription)</dd></div>
+            <div><dt>Subscription ID</dt><dd>@Dash(db.SubscriptionId)</dd></div>
+        </dl>
+    </section>
+
+    <section class="panel">
+        <h2 class="section-title">Configuration</h2>
+        <dl class="app-detail-dl">
+            <div><dt>Edition</dt><dd>@Dash(db.DatabaseEdition)</dd></div>
+            <div><dt>Service objective</dt><dd>@Dash(db.CurrentServiceObjectiveName)</dd></div>
+            <div><dt>SKU</dt><dd>@Dash(db.AzureSkuName)</dd></div>
+            <div><dt>SKU capacity</dt><dd>@(db.AzureSkuCapacity?.ToString() ?? "—")</dd></div>
+            <div><dt>Collation</dt><dd>@Dash(db.CollationName)</dd></div>
+            <div><dt>Compatibility</dt><dd>@Dash(db.CompatibilityLevel)</dd></div>
+            <div><dt>Recovery model</dt><dd>@Dash(db.RecoveryModel)</dd></div>
+            <div><dt>Database owner</dt><dd>@Dash(db.DatabaseOwner)</dd></div>
+            <div><dt>License</dt><dd>@Dash(db.LicenseType)</dd></div>
+            <div><dt>Zone redundant</dt><dd>@(db.ZoneRedundant == true ? "Yes" : db.ZoneRedundant == false ? "No" : "—")</dd></div>
+            <div><dt>Read scale</dt><dd>@Dash(db.ReadScale)</dd></div>
+        </dl>
+    </section>
+
+    <section class="panel">
+        <h2 class="section-title">Capacity &amp; backup</h2>
+        <dl class="app-detail-dl">
+            <div><dt>Current size</dt><dd>@(db.CurrentSizeMb.HasValue ? $"{db.CurrentSizeMb:N0} MB" : "—")</dd></div>
+            <div><dt>Max size</dt><dd>@(db.MaxSizeGb.HasValue ? $"{db.MaxSizeGb:N0} GB" : "—") / @(db.MaxSizeMb.HasValue ? $"{db.MaxSizeMb:N0} MB" : "—")</dd></div>
+            <div><dt>Free space</dt><dd>@(db.FreeSpaceMb.HasValue ? $"{db.FreeSpaceMb:N0} MB" : "—")</dd></div>
+            <div><dt>Last full backup</dt><dd>@(db.LastFullBackup?.ToLocalTime().ToString("yyyy-MM-dd HH:mm") ?? "—")</dd></div>
+            <div><dt>Last differential backup</dt><dd>@(db.LastDifferentialBackup?.ToLocalTime().ToString("yyyy-MM-dd HH:mm") ?? "—")</dd></div>
+            <div><dt>Last log backup</dt><dd>@(db.LastLogBackup?.ToLocalTime().ToString("yyyy-MM-dd HH:mm") ?? "—")</dd></div>
+            <div><dt>Backup info</dt><dd>@Dash(db.BackupInfo)</dd></div>
+            <div><dt>Created</dt><dd>@(db.CreationDate?.ToLocalTime().ToString("g") ?? "—")</dd></div>
+            <div><dt>Azure synced</dt><dd>@(db.AzureSyncedAt?.ToLocalTime().ToString("g") ?? "—")</dd></div>
+            <div><dt>Recorded</dt><dd>@db.CreatedAt.ToLocalTime().ToString("g")</dd></div>
+        </dl>
+    </section>
+
+    <section class="panel">
+        <h2 class="section-title">Azure</h2>
+        <dl class="app-detail-dl">
+            <div><dt>Resource ID</dt><dd>@Dash(db.AzureResourceId)</dd></div>
+            <div><dt>Tags</dt><dd>@Dash(db.AzureTags)</dd></div>
+        </dl>
+    </section>
+
+    <section class="panel app-detail-wide">
+        <div class="app-detail-section-head">
+            <h2 class="section-title mb-0">Linked server</h2>
+            <span class="linked-db-count-badge">@(Model.LinkedServer == null ? 0 : 1) linked</span>
+        </div>
+        @if (Model.LinkedServer == null)
+        {
+            <p class="muted mb-0">No linked server.</p>
+        }
+        else
+        {
+            <div class="table-scroll">
+                <table class="table table-hover align-middle register-table linked-db-grid">
+                    <thead>
+                    <tr>
+                        <th>Server</th>
+                        <th>Environment</th>
+                        <th>Status</th>
+                        <th>Tower</th>
+                        <th>Subscription</th>
+                        <th>Data centre</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>
+                            @if (Model.LinkedServer.ServerId is int serverId)
+                            {
+                                <a class="app-name-link" asp-controller="InventoryServers" asp-action="Details" asp-route-id="@serverId">@Model.LinkedServer.ServerName</a>
+                            }
+                            else
+                            {
+                                @Model.LinkedServer.ServerName
+                            }
+                        </td>
+                        <td>@Dash(Model.LinkedServer.Environment)</td>
+                        <td>@Dash(Model.LinkedServer.ServerStatus)</td>
+                        <td>@Dash(Model.LinkedServer.Tower)</td>
+                        <td>@Dash(Model.LinkedServer.Subscription)</td>
+                        <td>@Dash(Model.LinkedServer.DataCentreLocation)</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+
+    <section class="panel app-detail-wide">
+        <div class="app-detail-section-head">
+            <h2 class="section-title mb-0">Linked applications</h2>
+            <span class="linked-db-count-badge">@Model.LinkedApplications.Count linked</span>
+        </div>
+        @if (Model.LinkedApplications.Count == 0)
+        {
+            <p class="muted mb-0">No linked applications.</p>
+        }
+        else
+        {
+            <div class="table-scroll">
+                <table class="table table-hover align-middle register-table linked-db-grid">
+                    <thead>
+                    <tr>
+                        <th>Application</th>
+                        <th>Status</th>
+                        <th>Function</th>
+                        <th>Type</th>
+                        <th>Location</th>
+                        <th>Owner</th>
+                        <th>Region</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var a in Model.LinkedApplications)
+                    {
+                        <tr>
+                            <td><a class="app-name-link" asp-controller="Applications" asp-action="Details" asp-route-id="@a.ApplicationId">@Dash(a.ApplicationName)</a></td>
+                            <td>
+                                @if (!string.IsNullOrWhiteSpace(a.Status))
+                                {
+                                    <span class="app-status-pill @AppStatusClass(a.Status)">@a.Status</span>
+                                }
+                            </td>
+                            <td>@Dash(a.Function)</td>
+                            <td>@Dash(a.ApplicationType)</td>
+                            <td>@Dash(a.Location)</td>
+                            <td>@Dash(a.ServiceOwner)</td>
+                            <td>@Dash(a.OperatingRegion)</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+</div>
+

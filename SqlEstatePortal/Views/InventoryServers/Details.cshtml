@@ -1,202 +1,206 @@
-@model SqlEstatePortal.ViewModels.ServerDetailsViewModel
-@{
-    var server = Model.Server;
-    ViewData["Title"] = server.ServerName;
-    string Dash(string? v) => string.IsNullOrWhiteSpace(v) ? "—" : v;
-    string DbStatusClass(string? s)
-    {
-        if (string.IsNullOrWhiteSpace(s)) return "status-pill status-neutral";
-        var t = s.Trim();
-        if (t.Equals("Normal", StringComparison.OrdinalIgnoreCase) || t.Equals("Online", StringComparison.OrdinalIgnoreCase))
-            return "status-pill status-active";
-        if (t.Equals("DELETED", StringComparison.OrdinalIgnoreCase) || t.Equals("Offline", StringComparison.OrdinalIgnoreCase))
-            return "status-pill status-eol";
-        if (t.Equals("Paused", StringComparison.OrdinalIgnoreCase))
-            return "status-pill status-limited";
-        return "status-pill status-neutral";
-    }
-    string AppStatusClass(string? s)
-    {
-        if (string.IsNullOrWhiteSpace(s)) return "app-status-neutral";
-        if (s.Contains("EOL", StringComparison.OrdinalIgnoreCase) ||
-            s.Contains("retired", StringComparison.OrdinalIgnoreCase) ||
-            s.Contains("Removed", StringComparison.OrdinalIgnoreCase))
-            return "app-status-eol";
-        if (s.Contains("Active", StringComparison.OrdinalIgnoreCase) ||
-            s.Contains("live", StringComparison.OrdinalIgnoreCase) ||
-            s.Contains("prod", StringComparison.OrdinalIgnoreCase))
-            return "app-status-live";
-        return "app-status-neutral";
-    }
-}
-<div class="page-toolbar">
-    <div>
-        <p class="app-detail-back">
-            <a asp-action="Index">← Server Register</a>
-        </p>
-        <h1>@server.ServerName</h1>
-        <p class="estate-line app-detail-sub">
-            <span class="server-status-text @(string.Equals(server.ServerStatus, "Online", StringComparison.OrdinalIgnoreCase) ? "server-status-online" : "")">@Dash(server.ServerStatus)</span>
-            <span>@Dash(server.Environment)</span>
-            @if (!string.IsNullOrWhiteSpace(server.Tower))
-            {
-                <span>· @server.Tower</span>
-            }
-        </p>
-    </div>
-</div>
-
-<div class="app-detail-hero">
-    <div class="app-detail-hero-main">
-        <h2>Overview</h2>
-        <p>@Dash(server.Subscription) · @Dash(server.DataCentreLocation) · SQL @Dash(server.SqlVersion)</p>
-    </div>
-    <div class="app-detail-hero-stats">
-        <div><span class="label">Active</span><strong>@(server.IsActive ? "Yes" : "No")</strong></div>
-        <div><span class="label">CPU</span><strong>@Dash(server.VmCpu)</strong></div>
-        <div><span class="label">RAM</span><strong>@Dash(server.VmRam)</strong></div>
-        <div><span class="label">Storage</span><strong>@(string.IsNullOrWhiteSpace(server.VmStorageGb) ? "—" : server.VmStorageGb + " GB")</strong></div>
-    </div>
-</div>
-
-<div class="app-detail-grid">
-    <section class="panel">
-        <h2 class="section-title">Identity</h2>
-        <dl class="app-detail-dl">
-            <div><dt>Server name</dt><dd>@Dash(server.ServerName)</dd></div>
-            <div><dt>FQDN</dt><dd>@Dash(server.Fqdn)</dd></div>
-            <div><dt>IP address</dt><dd>@Dash(server.IpAddress)</dd></div>
-            <div><dt>SQL version</dt><dd>@Dash(server.SqlVersion)</dd></div>
-            <div><dt>Admin login</dt><dd>@Dash(server.AdministratorLogin)</dd></div>
-            <div><dt>Public network</dt><dd>@Dash(server.PublicNetworkAccess)</dd></div>
-        </dl>
-    </section>
-
-    <section class="panel">
-        <h2 class="section-title">Placement</h2>
-        <dl class="app-detail-dl">
-            <div><dt>Environment</dt><dd>@Dash(server.Environment)</dd></div>
-            <div><dt>Tower</dt><dd>@Dash(server.Tower)</dd></div>
-            <div><dt>Data centre</dt><dd>@Dash(server.DataCentreLocation)</dd></div>
-            <div><dt>Resource group</dt><dd>@Dash(server.ResourceGroupName)</dd></div>
-            <div><dt>Subscription</dt><dd>@Dash(server.Subscription)</dd></div>
-            <div><dt>Subscription ID</dt><dd>@Dash(server.SubscriptionId)</dd></div>
-        </dl>
-    </section>
-
-    <section class="panel">
-        <h2 class="section-title">Capacity</h2>
-        <dl class="app-detail-dl">
-            <div><dt>VM CPU</dt><dd>@Dash(server.VmCpu)</dd></div>
-            <div><dt>VM RAM</dt><dd>@Dash(server.VmRam)</dd></div>
-            <div><dt>VM storage</dt><dd>@(string.IsNullOrWhiteSpace(server.VmStorageGb) ? "—" : server.VmStorageGb + " GB")</dd></div>
-            <div><dt>Utilization</dt><dd>@(string.IsNullOrWhiteSpace(server.CurrentUtilizationPct) ? "—" : server.CurrentUtilizationPct + "%")</dd></div>
-            <div><dt>Status</dt><dd>@Dash(server.ServerStatus)</dd></div>
-            <div><dt>Azure synced</dt><dd>@(server.AzureSyncedAt?.ToLocalTime().ToString("g") ?? "—")</dd></div>
-        </dl>
-    </section>
-
-    <section class="panel">
-        <h2 class="section-title">Notes &amp; Azure</h2>
-        <dl class="app-detail-dl">
-            <div><dt>Resource ID</dt><dd>@Dash(server.AzureResourceId)</dd></div>
-            <div><dt>Tags</dt><dd>@Dash(server.AzureTags)</dd></div>
-            <div><dt>Notes</dt><dd>@Dash(server.Notes)</dd></div>
-            <div><dt>Created</dt><dd>@(server.CreatedOn?.ToLocalTime().ToString("g") ?? "—") by @Dash(server.CreatedBy)</dd></div>
-            <div><dt>Updated</dt><dd>@(server.UpdatedOn?.ToLocalTime().ToString("g") ?? "—") by @Dash(server.UpdatedBy)</dd></div>
-        </dl>
-    </section>
-
-    <section class="panel app-detail-wide">
-        <div class="app-detail-section-head">
-            <h2 class="section-title mb-0">Linked databases</h2>
-            <span class="linked-db-count-badge">@Model.LinkedDatabases.Count linked</span>
-        </div>
-        @if (Model.LinkedDatabases.Count == 0)
-        {
-            <p class="muted mb-0">No linked databases.</p>
-        }
-        else
-        {
-            <div class="table-scroll">
-                <table class="table table-hover align-middle register-table linked-db-grid">
-                    <thead>
-                    <tr>
-                        <th>Database</th>
-                        <th>Status</th>
-                        <th>Environment</th>
-                        <th>Edition</th>
-                        <th>Location</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    @foreach (var d in Model.LinkedDatabases)
-                    {
-                        <tr>
-                            <td><a class="app-name-link" asp-controller="Databases" asp-action="Details" asp-route-id="@d.DatabaseId">@d.DatabaseName</a></td>
-                            <td>
-                                @if (!string.IsNullOrWhiteSpace(d.DatabaseStatus))
-                                {
-                                    <span class="@DbStatusClass(d.DatabaseStatus)">@d.DatabaseStatus</span>
-                                }
-                            </td>
-                            <td>@Dash(d.Environment)</td>
-                            <td>@Dash(d.DatabaseEdition)</td>
-                            <td>@Dash(d.DataCentreLocation)</td>
-                        </tr>
-                    }
-                    </tbody>
-                </table>
-            </div>
-        }
-    </section>
-
-    <section class="panel app-detail-wide">
-        <div class="app-detail-section-head">
-            <h2 class="section-title mb-0">Linked applications</h2>
-            <span class="linked-db-count-badge">@Model.LinkedApplications.Count linked</span>
-        </div>
-        @if (Model.LinkedApplications.Count == 0)
-        {
-            <p class="muted mb-0">No linked applications.</p>
-        }
-        else
-        {
-            <div class="table-scroll">
-                <table class="table table-hover align-middle register-table linked-db-grid">
-                    <thead>
-                    <tr>
-                        <th>Application</th>
-                        <th>Status</th>
-                        <th>Function</th>
-                        <th>Type</th>
-                        <th>Location</th>
-                        <th>Owner</th>
-                        <th>Region</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    @foreach (var a in Model.LinkedApplications)
-                    {
-                        <tr>
-                            <td><a class="app-name-link" asp-controller="Applications" asp-action="Details" asp-route-id="@a.ApplicationId">@Dash(a.ApplicationName)</a></td>
-                            <td>
-                                @if (!string.IsNullOrWhiteSpace(a.Status))
-                                {
-                                    <span class="app-status-pill @AppStatusClass(a.Status)">@a.Status</span>
-                                }
-                            </td>
-                            <td>@Dash(a.Function)</td>
-                            <td>@Dash(a.ApplicationType)</td>
-                            <td>@Dash(a.Location)</td>
-                            <td>@Dash(a.ServiceOwner)</td>
-                            <td>@Dash(a.OperatingRegion)</td>
-                        </tr>
-                    }
-                    </tbody>
-                </table>
-            </div>
-        }
-    </section>
-</div>
-
+@model SqlEstatePortal.ViewModels.ServerDetailsViewModel
+@{
+    var server = Model.Server;
+    ViewData["Title"] = server.ServerName;
+    string Dash(string? v) => string.IsNullOrWhiteSpace(v) ? "—" : v;
+    string DbStatusClass(string? s)
+    {
+        if (string.IsNullOrWhiteSpace(s)) return "status-pill status-neutral";
+        var t = s.Trim();
+        if (t.Equals("Normal", StringComparison.OrdinalIgnoreCase) || t.Equals("Online", StringComparison.OrdinalIgnoreCase))
+            return "status-pill status-active";
+        if (t.Equals("DELETED", StringComparison.OrdinalIgnoreCase) || t.Equals("Offline", StringComparison.OrdinalIgnoreCase))
+            return "status-pill status-eol";
+        if (t.Equals("Paused", StringComparison.OrdinalIgnoreCase))
+            return "status-pill status-limited";
+        return "status-pill status-neutral";
+    }
+    string AppStatusClass(string? s)
+    {
+        if (string.IsNullOrWhiteSpace(s)) return "app-status-neutral";
+        if (s.Contains("EOL", StringComparison.OrdinalIgnoreCase) ||
+            s.Contains("retired", StringComparison.OrdinalIgnoreCase) ||
+            s.Contains("Removed", StringComparison.OrdinalIgnoreCase))
+            return "app-status-eol";
+        if (s.Contains("Active", StringComparison.OrdinalIgnoreCase) ||
+            s.Contains("live", StringComparison.OrdinalIgnoreCase) ||
+            s.Contains("prod", StringComparison.OrdinalIgnoreCase))
+            return "app-status-live";
+        return "app-status-neutral";
+    }
+}
+<div class="page-toolbar">
+    <div>
+        <p class="app-detail-back">
+            <a asp-action="Index">← Server Register</a>
+        </p>
+        <h1>@server.ServerName</h1>
+        <p class="estate-line app-detail-sub">
+            <span class="server-status-text @(string.Equals(server.ServerStatus, "Online", StringComparison.OrdinalIgnoreCase) ? "server-status-online" : "")">@Dash(server.ServerStatus)</span>
+            <span>@Dash(server.Environment)</span>
+            @if (!string.IsNullOrWhiteSpace(server.Tower))
+            {
+                <span>· @server.Tower</span>
+            }
+        </p>
+    </div>
+</div>
+
+<div class="app-detail-hero">
+    <div class="app-detail-hero-main">
+        <h2>Overview</h2>
+        <p>@Dash(server.SqlProduct) · @Dash(server.SqlEdition) · @Dash(server.SqlVersion)</p>
+    </div>
+    <div class="app-detail-hero-stats">
+        <div><span class="label">Active</span><strong>@(server.IsActive ? "Yes" : "No")</strong></div>
+        <div><span class="label">CPU</span><strong>@Dash(server.VmCpu)</strong></div>
+        <div><span class="label">RAM</span><strong>@Dash(server.VmRam)</strong></div>
+        <div><span class="label">Storage</span><strong>@(string.IsNullOrWhiteSpace(server.VmStorageGb) ? "—" : server.VmStorageGb + " GB")</strong></div>
+    </div>
+</div>
+
+<div class="app-detail-grid">
+    <section class="panel">
+        <h2 class="section-title">Identity</h2>
+        <dl class="app-detail-dl">
+            <div><dt>Server name</dt><dd>@Dash(server.ServerName)</dd></div>
+            <div><dt>FQDN</dt><dd>@Dash(server.Fqdn)</dd></div>
+            <div><dt>IP address</dt><dd>@Dash(server.IpAddress)</dd></div>
+            <div><dt>SQL version</dt><dd>@Dash(server.SqlVersion)</dd></div>
+            <div><dt>Product</dt><dd>@Dash(server.SqlProduct)</dd></div>
+            <div><dt>Edition</dt><dd>@Dash(server.SqlEdition)</dd></div>
+            <div><dt>Support</dt><dd>@Dash(server.SupportStatus)</dd></div>
+            <div><dt>SQL started</dt><dd>@(server.SqlStartedAt?.ToLocalTime().ToString("yyyy-MM-dd HH:mm") ?? "—")</dd></div>
+            <div><dt>Admin login</dt><dd>@Dash(server.AdministratorLogin)</dd></div>
+            <div><dt>Public network</dt><dd>@Dash(server.PublicNetworkAccess)</dd></div>
+        </dl>
+    </section>
+
+    <section class="panel">
+        <h2 class="section-title">Placement</h2>
+        <dl class="app-detail-dl">
+            <div><dt>Environment</dt><dd>@Dash(server.Environment)</dd></div>
+            <div><dt>Tower</dt><dd>@Dash(server.Tower)</dd></div>
+            <div><dt>Data centre</dt><dd>@Dash(server.DataCentreLocation)</dd></div>
+            <div><dt>Resource group</dt><dd>@Dash(server.ResourceGroupName)</dd></div>
+            <div><dt>Subscription</dt><dd>@Dash(server.Subscription)</dd></div>
+            <div><dt>Subscription ID</dt><dd>@Dash(server.SubscriptionId)</dd></div>
+        </dl>
+    </section>
+
+    <section class="panel">
+        <h2 class="section-title">Capacity</h2>
+        <dl class="app-detail-dl">
+            <div><dt>VM CPU</dt><dd>@Dash(server.VmCpu)</dd></div>
+            <div><dt>VM RAM</dt><dd>@Dash(server.VmRam)</dd></div>
+            <div><dt>VM storage</dt><dd>@(string.IsNullOrWhiteSpace(server.VmStorageGb) ? "—" : server.VmStorageGb + " GB")</dd></div>
+            <div><dt>Utilization</dt><dd>@(string.IsNullOrWhiteSpace(server.CurrentUtilizationPct) ? "—" : server.CurrentUtilizationPct + "%")</dd></div>
+            <div><dt>Status</dt><dd>@Dash(server.ServerStatus)</dd></div>
+            <div><dt>Azure synced</dt><dd>@(server.AzureSyncedAt?.ToLocalTime().ToString("g") ?? "—")</dd></div>
+        </dl>
+    </section>
+
+    <section class="panel">
+        <h2 class="section-title">Notes &amp; Azure</h2>
+        <dl class="app-detail-dl">
+            <div><dt>Resource ID</dt><dd>@Dash(server.AzureResourceId)</dd></div>
+            <div><dt>Tags</dt><dd>@Dash(server.AzureTags)</dd></div>
+            <div><dt>Notes</dt><dd>@Dash(server.Notes)</dd></div>
+            <div><dt>Created</dt><dd>@(server.CreatedOn?.ToLocalTime().ToString("g") ?? "—") by @Dash(server.CreatedBy)</dd></div>
+            <div><dt>Updated</dt><dd>@(server.UpdatedOn?.ToLocalTime().ToString("g") ?? "—") by @Dash(server.UpdatedBy)</dd></div>
+        </dl>
+    </section>
+
+    <section class="panel app-detail-wide">
+        <div class="app-detail-section-head">
+            <h2 class="section-title mb-0">Linked databases</h2>
+            <span class="linked-db-count-badge">@Model.LinkedDatabases.Count linked</span>
+        </div>
+        @if (Model.LinkedDatabases.Count == 0)
+        {
+            <p class="muted mb-0">No linked databases.</p>
+        }
+        else
+        {
+            <div class="table-scroll">
+                <table class="table table-hover align-middle register-table linked-db-grid">
+                    <thead>
+                    <tr>
+                        <th>Database</th>
+                        <th>Status</th>
+                        <th>Environment</th>
+                        <th>Edition</th>
+                        <th>Location</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var d in Model.LinkedDatabases)
+                    {
+                        <tr>
+                            <td><a class="app-name-link" asp-controller="Databases" asp-action="Details" asp-route-id="@d.DatabaseId">@d.DatabaseName</a></td>
+                            <td>
+                                @if (!string.IsNullOrWhiteSpace(d.DatabaseStatus))
+                                {
+                                    <span class="@DbStatusClass(d.DatabaseStatus)">@d.DatabaseStatus</span>
+                                }
+                            </td>
+                            <td>@Dash(d.Environment)</td>
+                            <td>@Dash(d.DatabaseEdition)</td>
+                            <td>@Dash(d.DataCentreLocation)</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+
+    <section class="panel app-detail-wide">
+        <div class="app-detail-section-head">
+            <h2 class="section-title mb-0">Linked applications</h2>
+            <span class="linked-db-count-badge">@Model.LinkedApplications.Count linked</span>
+        </div>
+        @if (Model.LinkedApplications.Count == 0)
+        {
+            <p class="muted mb-0">No linked applications.</p>
+        }
+        else
+        {
+            <div class="table-scroll">
+                <table class="table table-hover align-middle register-table linked-db-grid">
+                    <thead>
+                    <tr>
+                        <th>Application</th>
+                        <th>Status</th>
+                        <th>Function</th>
+                        <th>Type</th>
+                        <th>Location</th>
+                        <th>Owner</th>
+                        <th>Region</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var a in Model.LinkedApplications)
+                    {
+                        <tr>
+                            <td><a class="app-name-link" asp-controller="Applications" asp-action="Details" asp-route-id="@a.ApplicationId">@Dash(a.ApplicationName)</a></td>
+                            <td>
+                                @if (!string.IsNullOrWhiteSpace(a.Status))
+                                {
+                                    <span class="app-status-pill @AppStatusClass(a.Status)">@a.Status</span>
+                                }
+                            </td>
+                            <td>@Dash(a.Function)</td>
+                            <td>@Dash(a.ApplicationType)</td>
+                            <td>@Dash(a.Location)</td>
+                            <td>@Dash(a.ServiceOwner)</td>
+                            <td>@Dash(a.OperatingRegion)</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+</div>
+

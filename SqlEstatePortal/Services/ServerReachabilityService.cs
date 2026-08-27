@@ -56,6 +56,7 @@ public class ServerReachabilityService
             server.ServerStatus = reachable ? StatusReachable : StatusUnreachable;
             server.UpdatedOn = now;
             server.UpdatedBy = "Check Server Status";
+            server.StatusCheckedAt = now;
             if (reachable) result.Reachable++;
             else result.Unreachable++;
         }

@@ -32,13 +32,33 @@ public class AssessmentRunnerService
         _logger = logger;
     }
 
-    public async Task<AssessmentRun> RunAsync(string? triggeredBy, CancellationToken cancellationToken = default)
+    public async Task<AssessmentRun> RunAsync(
+        string? triggeredBy,
+        IReadOnlyList<string>? selectedServers = null,
+        CancellationToken cancellationToken = default)
     {
-        var servers = await _db.CtServers
+        var reachable = await _db.CtServers
             .Where(x => x.ServerStatus == ServerReachabilityService.StatusReachable)
             .OrderBy(x => x.ServerName)
             .Select(x => x.ServerName)
             .ToListAsync(cancellationToken);
+
+        List<string> servers;
+        if (selectedServers == null || selectedServers.Count == 0)
+        {
+            servers = reachable;
+        }
+        else
+        {
+            var reachableSet = reachable.ToHashSet(StringComparer.OrdinalIgnoreCase);
+            servers = selectedServers
+                .Where(s => !string.IsNullOrWhiteSpace(s))
+                .Select(s => s.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .Where(reachableSet.Contains)
+                .OrderBy(s => s, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+        }
 
         var run = new AssessmentRun
         {
@@ -55,9 +75,12 @@ public class AssessmentRunnerService
         {
             if (!File.Exists(_options.ScriptPath))
                 throw new FileNotFoundException("Assessment script not found.", _options.ScriptPath);
-            if (servers.Count == 0)
+            if (reachable.Count == 0)
                 throw new InvalidOperationException(
                     "No Reachable servers found. Open Servers and run Check Server Status first.");
+            if (servers.Count == 0)
+                throw new InvalidOperationException(
+                    "Select at least one Reachable server to assess.");
 
             tempListPath = Path.Combine(
                 Path.GetTempPath(),
@@ -276,7 +299,9 @@ public class AssessmentRunnerService
                     DataMb = GetDecimal(db, "DataMB"),
                     LogMb = GetDecimal(db, "LogMB"),
                     OwnerName = GetString(db, "owner_name"),
-                    LastGoodCheckDbTime = SanitizeCheckDb(GetDate(db, "LastGoodCheckDbTime"))
+                    LastGoodCheckDbTime = SanitizeCheckDb(GetDate(db, "LastGoodCheckDbTime")),
+                    CollationName = NullIfEmpty(GetString(db, "collation_name")),
+                    CreationDate = GetDate(db, "create_date")
                 });
             }
 
@@ -378,6 +403,99 @@ public class AssessmentRunnerService
         }
 
         await _db.SaveChangesAsync(cancellationToken);
+        await SyncBackupTimesToRegisterAsync(run.Backups, cancellationToken);
+        await SyncOwnersToRegisterAsync(run.Databases, cancellationToken);
+    }
+
+    /// <summary>
+    /// Writes last full / differential / log backup times onto matching ct_database rows
+    /// so the Database Register reflects the latest assessment without a separate sync.
+    /// </summary>
+    private async Task SyncBackupTimesToRegisterAsync(
+        IEnumerable<AssessmentBackup> backups,
+        CancellationToken cancellationToken)
+    {
+        var list = backups
+            .Where(b => !string.IsNullOrWhiteSpace(b.ServerName) && !string.IsNullOrWhiteSpace(b.DatabaseName))
+            .GroupBy(b => $"{b.ServerName.Trim()}|{b.DatabaseName.Trim()}", StringComparer.OrdinalIgnoreCase)
+            .Select(g => g.Last())
+            .ToList();
+        if (list.Count == 0) return;
+
+        var servers = list.Select(b => b.ServerName.Trim()).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+        var registerRows = await _db.CtDatabases
+            .Where(d => d.ServerName != null && servers.Contains(d.ServerName))
+            .ToListAsync(cancellationToken);
+
+        var byKey = registerRows
+            .Where(d => !string.IsNullOrWhiteSpace(d.ServerName) && !string.IsNullOrWhiteSpace(d.DatabaseName))
+            .GroupBy(d => $"{d.ServerName!.Trim()}|{d.DatabaseName.Trim()}", StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
+
+        var changed = false;
+        foreach (var bak in list)
+        {
+            var key = $"{bak.ServerName.Trim()}|{bak.DatabaseName.Trim()}";
+            if (!byKey.TryGetValue(key, out var row))
+                continue;
+
+            row.LastFullBackup = bak.LastFullBackup;
+            row.LastDifferentialBackup = bak.LastDifferentialBackup;
+            row.LastLogBackup = bak.LastLogBackup;
+
+            var parts = new List<string>();
+            if (bak.LastFullBackup != null)
+                parts.Add($"Full={bak.LastFullBackup:yyyy-MM-dd HH:mm}");
+            if (bak.LastDifferentialBackup != null)
+                parts.Add($"Diff={bak.LastDifferentialBackup:yyyy-MM-dd HH:mm}");
+            if (bak.LastLogBackup != null)
+                parts.Add($"Log={bak.LastLogBackup:yyyy-MM-dd HH:mm}");
+            if (parts.Count > 0)
+                row.BackupInfo = string.Join("; ", parts);
+
+            changed = true;
+        }
+
+        if (changed)
+            await _db.SaveChangesAsync(cancellationToken);
+    }
+
+    private async Task SyncOwnersToRegisterAsync(
+        IEnumerable<AssessmentDatabase> databases,
+        CancellationToken cancellationToken)
+    {
+        var list = databases
+            .Where(d => !string.IsNullOrWhiteSpace(d.ServerName)
+                        && !string.IsNullOrWhiteSpace(d.Name)
+                        && !string.IsNullOrWhiteSpace(d.OwnerName))
+            .GroupBy(d => $"{d.ServerName.Trim()}|{d.Name.Trim()}", StringComparer.OrdinalIgnoreCase)
+            .Select(g => g.Last())
+            .ToList();
+        if (list.Count == 0) return;
+
+        var servers = list.Select(d => d.ServerName.Trim()).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+        var registerRows = await _db.CtDatabases
+            .Where(d => d.ServerName != null && servers.Contains(d.ServerName))
+            .ToListAsync(cancellationToken);
+
+        var byKey = registerRows
+            .Where(d => !string.IsNullOrWhiteSpace(d.ServerName) && !string.IsNullOrWhiteSpace(d.DatabaseName))
+            .GroupBy(d => $"{d.ServerName!.Trim()}|{d.DatabaseName.Trim()}", StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
+
+        var changed = false;
+        foreach (var db in list)
+        {
+            var key = $"{db.ServerName.Trim()}|{db.Name.Trim()}";
+            if (!byKey.TryGetValue(key, out var row))
+                continue;
+
+            row.DatabaseOwner = db.OwnerName!.Trim();
+            changed = true;
+        }
+
+        if (changed)
+            await _db.SaveChangesAsync(cancellationToken);
     }
 
     private static IEnumerable<JsonElement> Enumerate(JsonElement parent, string name)

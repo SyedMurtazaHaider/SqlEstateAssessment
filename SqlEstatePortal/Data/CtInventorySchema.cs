@@ -361,7 +361,11 @@ BEGIN
     [tx_id] int IDENTITY(1,1) NOT NULL,
     [server_name] nvarchar(200) NOT NULL,
     [fqdn] nvarchar(255) NULL,
-    [sql_version] nvarchar(32) NULL,
+    [sql_version] nvarchar(150) NULL,
+    [sql_product] nvarchar(100) NULL,
+    [support_status] nvarchar(50) NULL,
+    [sql_edition] nvarchar(150) NULL,
+    [sql_started_at] datetime2 NULL,
     [administrator_login] nvarchar(128) NULL,
     [public_network_access] nvarchar(32) NULL,
     [environment] nvarchar(100) NULL,
@@ -380,6 +384,7 @@ BEGIN
     [created_on] datetime2 NULL,
     [updated_by] nvarchar(100) NULL,
     [updated_on] datetime2 NULL,
+    [status_checked_at] datetime2 NULL,
     [ip_address] nvarchar(50) NULL,
     [vm_cpu] nvarchar(20) NULL,
     [vm_ram] nvarchar(20) NULL,
@@ -390,6 +395,20 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_ct_servers_server_name' AND object_id = OBJECT_ID(N'dbo.ct_servers'))
         CREATE NONCLUSTERED INDEX [IX_ct_servers_server_name] ON dbo.[ct_servers] ([server_name]);
 END;",
+            "IF COL_LENGTH('ct_servers','sql_product') IS NULL ALTER TABLE dbo.ct_servers ADD sql_product nvarchar(100) NULL;",
+            "IF COL_LENGTH('ct_servers','support_status') IS NULL ALTER TABLE dbo.ct_servers ADD support_status nvarchar(50) NULL;",
+            "IF COL_LENGTH('ct_servers','sql_edition') IS NULL ALTER TABLE dbo.ct_servers ADD sql_edition nvarchar(150) NULL;",
+            "IF COL_LENGTH('ct_servers','sql_started_at') IS NULL ALTER TABLE dbo.ct_servers ADD sql_started_at datetime2 NULL;",
+            "IF COL_LENGTH('ct_servers','status_checked_at') IS NULL ALTER TABLE dbo.ct_servers ADD status_checked_at datetime2 NULL;",
+            @"IF COL_LENGTH('ct_servers','status_checked_at') IS NOT NULL
+              UPDATE dbo.ct_servers
+              SET status_checked_at = updated_on
+              WHERE status_checked_at IS NULL
+                AND updated_by = N'Check Server Status'
+                AND updated_on IS NOT NULL;",
+            @"IF COL_LENGTH('ct_servers','sql_version') IS NOT NULL
+              AND COL_LENGTH('ct_servers','sql_version') < 300
+              ALTER TABLE dbo.ct_servers ALTER COLUMN sql_version nvarchar(150) NULL;",
             @"IF OBJECT_ID(N'dbo.ct_database', N'U') IS NULL
 BEGIN
     CREATE TABLE dbo.[ct_database] (
@@ -425,12 +444,77 @@ BEGIN
     [recovery_model] nvarchar(30) NULL,
     [free_space_mb] int NULL,
     [backup_info] nvarchar(500) NULL,
+    [last_full_backup] datetime2 NULL,
+    [last_differential_backup] datetime2 NULL,
+    [last_log_backup] datetime2 NULL,
+    [database_owner] nvarchar(128) NULL,
     CONSTRAINT [PK_ct_database] PRIMARY KEY CLUSTERED ([tx_id])
     );
     IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_ct_database_server_name' AND object_id = OBJECT_ID(N'dbo.ct_database'))
         CREATE NONCLUSTERED INDEX [IX_ct_database_server_name] ON dbo.[ct_database] ([server_name]);
     IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_ct_database_database_name' AND object_id = OBJECT_ID(N'dbo.ct_database'))
         CREATE NONCLUSTERED INDEX [IX_ct_database_database_name] ON dbo.[ct_database] ([database_name]);
+END;",
+            "IF COL_LENGTH('ct_database','last_full_backup') IS NULL ALTER TABLE dbo.ct_database ADD last_full_backup datetime2 NULL;",
+            "IF COL_LENGTH('ct_database','last_differential_backup') IS NULL ALTER TABLE dbo.ct_database ADD last_differential_backup datetime2 NULL;",
+            "IF COL_LENGTH('ct_database','last_log_backup') IS NULL ALTER TABLE dbo.ct_database ADD last_log_backup datetime2 NULL;",
+            "IF COL_LENGTH('ct_database','database_owner') IS NULL ALTER TABLE dbo.ct_database ADD database_owner nvarchar(128) NULL;",
+            @"IF OBJECT_ID(N'dbo.AssessmentBackups', N'U') IS NOT NULL
+BEGIN
+    ;WITH ranked AS (
+        SELECT
+            b.ServerName,
+            b.DatabaseName,
+            b.LastFullBackup,
+            b.LastDifferentialBackup,
+            b.LastLogBackup,
+            ROW_NUMBER() OVER (
+                PARTITION BY b.ServerName, b.DatabaseName
+                ORDER BY r.Id DESC
+            ) AS rn
+        FROM dbo.AssessmentBackups b
+        INNER JOIN dbo.AssessmentRuns r ON r.Id = b.AssessmentRunId
+        WHERE r.Status = N'Succeeded'
+    )
+    UPDATE d
+    SET
+        last_full_backup = COALESCE(d.last_full_backup, r.LastFullBackup),
+        last_differential_backup = COALESCE(d.last_differential_backup, r.LastDifferentialBackup),
+        last_log_backup = COALESCE(d.last_log_backup, r.LastLogBackup)
+    FROM dbo.ct_database d
+    INNER JOIN ranked r
+        ON r.rn = 1
+       AND d.server_name = r.ServerName
+       AND d.database_name = r.DatabaseName
+    WHERE d.last_full_backup IS NULL
+       OR d.last_differential_backup IS NULL
+       OR d.last_log_backup IS NULL;
+END;",
+            @"IF OBJECT_ID(N'dbo.AssessmentDatabases', N'U') IS NOT NULL
+BEGIN
+    ;WITH ranked AS (
+        SELECT
+            a.ServerName,
+            a.Name AS DatabaseName,
+            a.OwnerName,
+            ROW_NUMBER() OVER (
+                PARTITION BY a.ServerName, a.Name
+                ORDER BY r.Id DESC
+            ) AS rn
+        FROM dbo.AssessmentDatabases a
+        INNER JOIN dbo.AssessmentRuns r ON r.Id = a.AssessmentRunId
+        WHERE r.Status = N'Succeeded'
+          AND a.OwnerName IS NOT NULL
+          AND LTRIM(RTRIM(a.OwnerName)) <> N''
+    )
+    UPDATE d
+    SET database_owner = COALESCE(NULLIF(LTRIM(RTRIM(d.database_owner)), N''), r.OwnerName)
+    FROM dbo.ct_database d
+    INNER JOIN ranked r
+        ON r.rn = 1
+       AND d.server_name = r.ServerName
+       AND d.database_name = r.DatabaseName
+    WHERE d.database_owner IS NULL OR LTRIM(RTRIM(d.database_owner)) = N'';
 END;"
         };
 
@@ -438,5 +522,42 @@ END;"
         {
             await db.Database.ExecuteSqlRawAsync(sql);
         }
+
+        await MigrateLegacyOwnerFromBackupInfoAsync(db);
+    }
+
+    /// <summary>
+    /// Older syncs stored "Owner=sa" inside backup_info. Move that into database_owner
+    /// and leave backup_info for backup timestamps only.
+    /// </summary>
+    private static async Task MigrateLegacyOwnerFromBackupInfoAsync(AppDbContext db)
+    {
+        var rows = await db.CtDatabases
+            .Where(d => d.BackupInfo != null && d.BackupInfo.Contains("Owner="))
+            .ToListAsync();
+        if (rows.Count == 0) return;
+
+        foreach (var row in rows)
+        {
+            string? owner = null;
+            var kept = new List<string>();
+            foreach (var part in row.BackupInfo!.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            {
+                if (part.StartsWith("Owner=", StringComparison.OrdinalIgnoreCase))
+                {
+                    var value = part["Owner=".Length..].Trim();
+                    if (!string.IsNullOrWhiteSpace(value))
+                        owner = value;
+                    continue;
+                }
+                kept.Add(part);
+            }
+
+            if (string.IsNullOrWhiteSpace(row.DatabaseOwner) && !string.IsNullOrWhiteSpace(owner))
+                row.DatabaseOwner = owner;
+            row.BackupInfo = kept.Count == 0 ? null : string.Join("; ", kept);
+        }
+
+        await db.SaveChangesAsync();
     }
 }

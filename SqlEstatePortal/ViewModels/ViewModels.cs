@@ -108,6 +108,19 @@ public class AssessmentDetailsViewModel
 {
     public AssessmentRun Run { get; set; } = null!;
     public List<AssessmentRunSummary> AvailableRuns { get; set; } = [];
+    public int? SyncBatchId { get; set; }
+    public string? SyncStatus { get; set; }
+    public bool ShowSyncToRegister { get; set; }
+    public bool ShowNoChangesFound { get; set; }
+}
+
+public class AssessmentListItemViewModel
+{
+    public AssessmentRun Run { get; set; } = null!;
+    public int? SyncBatchId { get; set; }
+    public string? SyncStatus { get; set; }
+    public bool ShowSyncToRegister { get; set; }
+    public bool ShowNoChangesFound { get; set; }
 }
 
 public class DashboardViewModel
@@ -259,7 +272,6 @@ public class DatabaseRegisterViewModel
     public string? ServerName { get; set; }
     public string? Status { get; set; }
     public string? Environment { get; set; }
-    public string? Tower { get; set; }
     public string? Edition { get; set; }
     public string? Location { get; set; }
     public string? Active { get; set; }
@@ -270,7 +282,6 @@ public class DatabaseRegisterViewModel
     public IReadOnlyList<string> ServerNameOptions { get; set; } = [];
     public IReadOnlyList<string> StatusOptions { get; set; } = [];
     public IReadOnlyList<string> EnvironmentOptions { get; set; } = [];
-    public IReadOnlyList<string> TowerOptions { get; set; } = [];
     public IReadOnlyList<string> EditionOptions { get; set; } = [];
     public IReadOnlyList<string> LocationOptions { get; set; } = [];
 
@@ -284,8 +295,8 @@ public class DatabaseRowViewModel
     public string? ServerName { get; set; }
     public int? ServerId { get; set; }
     public string? DatabaseStatus { get; set; }
+    public string? DatabaseOwner { get; set; }
     public string? Environment { get; set; }
-    public string? Tower { get; set; }
     public string? DatabaseEdition { get; set; }
     public string? ServiceObjective { get; set; }
     public string? DataCentreLocation { get; set; }
@@ -304,7 +315,6 @@ public class ServerRegisterViewModel
     public string? ServerName { get; set; }
     public string? Environment { get; set; }
     public string? Status { get; set; }
-    public string? Tower { get; set; }
     public string? Subscription { get; set; }
     public string? DataCentre { get; set; }
 
@@ -313,7 +323,6 @@ public class ServerRegisterViewModel
     public IReadOnlyList<string> ServerNameOptions { get; set; } = [];
     public IReadOnlyList<string> EnvironmentOptions { get; set; } = [];
     public IReadOnlyList<string> StatusOptions { get; set; } = [];
-    public IReadOnlyList<string> TowerOptions { get; set; } = [];
     public IReadOnlyList<string> SubscriptionOptions { get; set; } = [];
     public IReadOnlyList<string> DataCentreOptions { get; set; } = [];
 
@@ -326,12 +335,13 @@ public class ServerRowViewModel
     public string ServerName { get; set; } = string.Empty;
     public string? Environment { get; set; }
     public string? ServerStatus { get; set; }
-    public string? Tower { get; set; }
+    public string? SqlProduct { get; set; }
+    public string? SupportStatus { get; set; }
+    public string? SqlEdition { get; set; }
+    public string? SqlVersion { get; set; }
     public string? Subscription { get; set; }
     public string? DataCentreLocation { get; set; }
     public int DatabaseCount { get; set; }
-    public int OnlineDatabaseCount { get; set; }
-    public int PoolCount { get; set; }
     public int LinkedApplicationCount { get; set; }
 }
 

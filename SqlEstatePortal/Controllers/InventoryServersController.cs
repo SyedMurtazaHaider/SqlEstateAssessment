@@ -26,14 +26,12 @@ public class InventoryServersController : Controller
         string? serverName,
         string? environment,
         string? status,
-        string? tower,
         string? subscription,
         string? dataCentre)
     {
         serverName = Norm(serverName);
         environment = Norm(environment);
         status = Norm(status);
-        tower = Norm(tower);
         subscription = Norm(subscription);
         dataCentre = Norm(dataCentre);
 
@@ -45,11 +43,10 @@ public class InventoryServersController : Controller
             """
             SELECT
                 server_name AS ServerName,
-                COUNT(*) AS DatabaseCount,
-                ISNULL(SUM(CASE WHEN database_status IN (N'Normal', N'Online') THEN 1 ELSE 0 END), 0) AS OnlineDatabaseCount,
-                COUNT(DISTINCT NULLIF(LTRIM(RTRIM(elastic_pool_name)), N'')) AS PoolCount
+                COUNT(*) AS DatabaseCount
             FROM dbo.ct_database
             WHERE server_name IS NOT NULL AND LTRIM(RTRIM(server_name)) <> N''
+              AND is_active = 1
             GROUP BY server_name
             """).ToListAsync();
 
@@ -71,8 +68,6 @@ public class InventoryServersController : Controller
             filtered = filtered.Where(s => string.Equals(s.Environment, environment, StringComparison.OrdinalIgnoreCase));
         if (status != null)
             filtered = filtered.Where(s => string.Equals(s.ServerStatus, status, StringComparison.OrdinalIgnoreCase));
-        if (tower != null)
-            filtered = filtered.Where(s => string.Equals(s.Tower, tower, StringComparison.OrdinalIgnoreCase));
         if (subscription != null)
             filtered = filtered.Where(s => string.Equals(s.Subscription, subscription, StringComparison.OrdinalIgnoreCase));
         if (dataCentre != null)
@@ -90,14 +85,12 @@ public class InventoryServersController : Controller
             ServerName = serverName,
             Environment = environment,
             Status = status,
-            Tower = tower,
             Subscription = subscription,
             DataCentre = dataCentre,
             TotalCount = all.Count,
             ServerNameOptions = DistinctSorted(all.Select(s => s.ServerName)),
             EnvironmentOptions = DistinctSorted(all.Select(s => s.Environment)),
             StatusOptions = DistinctSorted(all.Select(s => s.ServerStatus)),
-            TowerOptions = DistinctSorted(all.Select(s => s.Tower)),
             SubscriptionOptions = DistinctSorted(all.Select(s => s.Subscription)),
             DataCentreOptions = DistinctSorted(all.Select(s => s.DataCentreLocation)),
             Servers = list.Select(s =>
@@ -109,12 +102,13 @@ public class InventoryServersController : Controller
                     ServerName = s.ServerName,
                     Environment = s.Environment,
                     ServerStatus = s.ServerStatus,
-                    Tower = s.Tower,
+                    SqlProduct = s.SqlProduct,
+                    SupportStatus = s.SupportStatus,
+                    SqlEdition = s.SqlEdition,
+                    SqlVersion = s.SqlVersion,
                     Subscription = s.Subscription,
                     DataCentreLocation = s.DataCentreLocation,
                     DatabaseCount = stats?.DatabaseCount ?? 0,
-                    OnlineDatabaseCount = stats?.OnlineDatabaseCount ?? 0,
-                    PoolCount = stats?.PoolCount ?? 0,
                     LinkedApplicationCount = LinkedAppCount(s)
                 };
             }).ToList()
@@ -284,8 +278,6 @@ public class InventoryServersController : Controller
     {
         public string ServerName { get; set; } = string.Empty;
         public int DatabaseCount { get; set; }
-        public int OnlineDatabaseCount { get; set; }
-        public int PoolCount { get; set; }
     }
 
     private sealed class ServerAppLinkRow

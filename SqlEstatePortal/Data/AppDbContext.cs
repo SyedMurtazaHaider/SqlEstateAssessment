@@ -27,6 +27,10 @@ public class AppDbContext : DbContext
     public DbSet<AssessmentSysadmin> AssessmentSysadmins => Set<AssessmentSysadmin>();
     public DbSet<AssessmentConfiguration> AssessmentConfigurations => Set<AssessmentConfiguration>();
     public DbSet<AssessmentBackup> AssessmentBackups => Set<AssessmentBackup>();
+    public DbSet<InventorySyncBatch> InventorySyncBatches => Set<InventorySyncBatch>();
+    public DbSet<InventorySyncItem> InventorySyncItems => Set<InventorySyncItem>();
+    public DbSet<InventorySyncField> InventorySyncFields => Set<InventorySyncField>();
+    public DbSet<InventorySyncAudit> InventorySyncAudits => Set<InventorySyncAudit>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -118,6 +122,24 @@ public class AppDbContext : DbContext
             .HasOne(x => x.AssessmentRun)
             .WithMany(x => x.Backups)
             .HasForeignKey(x => x.AssessmentRunId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<InventorySyncItem>()
+            .HasOne(x => x.Batch)
+            .WithMany(x => x.Items)
+            .HasForeignKey(x => x.BatchId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<InventorySyncField>()
+            .HasOne(x => x.Item)
+            .WithMany(x => x.Fields)
+            .HasForeignKey(x => x.ItemId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<InventorySyncAudit>()
+            .HasOne(x => x.Batch)
+            .WithMany(x => x.Audits)
+            .HasForeignKey(x => x.BatchId)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<AssessmentServerSnapshot>().Property(x => x.MemoryMb).HasPrecision(18, 2);

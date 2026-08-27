@@ -35,6 +35,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddScoped<PermissionService>();
 builder.Services.AddScoped<AssessmentRunnerService>();
 builder.Services.AddScoped<ServerReachabilityService>();
+builder.Services.AddScoped<InventorySyncService>();
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();

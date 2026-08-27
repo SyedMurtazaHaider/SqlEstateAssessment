@@ -1,10 +1,47 @@
 ﻿(function () {
+  var STORAGE_KEY = 'sqlEstate.sidebarHidden';
   var toggle = document.getElementById('sidebarToggle');
-  if (toggle) {
-    toggle.addEventListener('click', function () {
-      document.body.classList.toggle('sidebar-open');
-    });
+  var hideBtn = document.getElementById('sidebarHideBtn');
+
+  function isMobileNav() {
+    return window.matchMedia('(max-width: 900px)').matches;
   }
+
+  function syncToggleLabel() {
+    if (!toggle) return;
+    var hidden = isMobileNav()
+      ? !document.body.classList.contains('sidebar-open')
+      : document.body.classList.contains('sidebar-hidden');
+    var label = hidden ? 'Show menu' : 'Hide menu';
+    toggle.setAttribute('aria-label', label);
+    toggle.setAttribute('title', label);
+  }
+
+  function setDesktopHidden(hidden) {
+    document.body.classList.toggle('sidebar-hidden', hidden);
+    try { localStorage.setItem(STORAGE_KEY, hidden ? '1' : '0'); } catch (e) { /* ignore */ }
+    syncToggleLabel();
+  }
+
+  function toggleMenu() {
+    if (isMobileNav()) {
+      document.body.classList.toggle('sidebar-open');
+      syncToggleLabel();
+      return;
+    }
+    setDesktopHidden(!document.body.classList.contains('sidebar-hidden'));
+  }
+
+  try {
+    if (!isMobileNav() && localStorage.getItem(STORAGE_KEY) === '1') {
+      document.body.classList.add('sidebar-hidden');
+    }
+  } catch (e) { /* ignore */ }
+
+  if (toggle) toggle.addEventListener('click', toggleMenu);
+  if (hideBtn) hideBtn.addEventListener('click', function () { setDesktopHidden(true); });
+  window.addEventListener('resize', syncToggleLabel);
+  syncToggleLabel();
 
   var PAGE_SIZES = [10, 25, 50, 100];
 
@@ -356,8 +393,17 @@
             credentials: 'same-origin'
           })
             .then(function (res) {
-              if (!res.ok) throw new Error(defaults.failMessage + ' (' + res.status + ').');
-              return res.json();
+              return res.json().then(function (data) {
+                if (!res.ok) {
+                  var msg = (data && data.message) || (defaults.failMessage + ' (' + res.status + ').');
+                  throw new Error(msg);
+                }
+                return data;
+              }).catch(function (err) {
+                if (err && err.message && err.name !== 'SyntaxError') throw err;
+                if (!res.ok) throw new Error(defaults.failMessage + ' (' + res.status + ').');
+                throw err;
+              });
             })
             .then(function (data) {
               var url = (data && data.redirectUrl) || form.getAttribute('data-fallback') || defaults.fallback;
@@ -375,14 +421,200 @@
       });
     }
 
-    bindProgressForm('form.js-run-assessment', {
-      title: 'Running assessment',
-      msg: 'Collecting data from Reachable servers…',
-      busyText: 'Running...',
-      idleText: 'Run assessment',
-      failMessage: 'Assessment request failed',
-      fallback: '/Assessments'
-    });
+    function bindRunAssessmentWithServerPicker() {
+      var modalEl = document.getElementById('runAssessmentModal');
+      if (!modalEl || typeof bootstrap === 'undefined') {
+        bindProgressForm('form.js-run-assessment', {
+          title: 'Running assessment',
+          msg: 'Collecting data from selected servers…',
+          busyText: 'Running...',
+          idleText: 'Run assessment',
+          failMessage: 'Assessment request failed',
+          fallback: '/Assessments'
+        });
+        return;
+      }
+
+      var modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+      var listEl = document.getElementById('runAssessmentList');
+      var emptyEl = document.getElementById('runAssessmentEmpty');
+      var countEl = document.getElementById('runAssessmentCount');
+      var searchEl = document.getElementById('runAssessmentSearch');
+      var confirmBtn = document.getElementById('runAssessmentConfirm');
+      var pendingForm = null;
+
+      function esc(v) {
+        return String(v == null ? '' : v)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+
+      function updateCount() {
+        if (!countEl || !listEl) return;
+        var n = listEl.querySelectorAll('input.run-assess-check:checked').length;
+        countEl.textContent = n + ' selected';
+        if (confirmBtn) confirmBtn.disabled = n === 0;
+      }
+
+      function applySearch() {
+        var q = (searchEl && searchEl.value || '').trim().toLowerCase();
+        listEl.querySelectorAll('.run-assess-row').forEach(function (row) {
+          var name = (row.getAttribute('data-name') || '').toLowerCase();
+          row.hidden = !!(q && name.indexOf(q) < 0);
+        });
+      }
+
+      function renderServers(servers) {
+        if (!listEl) return;
+        if (!servers.length) {
+          listEl.innerHTML = '';
+          if (emptyEl) emptyEl.hidden = false;
+          updateCount();
+          return;
+        }
+        if (emptyEl) emptyEl.hidden = true;
+        listEl.innerHTML = servers.map(function (s) {
+          var name = s.name || '';
+          var env = s.environment ? '<span class="muted">' + esc(s.environment) + '</span>' : '';
+          return '<label class="run-assess-row" data-name="' + esc(name) + '">' +
+            '<input type="checkbox" class="run-assess-check" value="' + esc(name) + '" checked />' +
+            '<span class="run-assess-name"><strong>' + esc(name) + '</strong>' + env + '</span>' +
+            '<span class="run-assess-status">Reachable</span>' +
+            '</label>';
+        }).join('');
+        listEl.querySelectorAll('input.run-assess-check').forEach(function (cb) {
+          cb.addEventListener('change', updateCount);
+        });
+        updateCount();
+        applySearch();
+      }
+
+      function openPicker(form) {
+        pendingForm = form;
+        if (searchEl) searchEl.value = '';
+        listEl.innerHTML = '<p class="muted mb-0">Loading Reachable servers…</p>';
+        if (emptyEl) emptyEl.hidden = true;
+        if (confirmBtn) confirmBtn.disabled = true;
+        countEl.textContent = 'Loading…';
+        modal.show();
+
+        fetch('/Assessments/ReachableServers', {
+          headers: { 'Accept': 'application/json' },
+          credentials: 'same-origin'
+        })
+          .then(function (r) {
+            if (!r.ok) throw new Error('Unable to load Reachable servers.');
+            return r.json();
+          })
+          .then(function (data) {
+            renderServers((data && data.servers) || []);
+          })
+          .catch(function (err) {
+            listEl.innerHTML = '';
+            if (emptyEl) {
+              emptyEl.hidden = false;
+              emptyEl.textContent = err && err.message ? err.message : 'Unable to load Reachable servers.';
+            }
+            updateCount();
+          });
+      }
+
+      document.querySelectorAll('form.js-run-assessment').forEach(function (form) {
+        form.addEventListener('submit', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          openPicker(form);
+        });
+      });
+
+      document.getElementById('runAssessmentSelectAll')?.addEventListener('click', function () {
+        listEl.querySelectorAll('.run-assess-row:not([hidden]) input.run-assess-check').forEach(function (cb) {
+          cb.checked = true;
+        });
+        updateCount();
+      });
+      document.getElementById('runAssessmentClearAll')?.addEventListener('click', function () {
+        listEl.querySelectorAll('input.run-assess-check').forEach(function (cb) {
+          cb.checked = false;
+        });
+        updateCount();
+      });
+      if (searchEl) searchEl.addEventListener('input', applySearch);
+
+      confirmBtn?.addEventListener('click', function () {
+        if (!pendingForm) return;
+        var selected = Array.prototype.map.call(
+          listEl.querySelectorAll('input.run-assess-check:checked'),
+          function (cb) { return cb.value; }
+        ).filter(Boolean);
+        if (!selected.length) {
+          alert('Select at least one Reachable server.');
+          return;
+        }
+
+        // Clear prior server inputs, then add selected.
+        pendingForm.querySelectorAll('input[name="servers"]').forEach(function (el) { el.remove(); });
+        selected.forEach(function (name) {
+          var input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = 'servers';
+          input.value = name;
+          pendingForm.appendChild(input);
+        });
+
+        modal.hide();
+
+        var btn = pendingForm.querySelector('button[type="submit"]');
+        if (btn) {
+          btn.disabled = true;
+          btn.dataset.originalText = btn.textContent;
+          btn.textContent = 'Running...';
+        }
+
+        showOverlay(
+          pendingForm.getAttribute('data-progress-title') || 'Running assessment',
+          'Assessing ' + selected.length + ' selected server' + (selected.length === 1 ? '' : 's') + '…'
+        );
+
+        fetch(pendingForm.action, {
+          method: 'POST',
+          body: new FormData(pendingForm),
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+          },
+          credentials: 'same-origin'
+        })
+          .then(function (res) {
+            return res.json().then(function (data) {
+              if (!res.ok) {
+                throw new Error((data && data.message) || ('Assessment request failed (' + res.status + ').'));
+              }
+              return data;
+            }).catch(function (err) {
+              if (err && err.message && err.name !== 'SyntaxError') throw err;
+              if (!res.ok) throw new Error('Assessment request failed (' + res.status + ').');
+              throw err;
+            });
+          })
+          .then(function (data) {
+            var url = (data && data.redirectUrl) || pendingForm.getAttribute('data-fallback') || '/Assessments';
+            finishAndRedirect(url);
+          })
+          .catch(function (err) {
+            hideOverlay();
+            if (btn) {
+              btn.disabled = false;
+              btn.textContent = btn.dataset.originalText || 'Run assessment';
+            }
+            alert(err && err.message ? err.message : 'Assessment request failed');
+          });
+      });
+    }
+
+    bindRunAssessmentWithServerPicker();
 
     bindProgressForm('form.js-check-server-status', {
       title: 'Checking server status',

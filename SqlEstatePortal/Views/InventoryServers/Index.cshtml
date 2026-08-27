@@ -72,17 +72,6 @@
                     </select>
                 </div>
                 <div>
-                    <label for="tower">Tower</label>
-                    <select id="tower" name="tower" class="form-select form-select-sm">
-                        <option value="">All</option>
-                        @foreach (var o in Model.TowerOptions)
-                        {
-                            if (Sel(Model.Tower, o)) { <option value="@o" selected>@o</option> }
-                            else { <option value="@o">@o</option> }
-                        }
-                    </select>
-                </div>
-                <div>
                     <label for="subscription">Subscription</label>
                     <select id="subscription" name="subscription" class="form-select form-select-sm">
                         <option value="">All</option>
@@ -135,8 +124,9 @@
             <thead>
             @await Html.PartialAsync("_ColumnFilters", new[]
             {
-                "Server", "Environment", "Status", "Tower", "Subscription", "Data Centre",
-                "Databases", "Online", "Pools", "Linked Apps", "-Actions"
+                "Server", "Environment", "Status", "Product", "Support", "Edition", "Version",
+                "Subscription", "Data Centre",
+                "Databases", "Linked Apps", "-Actions"
             })
             </thead>
             <tbody>
@@ -153,7 +143,10 @@
                             <span class="@StatusClass(s.ServerStatus)">@s.ServerStatus</span>
                         }
                     </td>
-                    <td>@Dash(s.Tower)</td>
+                    <td>@Dash(s.SqlProduct)</td>
+                    <td>@Dash(s.SupportStatus)</td>
+                    <td>@Dash(s.SqlEdition)</td>
+                    <td>@Dash(s.SqlVersion)</td>
                     <td>@Dash(s.Subscription)</td>
                     <td>@Dash(s.DataCentreLocation)</td>
                     <td>
@@ -170,10 +163,6 @@
                             <span class="linked-db linked-db-off">0</span>
                         }
                     </td>
-                    <td>
-                        <span class="online-count-badge">@s.OnlineDatabaseCount</span>
-                    </td>
-                    <td>@s.PoolCount</td>
                     <td>
                         @if (s.LinkedApplicationCount > 0)
                         {

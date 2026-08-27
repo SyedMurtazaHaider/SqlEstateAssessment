@@ -122,4 +122,17 @@ public class CtDatabase
     [Column("backup_info")]
     [MaxLength(500)]
     public string? BackupInfo { get; set; }
+
+    [Column("last_full_backup")]
+    public DateTime? LastFullBackup { get; set; }
+
+    [Column("last_differential_backup")]
+    public DateTime? LastDifferentialBackup { get; set; }
+
+    [Column("last_log_backup")]
+    public DateTime? LastLogBackup { get; set; }
+
+    [Column("database_owner")]
+    [MaxLength(128)]
+    public string? DatabaseOwner { get; set; }
 }

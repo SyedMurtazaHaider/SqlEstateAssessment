@@ -129,6 +129,61 @@ public static class AssessmentSchema
                 LastDifferentialBackup datetime2 NULL,
                 LastLogBackup datetime2 NULL
               );",
+            "IF COL_LENGTH('AssessmentDatabases','CollationName') IS NULL ALTER TABLE AssessmentDatabases ADD CollationName nvarchar(128) NULL;",
+            "IF COL_LENGTH('AssessmentDatabases','CreationDate') IS NULL ALTER TABLE AssessmentDatabases ADD CreationDate datetime2 NULL;",
+            @"IF OBJECT_ID('InventorySyncBatches','U') IS NULL
+              CREATE TABLE InventorySyncBatches (
+                Id int IDENTITY PRIMARY KEY,
+                AssessmentRunId int NOT NULL REFERENCES AssessmentRuns(Id),
+                Status nvarchar(40) NOT NULL,
+                CreatedBy nvarchar(100) NULL,
+                CreatedAtUtc datetime2 NOT NULL,
+                ApprovedBy nvarchar(100) NULL,
+                ApprovedAtUtc datetime2 NULL,
+                RejectedBy nvarchar(100) NULL,
+                RejectedAtUtc datetime2 NULL,
+                Notes nvarchar(1000) NULL,
+                NewCount int NOT NULL CONSTRAINT DF_ISB_New DEFAULT 0,
+                ChangedCount int NOT NULL CONSTRAINT DF_ISB_Changed DEFAULT 0,
+                RemovedCount int NOT NULL CONSTRAINT DF_ISB_Removed DEFAULT 0,
+                UnchangedCount int NOT NULL CONSTRAINT DF_ISB_Unchanged DEFAULT 0
+              );",
+            @"IF OBJECT_ID('InventorySyncItems','U') IS NULL
+              CREATE TABLE InventorySyncItems (
+                Id int IDENTITY PRIMARY KEY,
+                BatchId int NOT NULL REFERENCES InventorySyncBatches(Id) ON DELETE CASCADE,
+                ServerName nvarchar(200) NOT NULL,
+                EntityType nvarchar(20) NOT NULL CONSTRAINT DF_ISI_EntityType DEFAULT N'Database',
+                DatabaseName nvarchar(500) NOT NULL,
+                ChangeType nvarchar(20) NOT NULL,
+                CtDatabaseId int NULL,
+                CtServerId int NULL,
+                Selected bit NOT NULL CONSTRAINT DF_ISI_Selected DEFAULT 0,
+                Applied bit NOT NULL CONSTRAINT DF_ISI_Applied DEFAULT 0,
+                OldSnapshotJson nvarchar(max) NULL,
+                NewSnapshotJson nvarchar(max) NULL
+              );",
+            "IF COL_LENGTH('InventorySyncItems','EntityType') IS NULL ALTER TABLE InventorySyncItems ADD EntityType nvarchar(20) NOT NULL CONSTRAINT DF_ISI_EntityType DEFAULT N'Database';",
+            "IF COL_LENGTH('InventorySyncItems','CtServerId') IS NULL ALTER TABLE InventorySyncItems ADD CtServerId int NULL;",
+            @"IF OBJECT_ID('InventorySyncFields','U') IS NULL
+              CREATE TABLE InventorySyncFields (
+                Id int IDENTITY PRIMARY KEY,
+                ItemId int NOT NULL REFERENCES InventorySyncItems(Id) ON DELETE CASCADE,
+                FieldName nvarchar(80) NOT NULL,
+                OldValue nvarchar(max) NULL,
+                NewValue nvarchar(max) NULL,
+                Selected bit NOT NULL CONSTRAINT DF_ISF_Selected DEFAULT 0
+              );",
+            @"IF OBJECT_ID('InventorySyncAudits','U') IS NULL
+              CREATE TABLE InventorySyncAudits (
+                Id int IDENTITY PRIMARY KEY,
+                BatchId int NOT NULL REFERENCES InventorySyncBatches(Id) ON DELETE CASCADE,
+                ItemId int NULL,
+                EventType nvarchar(40) NOT NULL,
+                Actor nvarchar(100) NOT NULL,
+                OccurredAtUtc datetime2 NOT NULL,
+                DetailJson nvarchar(max) NULL
+              );",
             @"IF OBJECT_ID('EstateServers','U') IS NULL
               CREATE TABLE EstateServers (
                 Id int IDENTITY PRIMARY KEY,

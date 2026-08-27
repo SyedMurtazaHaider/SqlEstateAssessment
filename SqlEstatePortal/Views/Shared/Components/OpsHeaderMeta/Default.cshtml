@@ -1,0 +1,19 @@
+@model SqlEstatePortal.ViewComponents.OpsHeaderMetaModel
+@{
+    string Fmt(DateTime? utc) =>
+        utc.HasValue ? utc.Value.ToLocalTime().ToString("g") : "Never";
+}
+<div class="ops-header-meta" title="Last Check Server Status and Run Assessment times">
+    <div class="ops-meta-item">
+        <span class="ops-meta-label">Status check</span>
+        <strong>@Fmt(Model.LastStatusCheckUtc)</strong>
+    </div>
+    <div class="ops-meta-item">
+        <span class="ops-meta-label">Assessment</span>
+        <strong>@Fmt(Model.LastAssessmentAtUtc)</strong>
+        @if (!string.IsNullOrWhiteSpace(Model.LastAssessmentStatus))
+        {
+            <span class="ops-meta-status">@Model.LastAssessmentStatus</span>
+        }
+    </div>
+</div>
