@@ -1,7 +1,6 @@
 ﻿@{
     var canDashboard = User.Identity?.IsAuthenticated == true && await Permissions.HasAsync(User, AppModules.Dashboard, "view");
     var canAssessments = User.Identity?.IsAuthenticated == true && await Permissions.HasAsync(User, AppModules.Assessments, "view");
-    var canServers = User.Identity?.IsAuthenticated == true && await Permissions.HasAsync(User, AppModules.Servers, "view");
     var canApplications = User.Identity?.IsAuthenticated == true && await Permissions.HasAsync(User, AppModules.Applications, "view");
     var canDatabases = User.Identity?.IsAuthenticated == true && await Permissions.HasAsync(User, AppModules.Databases, "view");
     var canInventoryServers = User.Identity?.IsAuthenticated == true && await Permissions.HasAsync(User, AppModules.InventoryServers, "view");
@@ -44,13 +43,6 @@
                 Assessments
             </a>
         }
-        @if (canServers)
-        {
-            <a class="nav-item @NavClass("Servers")" asp-controller="Servers" asp-action="Index">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 1h16c.55 0 1 .45 1 1v4c0 .55-.45 1-1 1H4c-.55 0-1-.45-1-1V2c0-.55.45-1 1-1zm0 8h16c.55 0 1 .45 1 1v4c0 .55-.45 1-1 1H4c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1zm0 8h16c.55 0 1 .45 1 1v4c0 .55-.45 1-1 1H4c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1zM9 4h2v1H9V4zm0 8h2v1H9v-1zm0 8h2v1H9v-1z"/></svg>
-                Servers
-            </a>
-        }
         @if (canApplications)
         {
             <a class="nav-item @NavClass("Applications")" asp-controller="Applications" asp-action="Index">
@@ -69,7 +61,7 @@
         {
             <a class="nav-item @NavClass("InventoryServers")" asp-controller="InventoryServers" asp-action="Index">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 1h16c.55 0 1 .45 1 1v4c0 .55-.45 1-1 1H4c-.55 0-1-.45-1-1V2c0-.55.45-1 1-1zm0 8h16c.55 0 1 .45 1 1v4c0 .55-.45 1-1 1H4c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1zm0 8h16c.55 0 1 .45 1 1v4c0 .55-.45 1-1 1H4c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1zM9 4h2v1H9V4zm0 8h2v1H9v-1zm0 8h2v1H9v-1z"/></svg>
-                Server Register
+                Servers
             </a>
         }
         @if (canCosts)
@@ -130,8 +122,8 @@
 </div>
 <div id="assessmentProgressOverlay" class="assessment-progress-overlay" hidden aria-live="polite" aria-busy="false">
     <div class="assessment-progress-card">
-        <h2>Running assessment</h2>
-        <p class="muted assessment-progress-msg">Collecting data from enabled servers…</p>
+        <h2 id="assessmentProgressTitle">Running assessment</h2>
+        <p class="muted assessment-progress-msg" id="assessmentProgressMsg">Collecting data from Reachable servers…</p>
         <div class="assessment-progress-track" role="progressbar" aria-valuemin="1" aria-valuemax="100" aria-valuenow="1">
             <div class="assessment-progress-bar" id="assessmentProgressBar" style="width: 1%;"></div>
         </div>

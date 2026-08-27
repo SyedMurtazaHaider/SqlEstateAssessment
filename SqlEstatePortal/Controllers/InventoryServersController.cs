@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using SqlEstatePortal.Data;
 using SqlEstatePortal.Filters;
 using SqlEstatePortal.Models;
+using SqlEstatePortal.Services;
 using SqlEstatePortal.ViewModels;
 
 namespace SqlEstatePortal.Controllers;
@@ -12,10 +13,12 @@ namespace SqlEstatePortal.Controllers;
 public class InventoryServersController : Controller
 {
     private readonly AppDbContext _db;
+    private readonly ServerReachabilityService _reachability;
 
-    public InventoryServersController(AppDbContext db)
+    public InventoryServersController(AppDbContext db, ServerReachabilityService reachability)
     {
         _db = db;
+        _reachability = reachability;
     }
 
     [RequirePermission(AppModules.InventoryServers, "view")]
@@ -118,6 +121,35 @@ public class InventoryServersController : Controller
         };
 
         return View(vm);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [RequirePermission(AppModules.InventoryServers, "update")]
+    public async Task<IActionResult> CheckServerStatus(CancellationToken cancellationToken)
+    {
+        var result = await _reachability.CheckAllAsync(cancellationToken);
+        var message =
+            $"Server status checked for {result.Total} servers: {result.Reachable} Reachable, {result.Unreachable} UnReachable.";
+
+        var wantsJson = string.Equals(Request.Headers["X-Requested-With"], "XMLHttpRequest", StringComparison.OrdinalIgnoreCase)
+            || (Request.Headers.Accept.ToString()?.Contains("application/json", StringComparison.OrdinalIgnoreCase) ?? false);
+
+        if (wantsJson)
+        {
+            return Json(new
+            {
+                ok = true,
+                message,
+                total = result.Total,
+                reachable = result.Reachable,
+                unreachable = result.Unreachable,
+                redirectUrl = Url.Action(nameof(Index))
+            });
+        }
+
+        TempData["Success"] = message;
+        return RedirectToAction(nameof(Index));
     }
 
     [RequirePermission(AppModules.InventoryServers, "view")]

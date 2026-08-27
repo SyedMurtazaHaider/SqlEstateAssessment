@@ -5,16 +5,36 @@
 }
 <div class="page-toolbar">
     <h1>Assessments</h1>
-    @if (canRun)
-    {
-        <form asp-action="Run" method="post" class="js-run-assessment">
-            @Html.AntiForgeryToken()
-            <button type="submit" class="btn btn-primary">
-                Run Assessment
-            </button>
-        </form>
-    }
+    <div class="toolbar-actions">
+        @if (canRun)
+        {
+            <form asp-action="CheckServerStatus" method="post" class="js-check-server-status"
+                  data-progress-title="Checking server status"
+                  data-progress-msg="Pinging servers and updating Reachable / UnReachable…"
+                  data-fallback="@Url.Action("Index")">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-outline-primary">Check Server Status</button>
+            </form>
+            <form asp-action="Run" method="post" class="js-run-assessment"
+                  data-progress-title="Running assessment"
+                  data-progress-msg="Collecting data from Reachable servers…"
+                  data-fallback="@Url.Action("Index")">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-primary">
+                    Run Assessment
+                </button>
+            </form>
+        }
+    </div>
 </div>
+@if (TempData["Success"] is string success)
+{
+    <div class="alert alert-success">@success</div>
+}
+@if (TempData["Error"] is string error)
+{
+    <div class="alert alert-danger">@error</div>
+}
 <div class="panel">
     <p class="muted">Runs <code>Assess-SqlEstate.ps1</code>, imports JSON findings into SQL Server, and keeps full history.</p>
     <table class="table table-hover align-middle">

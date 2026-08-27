@@ -34,6 +34,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 builder.Services.AddAuthorization();
 builder.Services.AddScoped<PermissionService>();
 builder.Services.AddScoped<AssessmentRunnerService>();
+builder.Services.AddScoped<ServerReachabilityService>();
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();

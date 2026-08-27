@@ -14,11 +14,16 @@ public class AssessmentsController : Controller
 {
     private readonly AppDbContext _db;
     private readonly AssessmentRunnerService _runner;
+    private readonly ServerReachabilityService _reachability;
 
-    public AssessmentsController(AppDbContext db, AssessmentRunnerService runner)
+    public AssessmentsController(
+        AppDbContext db,
+        AssessmentRunnerService runner,
+        ServerReachabilityService reachability)
     {
         _db = db;
         _runner = runner;
+        _reachability = reachability;
     }
 
     [RequirePermission(AppModules.Assessments, "view")]
@@ -94,5 +99,33 @@ public class AssessmentsController : Controller
 
         TempData[succeeded ? "Success" : "Error"] = message;
         return RedirectToAction(nameof(Details), new { id = run.Id });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [RequirePermission(AppModules.Assessments, "insert")]
+    public async Task<IActionResult> CheckServerStatus(CancellationToken cancellationToken)
+    {
+        var result = await _reachability.CheckAllAsync(cancellationToken);
+        var message =
+            $"Server status checked for {result.Total} servers: {result.Reachable} Reachable, {result.Unreachable} UnReachable.";
+        TempData["Success"] = message;
+
+        var wantsJson = string.Equals(Request.Headers["X-Requested-With"], "XMLHttpRequest", StringComparison.OrdinalIgnoreCase)
+            || (Request.Headers.Accept.ToString()?.Contains("application/json", StringComparison.OrdinalIgnoreCase) ?? false);
+
+        if (wantsJson)
+        {
+            return Json(new
+            {
+                ok = true,
+                message,
+                total = result.Total,
+                reachable = result.Reachable,
+                unreachable = result.Unreachable
+            });
+        }
+
+        return RedirectToAction(nameof(Index));
     }
 }

@@ -35,13 +35,32 @@
         }
         @if (canRun)
         {
-            <form asp-controller="Assessments" asp-action="Run" method="post" class="js-run-assessment">
+            <form asp-controller="Assessments" asp-action="CheckServerStatus" method="post" class="js-check-server-status"
+                  data-progress-title="Checking server status"
+                  data-progress-msg="Pinging servers and updating Reachable / UnReachable…"
+                  data-fallback="@Url.Action("Index", "Dashboard")">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-outline-primary">Check Server Status</button>
+            </form>
+            <form asp-controller="Assessments" asp-action="Run" method="post" class="js-run-assessment"
+                  data-progress-title="Running assessment"
+                  data-progress-msg="Collecting data from Reachable servers…"
+                  data-fallback="@Url.Action("Index", "Assessments")">
                 @Html.AntiForgeryToken()
                 <button type="submit" class="btn btn-primary">Run assessment</button>
             </form>
         }
     </div>
 </div>
+
+@if (TempData["Success"] is string success)
+{
+    <div class="alert alert-success">@success</div>
+}
+@if (TempData["Error"] is string error)
+{
+    <div class="alert alert-danger">@error</div>
+}
 
 @if (Model.AvailableRuns.Count > 0)
 {

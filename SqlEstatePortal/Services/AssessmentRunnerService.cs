@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using SqlEstatePortal.Data;
 using SqlEstatePortal.Models;
+using SqlEstatePortal.Services;
 
 namespace SqlEstatePortal.Services;
 
@@ -33,8 +34,8 @@ public class AssessmentRunnerService
 
     public async Task<AssessmentRun> RunAsync(string? triggeredBy, CancellationToken cancellationToken = default)
     {
-        var servers = await _db.EstateServers
-            .Where(x => x.Enabled)
+        var servers = await _db.CtServers
+            .Where(x => x.ServerStatus == ServerReachabilityService.StatusReachable)
             .OrderBy(x => x.ServerName)
             .Select(x => x.ServerName)
             .ToListAsync(cancellationToken);
@@ -55,7 +56,8 @@ public class AssessmentRunnerService
             if (!File.Exists(_options.ScriptPath))
                 throw new FileNotFoundException("Assessment script not found.", _options.ScriptPath);
             if (servers.Count == 0)
-                throw new InvalidOperationException("No enabled servers found. Add servers under Servers and mark them Enabled.");
+                throw new InvalidOperationException(
+                    "No Reachable servers found. Open Servers and run Check Server Status first.");
 
             tempListPath = Path.Combine(
                 Path.GetTempPath(),

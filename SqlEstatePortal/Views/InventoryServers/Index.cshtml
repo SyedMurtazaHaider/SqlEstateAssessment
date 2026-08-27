@@ -1,21 +1,35 @@
 @model SqlEstatePortal.ViewModels.ServerRegisterViewModel
 @{
-    ViewData["Title"] = "Server Register";
+    ViewData["Title"] = "Servers";
     string Dash(string? v) => string.IsNullOrWhiteSpace(v) ? "" : v;
     bool Sel(string? current, string option) =>
         string.Equals(current, option, StringComparison.OrdinalIgnoreCase);
     string StatusClass(string? s)
     {
         if (string.IsNullOrWhiteSpace(s)) return "server-status-text";
-        if (s.Equals("Online", StringComparison.OrdinalIgnoreCase)) return "server-status-text server-status-online";
-        if (s.Equals("Offline", StringComparison.OrdinalIgnoreCase)) return "server-status-text server-status-offline";
+        if (s.Equals("Reachable", StringComparison.OrdinalIgnoreCase) ||
+            s.Equals("Online", StringComparison.OrdinalIgnoreCase))
+            return "server-status-text server-status-online";
+        if (s.Equals("UnReachable", StringComparison.OrdinalIgnoreCase) ||
+            s.Equals("Offline", StringComparison.OrdinalIgnoreCase))
+            return "server-status-text server-status-offline";
         return "server-status-text";
     }
 }
-<div class="register-heading">
-    <h1>Charles Taylor Group - @Model.TotalCount servers</h1>
+<div class="page-toolbar">
+    <div class="register-heading mb-0">
+        <h1>Charles Taylor Group - @Model.TotalCount servers</h1>
+    </div>
 </div>
 
+@if (TempData["Success"] is string success)
+{
+    <div class="alert alert-success">@success</div>
+}
+@if (TempData["Error"] is string error)
+{
+    <div class="alert alert-danger">@error</div>
+}
 <div class="panel register-filters-panel">
     <button type="button" class="register-filters-toggle" data-bs-toggle="collapse" data-bs-target="#serverFiltersBody" aria-expanded="true" aria-controls="serverFiltersBody">
         <span>FILTERS</span>

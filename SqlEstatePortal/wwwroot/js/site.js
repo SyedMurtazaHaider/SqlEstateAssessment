@@ -267,6 +267,8 @@
     var overlay = document.getElementById('assessmentProgressOverlay');
     var bar = document.getElementById('assessmentProgressBar');
     var pctLabel = document.getElementById('assessmentProgressPct');
+    var titleEl = document.getElementById('assessmentProgressTitle');
+    var msgEl = document.getElementById('assessmentProgressMsg');
     var track = overlay ? overlay.querySelector('.assessment-progress-track') : null;
     if (!overlay || !bar || !pctLabel) return;
     if (overlay.dataset.bound === '1') return;
@@ -299,7 +301,9 @@
       }, 450);
     }
 
-    function showOverlay() {
+    function showOverlay(title, msg) {
+      if (titleEl && title) titleEl.textContent = title;
+      if (msgEl && msg) msgEl.textContent = msg;
       overlay.hidden = false;
       overlay.removeAttribute('hidden');
       overlay.classList.add('is-visible');
@@ -325,45 +329,68 @@
       }, 350);
     }
 
-    document.querySelectorAll('form.js-run-assessment').forEach(function (form) {
-      form.addEventListener('submit', function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        var btn = form.querySelector('button[type="submit"]');
-        if (btn) {
-          btn.disabled = true;
-          btn.dataset.originalText = btn.textContent;
-          btn.textContent = 'Running...';
-        }
+    function bindProgressForm(selector, defaults) {
+      document.querySelectorAll(selector).forEach(function (form) {
+        form.addEventListener('submit', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          var btn = form.querySelector('button[type="submit"]');
+          if (btn) {
+            btn.disabled = true;
+            btn.dataset.originalText = btn.textContent;
+            btn.textContent = defaults.busyText;
+          }
 
-        showOverlay();
+          showOverlay(
+            form.getAttribute('data-progress-title') || defaults.title,
+            form.getAttribute('data-progress-msg') || defaults.msg
+          );
 
-        fetch(form.action, {
-          method: 'POST',
-          body: new FormData(form),
-          headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'Accept': 'application/json'
-          },
-          credentials: 'same-origin'
-        })
-          .then(function (res) {
-            if (!res.ok) throw new Error('Assessment request failed (' + res.status + ').');
-            return res.json();
+          fetch(form.action, {
+            method: 'POST',
+            body: new FormData(form),
+            headers: {
+              'X-Requested-With': 'XMLHttpRequest',
+              'Accept': 'application/json'
+            },
+            credentials: 'same-origin'
           })
-          .then(function (data) {
-            var url = (data && data.redirectUrl) || form.getAttribute('data-fallback') || '/Assessments';
-            finishAndRedirect(url);
-          })
-          .catch(function (err) {
-            hideOverlay();
-            if (btn) {
-              btn.disabled = false;
-              btn.textContent = btn.dataset.originalText || 'Run assessment';
-            }
-            alert(err && err.message ? err.message : 'Assessment failed to start.');
-          });
+            .then(function (res) {
+              if (!res.ok) throw new Error(defaults.failMessage + ' (' + res.status + ').');
+              return res.json();
+            })
+            .then(function (data) {
+              var url = (data && data.redirectUrl) || form.getAttribute('data-fallback') || defaults.fallback;
+              finishAndRedirect(url);
+            })
+            .catch(function (err) {
+              hideOverlay();
+              if (btn) {
+                btn.disabled = false;
+                btn.textContent = btn.dataset.originalText || defaults.idleText;
+              }
+              alert(err && err.message ? err.message : defaults.failMessage);
+            });
+        });
       });
+    }
+
+    bindProgressForm('form.js-run-assessment', {
+      title: 'Running assessment',
+      msg: 'Collecting data from Reachable servers…',
+      busyText: 'Running...',
+      idleText: 'Run assessment',
+      failMessage: 'Assessment request failed',
+      fallback: '/Assessments'
+    });
+
+    bindProgressForm('form.js-check-server-status', {
+      title: 'Checking server status',
+      msg: 'Pinging servers and updating Reachable / UnReachable…',
+      busyText: 'Checking...',
+      idleText: 'Check Server Status',
+      failMessage: 'Server status check failed',
+      fallback: '/Assessments'
     });
   }
 
