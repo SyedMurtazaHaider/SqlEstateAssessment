@@ -1,12 +1,21 @@
 @model string[]
-<tr>
+<tr class="column-head-row">
 @foreach (var raw in Model)
 {
     var name = raw ?? "";
     var showLabel = !string.IsNullOrWhiteSpace(name);
-    var searchable = showLabel && !name.StartsWith("-", StringComparison.Ordinal);
-    var label = searchable ? name : name.TrimStart('-');
-    <th>@(showLabel ? label : null)</th>
+    var interactive = showLabel && !name.StartsWith("-", StringComparison.Ordinal);
+    var label = interactive ? name : name.TrimStart('-');
+    if (interactive)
+    {
+        <th class="th-sortable" scope="col">
+            <button type="button" class="th-sort-btn">@label</button>
+        </th>
+    }
+    else
+    {
+        <th class="th-no-sort" scope="col">@(showLabel ? label : null)</th>
+    }
 }
 </tr>
 <tr class="column-filters">
