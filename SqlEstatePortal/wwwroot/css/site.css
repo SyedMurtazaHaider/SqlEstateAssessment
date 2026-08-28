@@ -46,6 +46,14 @@ body.app-shell {
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+.sidebar-brand-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px 6px 14px;
+}
+
 .sidebar-brand span,
 .sidebar-brand-text {
   display: block;
@@ -53,7 +61,7 @@ body.app-shell {
   font-weight: 600;
   color: #d7e7f7;
   letter-spacing: 0.04em;
-  padding: 8px 14px 12px;
+  padding: 0 14px 10px;
 }
 
 .brand-logo {
@@ -62,11 +70,41 @@ body.app-shell {
 }
 
 .sidebar-logo {
-  width: 100%;
-  max-width: none;
+  max-width: 155px;
+  max-height: 40px;
   height: auto;
   border-radius: 0;
   display: block;
+  object-fit: contain;
+}
+
+.sidebar-menu-btn {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  width: 32px;
+  height: 32px;
+  padding: 6px 5px;
+  border: 0;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.sidebar-menu-btn:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.sidebar-menu-btn span {
+  display: block;
+  width: 18px;
+  height: 2px;
+  background: #fff;
+  border-radius: 2px;
 }
 
 .topbar-logo {
@@ -216,8 +254,15 @@ body.sidebar-hidden .sidebar {
 
 body.sidebar-hidden .sidebar-brand {
   align-items: center;
-  padding: 10px 0 8px;
+  padding: 8px 0;
   overflow: hidden;
+}
+
+body.sidebar-hidden .sidebar-brand-top {
+  padding: 4px;
+  justify-content: center;
+  flex-direction: column;
+  gap: 6px;
 }
 
 body.sidebar-hidden .sidebar-brand-text {
@@ -225,12 +270,18 @@ body.sidebar-hidden .sidebar-brand-text {
 }
 
 body.sidebar-hidden .sidebar-logo {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   margin: 0 auto;
   object-fit: cover;
   object-position: left center;
   border-radius: 6px;
+}
+
+body.sidebar-hidden .sidebar-menu-btn {
+  width: 36px;
+  height: 30px;
+  background: rgba(255, 255, 255, 0.12);
 }
 
 body.sidebar-hidden .sidebar-nav {
@@ -913,6 +964,21 @@ body.login-body {
   font-variant-numeric: tabular-nums;
 }
 
+.assessment-progress-timer {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.assessment-timer-sep {
+  opacity: 0.6;
+}
+
 /* Application Register */
 .register-heading {
   margin-bottom: 12px;
@@ -1419,6 +1485,19 @@ a.linked-db:hover {
   }
 }
 
+.sidebar-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(2px);
+  z-index: 45;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
 @media (max-width: 900px) {
   .form-grid, .dashboard-grid, .kpi-grid, .chart-grid, .app-detail-grid, .app-detail-hero {
     grid-template-columns: 1fr;
@@ -1432,24 +1511,33 @@ a.linked-db:hover {
   .chart-panel.wide {
     grid-column: auto;
   }
+  .sidebar-backdrop {
+    display: block;
+  }
+  body.sidebar-open .sidebar-backdrop {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
   .sidebar-hide-btn {
-    display: none;
+    display: flex;
+    margin: auto 10px 14px;
   }
   .sidebar {
     position: fixed;
-    z-index: 40;
+    z-index: 50;
     left: 0;
     top: 0;
     bottom: 0;
-    width: 248px;
+    width: 260px;
     transform: translateX(-100%);
-    transition: transform 0.2s ease;
-    box-shadow: 8px 0 24px rgba(20, 55, 90, 0.12);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 8px 0 28px rgba(15, 23, 42, 0.25);
     overflow: auto;
   }
   /* On mobile, ignore collapsed mode — overlay drawer only */
   body.sidebar-hidden .sidebar {
-    width: 248px;
+    width: 260px;
     overflow: auto;
   }
   body.sidebar-hidden .sidebar-brand-text,
@@ -1457,6 +1545,11 @@ a.linked-db:hover {
   body.sidebar-hidden .nav-label,
   body.sidebar-hidden .sidebar-hide-label {
     display: revert;
+  }
+  body.sidebar-hidden .sidebar-brand-top {
+    padding: 10px 12px 6px 14px;
+    flex-direction: row;
+    justify-content: space-between;
   }
   body.sidebar-hidden .nav-group-label {
     height: auto;
@@ -1488,7 +1581,8 @@ a.linked-db:hover {
     display: none;
   }
   body.sidebar-hidden .sidebar-logo {
-    width: 100%;
+    max-width: 155px;
+    max-height: 40px;
     height: auto;
     margin: 0;
     object-fit: contain;
@@ -1496,7 +1590,7 @@ a.linked-db:hover {
   }
   body.sidebar-open .sidebar,
   body.sidebar-open.sidebar-hidden .sidebar {
-    transform: none;
+    transform: translateX(0);
   }
 }
 

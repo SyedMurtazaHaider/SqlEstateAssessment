@@ -1,7 +1,9 @@
 ﻿(function () {
   var STORAGE_KEY = 'sqlEstate.sidebarHidden';
   var toggle = document.getElementById('sidebarToggle');
+  var menuBtn = document.getElementById('sidebarMenuBtn');
   var hideBtn = document.getElementById('sidebarHideBtn');
+  var backdrop = document.getElementById('sidebarBackdrop');
   var narrowMq = window.matchMedia('(max-width: 1200px)');
   var mobileMq = window.matchMedia('(max-width: 900px)');
 
@@ -19,15 +21,27 @@
   }
 
   function syncToggleLabel() {
-    if (!toggle) return;
     var collapsed = isCollapsedUi();
     var label = isMobileNav()
-      ? (collapsed ? 'Show menu' : 'Hide menu')
+      ? (collapsed ? 'Show menu' : 'Close menu')
       : (collapsed ? 'Expand menu' : 'Collapse menu');
-    toggle.setAttribute('aria-label', label);
-    toggle.setAttribute('title', label);
+    if (toggle) {
+      toggle.setAttribute('aria-label', label);
+      toggle.setAttribute('title', label);
+    }
+    if (menuBtn) {
+      menuBtn.setAttribute('aria-label', label);
+      menuBtn.setAttribute('title', label);
+    }
     if (hideBtn) {
       hideBtn.setAttribute('title', collapsed ? 'Expand menu' : 'Collapse menu');
+    }
+  }
+
+  function closeMobileMenu() {
+    if (document.body.classList.contains('sidebar-open')) {
+      document.body.classList.remove('sidebar-open');
+      syncToggleLabel();
     }
   }
 
@@ -77,8 +91,33 @@
   applyResponsiveSidebar();
 
   if (toggle) toggle.addEventListener('click', toggleMenu);
+  if (menuBtn) menuBtn.addEventListener('click', toggleMenu);
   if (hideBtn) hideBtn.addEventListener('click', function () {
-    setDesktopCollapsed(!document.body.classList.contains('sidebar-hidden'));
+    if (isMobileNav()) {
+      closeMobileMenu();
+    } else {
+      setDesktopCollapsed(!document.body.classList.contains('sidebar-hidden'));
+    }
+  });
+
+  if (backdrop) {
+    backdrop.addEventListener('click', closeMobileMenu);
+  }
+
+  // Close drawer on mobile when clicking any navigation link
+  document.querySelectorAll('.sidebar .nav-item').forEach(function (link) {
+    link.addEventListener('click', function () {
+      if (isMobileNav()) {
+        closeMobileMenu();
+      }
+    });
+  });
+
+  // Close drawer on Escape key
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && isMobileNav() && document.body.classList.contains('sidebar-open')) {
+      closeMobileMenu();
+    }
   });
 
   function onViewportChange() {
@@ -719,6 +758,44 @@
 
     var timer = null;
     var current = 1;
+    var startTimeEl = document.getElementById('assessmentStartTime');
+    var elapsedTimeEl = document.getElementById('assessmentElapsedTime');
+    var startTimestamp = null;
+    var elapsedInterval = null;
+
+    function formatDuration(ms) {
+      var totalSec = Math.floor(Math.max(0, ms) / 1000);
+      var mins = Math.floor(totalSec / 60);
+      var secs = totalSec % 60;
+      var pad = function (n) { return (n < 10 ? '0' : '') + n; };
+      if (mins >= 60) {
+        var hrs = Math.floor(mins / 60);
+        mins = mins % 60;
+        return pad(hrs) + ':' + pad(mins) + ':' + pad(secs);
+      }
+      return pad(mins) + ':' + pad(secs);
+    }
+
+    function startTiming() {
+      stopTiming();
+      startTimestamp = Date.now();
+      var now = new Date(startTimestamp);
+      var timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      if (startTimeEl) startTimeEl.textContent = 'Started: ' + timeStr;
+      if (elapsedTimeEl) elapsedTimeEl.textContent = 'Elapsed: 00:00';
+      elapsedInterval = setInterval(function () {
+        if (!startTimestamp) return;
+        var elapsed = Date.now() - startTimestamp;
+        if (elapsedTimeEl) elapsedTimeEl.textContent = 'Elapsed: ' + formatDuration(elapsed);
+      }, 1000);
+    }
+
+    function stopTiming() {
+      if (elapsedInterval) {
+        clearInterval(elapsedInterval);
+        elapsedInterval = null;
+      }
+    }
 
     function setProgress(value) {
       current = Math.max(1, Math.min(100, Math.round(value)));
@@ -753,10 +830,16 @@
       overlay.setAttribute('aria-busy', 'true');
       document.body.style.overflow = 'hidden';
       startTicker();
+      startTiming();
     }
+
+    window.showEstateProgress = showOverlay;
+    window.hideEstateProgress = hideOverlay;
 
     function hideOverlay() {
       stopTicker();
+      stopTiming();
+      startTimestamp = null;
       overlay.hidden = true;
       overlay.classList.remove('is-visible');
       overlay.setAttribute('aria-busy', 'false');
@@ -766,10 +849,15 @@
 
     function finishAndRedirect(url) {
       stopTicker();
+      if (startTimestamp && elapsedTimeEl) {
+        var finalElapsed = Date.now() - startTimestamp;
+        elapsedTimeEl.textContent = 'Total: ' + formatDuration(finalElapsed);
+      }
+      stopTiming();
       setProgress(100);
       setTimeout(function () {
         window.location.href = url;
-      }, 350);
+      }, 450);
     }
 
     function bindProgressForm(selector, defaults) {

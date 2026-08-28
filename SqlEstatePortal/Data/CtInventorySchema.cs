@@ -360,6 +360,7 @@ BEGIN
     CREATE TABLE dbo.[ct_servers] (
     [tx_id] int IDENTITY(1,1) NOT NULL,
     [server_name] nvarchar(200) NOT NULL,
+    [server_type] nvarchar(50) NULL,
     [fqdn] nvarchar(255) NULL,
     [sql_version] nvarchar(150) NULL,
     [sql_product] nvarchar(100) NULL,
@@ -395,6 +396,15 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_ct_servers_server_name' AND object_id = OBJECT_ID(N'dbo.ct_servers'))
         CREATE NONCLUSTERED INDEX [IX_ct_servers_server_name] ON dbo.[ct_servers] ([server_name]);
 END;",
+            "IF COL_LENGTH('ct_servers','server_type') IS NULL ALTER TABLE dbo.ct_servers ADD server_type nvarchar(50) NULL;",
+            @"IF COL_LENGTH('ct_servers','server_type') IS NOT NULL
+              UPDATE dbo.ct_servers
+              SET server_type = CASE 
+                  WHEN UPPER(server_name) LIKE '%APP%' THEN 'APP Servers'
+                  WHEN UPPER(server_name) LIKE '%SQL%' THEN 'SQL Servers'
+                  ELSE 'Others'
+              END
+              WHERE server_type IS NULL OR server_type = '';",
             "IF COL_LENGTH('ct_servers','sql_product') IS NULL ALTER TABLE dbo.ct_servers ADD sql_product nvarchar(100) NULL;",
             "IF COL_LENGTH('ct_servers','support_status') IS NULL ALTER TABLE dbo.ct_servers ADD support_status nvarchar(50) NULL;",
             "IF COL_LENGTH('ct_servers','sql_edition') IS NULL ALTER TABLE dbo.ct_servers ADD sql_edition nvarchar(150) NULL;",
@@ -458,64 +468,7 @@ END;",
             "IF COL_LENGTH('ct_database','last_full_backup') IS NULL ALTER TABLE dbo.ct_database ADD last_full_backup datetime2 NULL;",
             "IF COL_LENGTH('ct_database','last_differential_backup') IS NULL ALTER TABLE dbo.ct_database ADD last_differential_backup datetime2 NULL;",
             "IF COL_LENGTH('ct_database','last_log_backup') IS NULL ALTER TABLE dbo.ct_database ADD last_log_backup datetime2 NULL;",
-            "IF COL_LENGTH('ct_database','database_owner') IS NULL ALTER TABLE dbo.ct_database ADD database_owner nvarchar(128) NULL;",
-            @"IF OBJECT_ID(N'dbo.AssessmentBackups', N'U') IS NOT NULL
-BEGIN
-    ;WITH ranked AS (
-        SELECT
-            b.ServerName,
-            b.DatabaseName,
-            b.LastFullBackup,
-            b.LastDifferentialBackup,
-            b.LastLogBackup,
-            ROW_NUMBER() OVER (
-                PARTITION BY b.ServerName, b.DatabaseName
-                ORDER BY r.Id DESC
-            ) AS rn
-        FROM dbo.AssessmentBackups b
-        INNER JOIN dbo.AssessmentRuns r ON r.Id = b.AssessmentRunId
-        WHERE r.Status = N'Succeeded'
-    )
-    UPDATE d
-    SET
-        last_full_backup = COALESCE(d.last_full_backup, r.LastFullBackup),
-        last_differential_backup = COALESCE(d.last_differential_backup, r.LastDifferentialBackup),
-        last_log_backup = COALESCE(d.last_log_backup, r.LastLogBackup)
-    FROM dbo.ct_database d
-    INNER JOIN ranked r
-        ON r.rn = 1
-       AND d.server_name = r.ServerName
-       AND d.database_name = r.DatabaseName
-    WHERE d.last_full_backup IS NULL
-       OR d.last_differential_backup IS NULL
-       OR d.last_log_backup IS NULL;
-END;",
-            @"IF OBJECT_ID(N'dbo.AssessmentDatabases', N'U') IS NOT NULL
-BEGIN
-    ;WITH ranked AS (
-        SELECT
-            a.ServerName,
-            a.Name AS DatabaseName,
-            a.OwnerName,
-            ROW_NUMBER() OVER (
-                PARTITION BY a.ServerName, a.Name
-                ORDER BY r.Id DESC
-            ) AS rn
-        FROM dbo.AssessmentDatabases a
-        INNER JOIN dbo.AssessmentRuns r ON r.Id = a.AssessmentRunId
-        WHERE r.Status = N'Succeeded'
-          AND a.OwnerName IS NOT NULL
-          AND LTRIM(RTRIM(a.OwnerName)) <> N''
-    )
-    UPDATE d
-    SET database_owner = COALESCE(NULLIF(LTRIM(RTRIM(d.database_owner)), N''), r.OwnerName)
-    FROM dbo.ct_database d
-    INNER JOIN ranked r
-        ON r.rn = 1
-       AND d.server_name = r.ServerName
-       AND d.database_name = r.DatabaseName
-    WHERE d.database_owner IS NULL OR LTRIM(RTRIM(d.database_owner)) = N'';
-END;"
+            "IF COL_LENGTH('ct_database','database_owner') IS NULL ALTER TABLE dbo.ct_database ADD database_owner nvarchar(128) NULL;"
         };
 
         foreach (var sql in statements)

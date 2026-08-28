@@ -24,12 +24,14 @@ public class InventoryServersController : Controller
     [RequirePermission(AppModules.InventoryServers, "view")]
     public async Task<IActionResult> Index(
         string? serverName,
+        string? serverType,
         string? environment,
         string? status,
         string? subscription,
         string? dataCentre)
     {
         serverName = Norm(serverName);
+        serverType = Norm(serverType);
         environment = Norm(environment);
         status = Norm(status);
         subscription = Norm(subscription);
@@ -64,6 +66,8 @@ public class InventoryServersController : Controller
         var filtered = all.AsEnumerable();
         if (serverName != null)
             filtered = filtered.Where(s => string.Equals(s.ServerName, serverName, StringComparison.OrdinalIgnoreCase));
+        if (serverType != null)
+            filtered = filtered.Where(s => string.Equals(s.ServerType, serverType, StringComparison.OrdinalIgnoreCase));
         if (environment != null)
             filtered = filtered.Where(s => string.Equals(s.Environment, environment, StringComparison.OrdinalIgnoreCase));
         if (status != null)
@@ -83,12 +87,14 @@ public class InventoryServersController : Controller
         var vm = new ServerRegisterViewModel
         {
             ServerName = serverName,
+            ServerType = serverType,
             Environment = environment,
             Status = status,
             Subscription = subscription,
             DataCentre = dataCentre,
             TotalCount = all.Count,
             ServerNameOptions = DistinctSorted(all.Select(s => s.ServerName)),
+            ServerTypeOptions = DistinctSorted(all.Select(s => s.ServerType)),
             EnvironmentOptions = DistinctSorted(all.Select(s => s.Environment)),
             StatusOptions = DistinctSorted(all.Select(s => s.ServerStatus)),
             SubscriptionOptions = DistinctSorted(all.Select(s => s.Subscription)),
@@ -100,6 +106,7 @@ public class InventoryServersController : Controller
                 {
                     TxId = s.TxId,
                     ServerName = s.ServerName,
+                    ServerType = s.ServerType,
                     Environment = s.Environment,
                     ServerStatus = s.ServerStatus,
                     SqlProduct = s.SqlProduct,

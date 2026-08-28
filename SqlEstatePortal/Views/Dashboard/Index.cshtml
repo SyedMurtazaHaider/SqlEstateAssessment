@@ -29,9 +29,17 @@
         }
     </div>
     <div class="toolbar-actions">
-        @if (canOpenAssessments && selected != null)
+        @if (canOpenAssessments)
         {
-            <a class="btn btn-outline-secondary" asp-controller="Assessments" asp-action="Details" asp-route-id="@selected.Id">Open report</a>
+            @if (selected != null)
+            {
+                <a class="btn btn-outline-secondary" asp-controller="Assessments" asp-action="Compare" asp-route-targetRunId="@selected.Id">Compare Assessments</a>
+                <a class="btn btn-outline-secondary" asp-controller="Assessments" asp-action="Details" asp-route-id="@selected.Id">Open report</a>
+            }
+            else
+            {
+                <a class="btn btn-outline-secondary" asp-controller="Assessments" asp-action="Compare">Compare Assessments</a>
+            }
         }
         @if (canRun)
         {
@@ -47,7 +55,7 @@
                   data-progress-msg="Collecting data from Reachable servers…"
                   data-fallback="@Url.Action("Index", "Assessments")">
                 @Html.AntiForgeryToken()
-                <button type="submit" class="btn btn-primary">Run assessment</button>
+                <button type="submit" class="btn btn-primary">Run Assessment</button>
             </form>
         }
     </div>

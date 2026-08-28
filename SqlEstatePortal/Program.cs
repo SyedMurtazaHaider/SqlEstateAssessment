@@ -6,6 +6,14 @@ using SqlEstatePortal.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<AssessmentOptions>(builder.Configuration.GetSection("Assessment"));
+builder.Services.Configure<InventorySyncOptions>(builder.Configuration.GetSection("InventorySync"));
+builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(options =>
+{
+    options.ValueCountLimit = int.MaxValue;
+    options.ValueLengthLimit = int.MaxValue;
+    options.KeyLengthLimit = int.MaxValue;
+    options.MultipartBodyLengthLimit = long.MaxValue;
+});
 builder.Services.PostConfigure<AssessmentOptions>(options =>
 {
     string Resolve(string path)
@@ -36,6 +44,7 @@ builder.Services.AddScoped<PermissionService>();
 builder.Services.AddScoped<AssessmentRunnerService>();
 builder.Services.AddScoped<ServerReachabilityService>();
 builder.Services.AddScoped<InventorySyncService>();
+builder.Services.AddScoped<AssessmentCompareService>();
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();

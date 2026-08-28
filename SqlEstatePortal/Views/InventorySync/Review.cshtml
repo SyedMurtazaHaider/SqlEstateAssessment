@@ -49,13 +49,35 @@
         _ => name
     };
 
-    string FmtVal(string? v)
+    bool IsDateFieldName(string? fieldName)
+    {
+        if (string.IsNullOrWhiteSpace(fieldName)) return false;
+        return fieldName.Contains("Date", StringComparison.OrdinalIgnoreCase)
+            || fieldName.Contains("Started", StringComparison.OrdinalIgnoreCase)
+            || fieldName.Contains("Backup", StringComparison.OrdinalIgnoreCase)
+            || fieldName.Contains("At", StringComparison.OrdinalIgnoreCase)
+            || fieldName.Contains("Time", StringComparison.OrdinalIgnoreCase);
+    }
+
+    string FmtVal(string? v, string? fieldName = null)
     {
         if (string.IsNullOrWhiteSpace(v)) return "—";
-        if (v.Contains('T', StringComparison.Ordinal)
-            && DateTime.TryParse(v, System.Globalization.CultureInfo.InvariantCulture,
-                System.Globalization.DateTimeStyles.RoundtripKind, out var dt))
+
+        // Numbers/decimals (e.g. 105.14 GB storage, CPU count, sizes) should never be parsed as dates
+        if (double.TryParse(v, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out _))
+            return v;
+
+        // If field name is known and not a date, return as-is
+        if (fieldName != null && !IsDateFieldName(fieldName))
+            return v;
+
+        if (DateTime.TryParse(v, System.Globalization.CultureInfo.InvariantCulture,
+                System.Globalization.DateTimeStyles.RoundtripKind, out var dt) && dt.Year >= 1970 && dt.Year <= 2099)
             return dt.ToLocalTime().ToString("yyyy-MM-dd HH:mm");
+
+        if (DateTime.TryParse(v, out var dt2) && dt2.Year >= 1970 && dt2.Year <= 2099 && (v.Contains('-') || v.Contains('/') || v.Contains(':')))
+            return dt2.ToLocalTime().ToString("yyyy-MM-dd HH:mm");
+
         return v;
     }
 
@@ -113,6 +135,7 @@ else
 {
 <form method="post" id="syncReviewForm" class="sync-review">
     @Html.AntiForgeryToken()
+    <input type="hidden" name="selectionsJson" id="selectionsJson" />
 
     <div class="panel sync-workspace mb-3">
         <div class="sync-toolbar">
@@ -216,9 +239,9 @@ else
                                                     </label>
                                                 }
                                                 <span class="sync-field-name">@Label(f.FieldName)</span>
-                                                <span class="sync-val sync-val-old">@FmtVal(f.OldValue)</span>
+                                                <span class="sync-val sync-val-old">@FmtVal(f.OldValue, f.FieldName)</span>
                                                 <span class="sync-arrow" aria-hidden="true">→</span>
-                                                <span class="sync-val sync-val-new">@FmtVal(f.NewValue)</span>
+                                                <span class="sync-val sync-val-new">@FmtVal(f.NewValue, f.FieldName)</span>
                                             </div>
                                         }
                                     </div>
@@ -343,10 +366,10 @@ else
                                                             <span class="sync-field-name">@Label(f.FieldName)</span>
                                                             @if (item.ChangeType != "New")
                                                             {
-                                                                <span class="sync-val sync-val-old">@FmtVal(f.OldValue)</span>
+                                                                <span class="sync-val sync-val-old">@FmtVal(f.OldValue, f.FieldName)</span>
                                                                 <span class="sync-arrow" aria-hidden="true">→</span>
                                                             }
-                                                            <span class="sync-val sync-val-new">@FmtVal(f.NewValue)</span>
+                                                            <span class="sync-val sync-val-new">@FmtVal(f.NewValue, f.FieldName)</span>
                                                         </div>
                                                     }
                                                 </div>
@@ -366,9 +389,9 @@ else
     @if (canEdit)
     {
         <div class="sync-actions toolbar-actions mb-4">
-            <button type="submit" formaction="@Url.Action("Save", new { id = Model.Id })" class="btn btn-outline-secondary">Save for later</button>
-            <button type="submit" formaction="@Url.Action("Reject", new { id = Model.Id })" class="btn btn-outline-danger" onclick="return confirm('Reject this sync batch?');">Reject</button>
-            <button type="submit" formaction="@Url.Action("Approve", new { id = Model.Id })" class="btn btn-primary" onclick="return confirm('Approve and apply selected changes to the Server and Database Registers?');">Approve &amp; apply</button>
+            <button type="submit" formaction="@Url.Action("Save", new { id = Model.Id })" class="btn btn-outline-secondary" id="btnSyncSave">Save for later</button>
+            <button type="submit" formaction="@Url.Action("Reject", new { id = Model.Id })" class="btn btn-outline-danger" id="btnSyncReject" onclick="return confirm('Reject this sync batch?');">Reject</button>
+            <button type="submit" formaction="@Url.Action("Approve", new { id = Model.Id })" class="btn btn-primary" id="btnSyncApprove">Approve &amp; apply</button>
         </div>
     }
 </form>
@@ -504,6 +527,66 @@ else
       if (btn) btn.setAttribute('aria-expanded', 'false');
     });
   });
+
+  // Serialize selections to JSON payload on form submit to prevent form key overflow
+  var reviewForm = document.getElementById('syncReviewForm');
+  if (reviewForm) {
+    reviewForm.addEventListener('submit', function () {
+      try {
+        var payload = [];
+        root.querySelectorAll('[data-sync-row]').forEach(function (rowBlock) {
+          var itemCheck = rowBlock.querySelector('.sync-row-check');
+          if (!itemCheck) return;
+          var itemId = parseInt(itemCheck.value, 10);
+          if (!itemId) return;
+
+          var fields = {};
+          rowBlock.querySelectorAll('.sync-field-check input[type="checkbox"]').forEach(function (fc) {
+            var fid = parseInt(fc.value, 10);
+            if (fid) {
+              fields[fid] = fc.checked;
+            }
+          });
+
+          payload.push({
+            itemId: itemId,
+            selected: itemCheck.checked,
+            fields: fields
+          });
+        });
+
+        var jsonInput = document.getElementById('selectionsJson');
+        if (jsonInput) {
+          jsonInput.value = JSON.stringify(payload);
+        }
+      } catch (e) {
+        // Fallback: standard form fields still submit
+      }
+    });
+  }
+
+  // Loading / progress overlay on action buttons
+  var approveBtn = document.getElementById('btnSyncApprove');
+  if (approveBtn) {
+    approveBtn.addEventListener('click', function (e) {
+      if (!confirm('Approve and apply selected changes to the Server and Database Registers?')) {
+        e.preventDefault();
+        return false;
+      }
+      if (typeof window.showEstateProgress === 'function') {
+        window.showEstateProgress('Applying sync changes', 'Updating Server and Database Registers with selected differences…');
+      }
+    });
+  }
+
+  var saveBtn = document.getElementById('btnSyncSave');
+  if (saveBtn) {
+    saveBtn.addEventListener('click', function () {
+      if (typeof window.showEstateProgress === 'function') {
+        window.showEstateProgress('Saving selections', 'Saving sync batch selections…');
+      }
+    });
+  }
 })();
 </script>
 }

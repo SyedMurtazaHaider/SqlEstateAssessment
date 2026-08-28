@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -89,6 +90,8 @@ public class InventorySyncController : Controller
     [HttpPost]
     [ValidateAntiForgeryToken]
     [RequirePermission(AppModules.Databases, "update")]
+    [RequestFormLimits(ValueCountLimit = int.MaxValue, ValueLengthLimit = int.MaxValue, KeyLengthLimit = int.MaxValue)]
+    [RequestSizeLimit(long.MaxValue)]
     public async Task<IActionResult> Save(int id, IFormCollection form)
     {
         try
@@ -107,6 +110,8 @@ public class InventorySyncController : Controller
     [HttpPost]
     [ValidateAntiForgeryToken]
     [RequirePermission(AppModules.Databases, "update")]
+    [RequestFormLimits(ValueCountLimit = int.MaxValue, ValueLengthLimit = int.MaxValue, KeyLengthLimit = int.MaxValue)]
+    [RequestSizeLimit(long.MaxValue)]
     public async Task<IActionResult> Approve(int id, IFormCollection form)
     {
         try
@@ -149,6 +154,28 @@ public class InventorySyncController : Controller
 
     private static List<InventorySyncService.SelectionUpdate> ParseSelections(IFormCollection form)
     {
+        var json = form["selectionsJson"].ToString();
+        if (!string.IsNullOrWhiteSpace(json))
+        {
+            try
+            {
+                var list = JsonSerializer.Deserialize<List<SelectionPayload>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                if (list != null && list.Count > 0)
+                {
+                    return list.Select(p => new InventorySyncService.SelectionUpdate
+                    {
+                        ItemId = p.ItemId,
+                        Selected = p.Selected,
+                        FieldSelections = p.Fields ?? new Dictionary<int, bool>()
+                    }).ToList();
+                }
+            }
+            catch
+            {
+                // Fallback to standard form collection parsing if JSON is malformed
+            }
+        }
+
         var itemIds = form["itemId"].Select(v => int.TryParse(v, out var id) ? id : 0).Where(id => id > 0).Distinct().ToList();
         var selectedItems = new HashSet<int>(
             form["selectedItem"].Select(v => int.TryParse(v, out var id) ? id : 0).Where(id => id > 0));
@@ -175,5 +202,12 @@ public class InventorySyncController : Controller
             });
         }
         return updates;
+    }
+
+    private class SelectionPayload
+    {
+        public int ItemId { get; set; }
+        public bool Selected { get; set; }
+        public Dictionary<int, bool>? Fields { get; set; }
     }
 }

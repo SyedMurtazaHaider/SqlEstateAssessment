@@ -1,0 +1,554 @@
+@model SqlEstatePortal.ViewModels.AssessmentCompareViewModel
+@{
+    ViewData["Title"] = "Compare Assessments";
+    var baseRun = Model.BaseRun;
+    var targetRun = Model.TargetRun;
+}
+
+<div class="page-toolbar">
+    <div>
+        <h1>Compare Assessments</h1>
+        <p class="estate-line">Side-by-side comparison of metrics, findings, servers, and databases across assessment runs.</p>
+    </div>
+    <div class="toolbar-actions">
+        @if (targetRun != null)
+        {
+            <a class="btn btn-outline-primary" asp-action="Details" asp-route-id="@targetRun.Id">Target Assessment (#@targetRun.Id)</a>
+        }
+        @if (baseRun != null)
+        {
+            <a class="btn btn-outline-secondary" asp-action="Details" asp-route-id="@baseRun.Id">Base Assessment (#@baseRun.Id)</a>
+        }
+        <a class="btn btn-outline-secondary" asp-action="Index">All Assessments</a>
+    </div>
+</div>
+
+@if (TempData["Success"] is string ok)
+{
+    <div class="alert alert-success">@ok</div>
+}
+@if (TempData["Error"] is string err)
+{
+    <div class="alert alert-danger">@err</div>
+}
+
+<div class="panel mb-4">
+    <form method="get" asp-action="Compare" class="compare-filter-form">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-5">
+                <label for="baseRunId" class="form-label fw-bold">1. Baseline Assessment (Earlier)</label>
+                <select id="baseRunId" name="baseRunId" class="form-select searchable-select">
+                    @foreach (var r in Model.AvailableRuns)
+                    {
+                        if (r.Id == Model.BaseRunId)
+                        {
+                            <option value="@r.Id" selected>@r.StartedAt.ToLocalTime().ToString("g") · #@r.Id · @r.Status (@r.ReachableCount/@r.ServerCount servers)</option>
+                        }
+                        else
+                        {
+                            <option value="@r.Id">@r.StartedAt.ToLocalTime().ToString("g") · #@r.Id · @r.Status (@r.ReachableCount/@r.ServerCount servers)</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="col-md-5">
+                <label for="targetRunId" class="form-label fw-bold">2. Comparison Assessment (Later)</label>
+                <select id="targetRunId" name="targetRunId" class="form-select searchable-select">
+                    @foreach (var r in Model.AvailableRuns)
+                    {
+                        if (r.Id == Model.TargetRunId)
+                        {
+                            <option value="@r.Id" selected>@r.StartedAt.ToLocalTime().ToString("g") · #@r.Id · @r.Status (@r.ReachableCount/@r.ServerCount servers)</option>
+                        }
+                        else
+                        {
+                            <option value="@r.Id">@r.StartedAt.ToLocalTime().ToString("g") · #@r.Id · @r.Status (@r.ReachableCount/@r.ServerCount servers)</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">Compare</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+@if (baseRun == null || targetRun == null)
+{
+    <div class="panel text-center py-5">
+        <p class="muted mb-0">Select two assessment runs above to view comparison analysis.</p>
+    </div>
+}
+else
+{
+    <div class="stat-grid mb-4">
+        <div class="stat-card">
+            <div class="label">New Findings</div>
+            <div class="value text-danger">+@Model.NewFindingsCount</div>
+            <div class="small muted">Added since base run</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">Resolved Findings</div>
+            <div class="value text-success">-@Model.ResolvedFindingsCount</div>
+            <div class="small muted">Fixed since base run</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">Ongoing Findings</div>
+            <div class="value text-warning">@Model.OngoingFindingsCount</div>
+            <div class="small muted">Present in both runs</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">Reachable Servers</div>
+            <div class="value">
+                @if (baseRun.ReachableCount != targetRun.ReachableCount)
+                {
+                    <text>@baseRun.ReachableCount &rarr; @targetRun.ReachableCount</text>
+                }
+                else
+                {
+                    <text>@targetRun.ReachableCount</text>
+                }
+            </div>
+            <div class="small muted">@(targetRun.ReachableCount - baseRun.ReachableCount >= 0 ? "+" : "")@(targetRun.ReachableCount - baseRun.ReachableCount) net change</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">Total Storage (GB)</div>
+            <div class="value">@targetRun.AllocatedStorageGb.ToString("N1")</div>
+            <div class="small muted">@(targetRun.AllocatedStorageGb - baseRun.AllocatedStorageGb >= 0 ? "+" : "")@((targetRun.AllocatedStorageGb - baseRun.AllocatedStorageGb).ToString("N1")) GB vs baseline</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">Server Changes</div>
+            <div class="value">@Model.ChangedServersCount</div>
+            <div class="small muted">+@Model.NewServersCount new · -@Model.RemovedServersCount removed</div>
+        </div>
+    </div>
+
+    <div class="estate-report">
+        <ul class="nav nav-tabs estate-tabs" role="tablist">
+            <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-kpis" type="button">Executive Summary</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-findings-diff" type="button">Findings Diff (@Model.FindingsDiff.Count)</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-servers-diff" type="button">Server Changes (@Model.ServersDiff.Count)</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-db-diff" type="button">Database Changes (@Model.DatabasesDiff.Count)</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-backups-diff" type="button">Backups Diff (@Model.BackupsDiff.Count)</button></li>
+            @if (Model.ConfigsDiff.Count > 0)
+            {
+                <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-configs-diff" type="button">sp_configure Diff (@Model.ConfigsDiff.Count)</button></li>
+            }
+        </ul>
+
+        <div class="tab-content estate-tab-content">
+            <!-- 1. Executive Summary -->
+            <div class="tab-pane fade show active" id="tab-kpis">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        @await Html.PartialAsync("_ColumnFilters", new[] { "Category", "Metric", "Baseline (" + baseRun.StartedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm") + ")", "Comparison (" + targetRun.StartedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm") + ")", "Delta", "Assessment" })
+                    </thead>
+                    <tbody>
+                    @foreach (var kpi in Model.Kpis)
+                    {
+                        <tr>
+                            <td><strong>@kpi.Category</strong></td>
+                            <td>@kpi.MetricName</td>
+                            <td>@kpi.BaseValue</td>
+                            <td>@kpi.TargetValue</td>
+                            <td>
+                                @if (kpi.Status == "improved")
+                                {
+                                    <span class="text-success fw-bold">@kpi.Delta</span>
+                                }
+                                else if (kpi.Status == "degraded")
+                                {
+                                    <span class="text-danger fw-bold">@kpi.Delta</span>
+                                }
+                                else
+                                {
+                                    <span>@kpi.Delta</span>
+                                }
+                            </td>
+                            <td>
+                                @if (kpi.Status == "improved")
+                                {
+                                    <span class="badge bg-success">Improved</span>
+                                }
+                                else if (kpi.Status == "degraded")
+                                {
+                                    <span class="badge bg-danger">Degraded</span>
+                                }
+                                else if (kpi.Status == "unchanged")
+                                {
+                                    <span class="badge bg-secondary">Unchanged</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-light text-dark border">Neutral</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 2. Findings Diff -->
+            <div class="tab-pane fade" id="tab-findings-diff">
+                <div class="severity-tabs mb-3" role="tablist">
+                    <button type="button" class="sev-chip active" data-diff-filter="">All (@Model.FindingsDiff.Count)</button>
+                    <button type="button" class="sev-chip sev-critical" data-diff-filter="New">New (+@Model.NewFindingsCount)</button>
+                    <button type="button" class="sev-chip sev-low" data-diff-filter="Resolved">Resolved (-@Model.ResolvedFindingsCount)</button>
+                    <button type="button" class="sev-chip sev-medium" data-diff-filter="Ongoing">Ongoing (@Model.OngoingFindingsCount)</button>
+                </div>
+                <table class="table table-sm table-hover align-middle" id="compareFindingsTable">
+                    <thead>
+                        @await Html.PartialAsync("_ColumnFilters", new[] { "Status", "Severity", "Server", "Area", "Finding", "Recommendation" })
+                    </thead>
+                    <tbody>
+                    @foreach (var f in Model.FindingsDiff)
+                    {
+                        <tr data-diff-status="@f.Status">
+                            <td>
+                                @if (f.Status == "New")
+                                {
+                                    <span class="badge bg-danger">New</span>
+                                }
+                                else if (f.Status == "Resolved")
+                                {
+                                    <span class="badge bg-success">Resolved</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark">Ongoing</span>
+                                }
+                            </td>
+                            <td class="sev-@f.Severity.ToLowerInvariant()"><strong>@f.Severity</strong></td>
+                            <td>@f.ServerName</td>
+                            <td>@f.Area</td>
+                            <td>@f.Finding</td>
+                            <td>@f.Recommendation</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 3. Server Changes -->
+            <div class="tab-pane fade" id="tab-servers-diff">
+                <table class="table table-sm table-hover align-middle">
+                    <thead>
+                        @await Html.PartialAsync("_ColumnFilters", new[] { "Status", "Server", "Reachable", "Edition", "Version", "Allocated GB", "Databases", "Detected Changes" })
+                    </thead>
+                    <tbody>
+                    @foreach (var s in Model.ServersDiff)
+                    {
+                        <tr>
+                            <td>
+                                @if (s.Status == "New")
+                                {
+                                    <span class="badge bg-success">New</span>
+                                }
+                                else if (s.Status == "Removed")
+                                {
+                                    <span class="badge bg-danger">Removed</span>
+                                }
+                                else if (s.Status == "Changed")
+                                {
+                                    <span class="badge bg-primary">Changed</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Unchanged</span>
+                                }
+                            </td>
+                            <td><strong>@s.ServerName</strong></td>
+                            <td>
+                                @if (s.BaseReachable.HasValue && s.TargetReachable.HasValue)
+                                {
+                                    if (s.BaseReachable.Value != s.TargetReachable.Value)
+                                    {
+                                        <span>@(s.BaseReachable.Value ? "Yes" : "No") &rarr; @(s.TargetReachable.Value ? "Yes" : "No")</span>
+                                    }
+                                    else
+                                    {
+                                        <span>@(s.TargetReachable.Value ? "Yes" : "No")</span>
+                                    }
+                                }
+                                else if (s.TargetReachable.HasValue)
+                                {
+                                    <span>@(s.TargetReachable.Value ? "Yes" : "No")</span>
+                                }
+                                else if (s.BaseReachable.HasValue)
+                                {
+                                    <span>@(s.BaseReachable.Value ? "Yes" : "No")</span>
+                                }
+                            </td>
+                            <td>
+                                @if (!string.IsNullOrWhiteSpace(s.BaseEdition) && !string.IsNullOrWhiteSpace(s.TargetEdition) && !string.Equals(s.BaseEdition, s.TargetEdition, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    <span>@s.BaseEdition &rarr; @s.TargetEdition</span>
+                                }
+                                else
+                                {
+                                    <span>@(s.TargetEdition ?? s.BaseEdition ?? "—")</span>
+                                }
+                            </td>
+                            <td>
+                                @if (!string.IsNullOrWhiteSpace(s.BaseVersion) && !string.IsNullOrWhiteSpace(s.TargetVersion) && !string.Equals(s.BaseVersion, s.TargetVersion, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    <span>@s.BaseVersion &rarr; @s.TargetVersion</span>
+                                }
+                                else
+                                {
+                                    <span>@(s.TargetVersion ?? s.BaseVersion ?? "—")</span>
+                                }
+                            </td>
+                            <td>
+                                @if (s.BaseAllocatedGb.HasValue && s.TargetAllocatedGb.HasValue)
+                                {
+                                    if (s.BaseAllocatedGb.Value.ToString("N1") != s.TargetAllocatedGb.Value.ToString("N1"))
+                                    {
+                                        <span>@s.BaseAllocatedGb.Value.ToString("N1") &rarr; @s.TargetAllocatedGb.Value.ToString("N1") GB</span>
+                                    }
+                                    else
+                                    {
+                                        <span>@s.TargetAllocatedGb.Value.ToString("N1") GB</span>
+                                    }
+                                }
+                                else
+                                {
+                                    <span>@(s.TargetAllocatedGb?.ToString("N1") ?? s.BaseAllocatedGb?.ToString("N1") ?? "—") GB</span>
+                                }
+                            </td>
+                            <td>
+                                @if (s.BaseUserDbCount.HasValue && s.TargetUserDbCount.HasValue)
+                                {
+                                    if (s.BaseUserDbCount.Value != s.TargetUserDbCount.Value)
+                                    {
+                                        <span>@s.BaseUserDbCount.Value &rarr; @s.TargetUserDbCount.Value</span>
+                                    }
+                                    else
+                                    {
+                                        <span>@s.TargetUserDbCount.Value</span>
+                                    }
+                                }
+                                else
+                                {
+                                    <span>@(s.TargetUserDbCount ?? s.BaseUserDbCount ?? 0)</span>
+                                }
+                            </td>
+                            <td>
+                                @if (s.Changes.Count > 0)
+                                {
+                                    <ul class="mb-0 ps-3 small">
+                                        @foreach (var ch in s.Changes)
+                                        {
+                                            <li>@ch</li>
+                                        }
+                                    </ul>
+                                }
+                                else
+                                {
+                                    <span class="muted">—</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 4. Database Changes -->
+            <div class="tab-pane fade" id="tab-db-diff">
+                <table class="table table-sm table-hover align-middle">
+                    <thead>
+                        @await Html.PartialAsync("_ColumnFilters", new[] { "Status", "Server", "Database", "State", "Recovery", "Compat", "Size MB", "Changes" })
+                    </thead>
+                    <tbody>
+                    @foreach (var d in Model.DatabasesDiff)
+                    {
+                        <tr>
+                            <td>
+                                @if (d.Status == "New")
+                                {
+                                    <span class="badge bg-success">New</span>
+                                }
+                                else if (d.Status == "Removed")
+                                {
+                                    <span class="badge bg-danger">Removed</span>
+                                }
+                                else if (d.Status == "Changed")
+                                {
+                                    <span class="badge bg-primary">Changed</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Unchanged</span>
+                                }
+                            </td>
+                            <td>@d.ServerName</td>
+                            <td><strong>@d.DatabaseName</strong></td>
+                            <td>
+                                @if (!string.IsNullOrWhiteSpace(d.BaseState) && !string.IsNullOrWhiteSpace(d.TargetState) && !string.Equals(d.BaseState, d.TargetState, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    <span>@d.BaseState &rarr; @d.TargetState</span>
+                                }
+                                else
+                                {
+                                    <span>@(d.TargetState ?? d.BaseState ?? "—")</span>
+                                }
+                            </td>
+                            <td>
+                                @if (!string.IsNullOrWhiteSpace(d.BaseRecoveryModel) && !string.IsNullOrWhiteSpace(d.TargetRecoveryModel) && !string.Equals(d.BaseRecoveryModel, d.TargetRecoveryModel, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    <span>@d.BaseRecoveryModel &rarr; @d.TargetRecoveryModel</span>
+                                }
+                                else
+                                {
+                                    <span>@(d.TargetRecoveryModel ?? d.BaseRecoveryModel ?? "—")</span>
+                                }
+                            </td>
+                            <td>
+                                @if (d.BaseCompatLevel.HasValue && d.TargetCompatLevel.HasValue && d.BaseCompatLevel.Value != d.TargetCompatLevel.Value)
+                                {
+                                    <span>@d.BaseCompatLevel.Value &rarr; @d.TargetCompatLevel.Value</span>
+                                }
+                                else
+                                {
+                                    <span>@(d.TargetCompatLevel?.ToString() ?? d.BaseCompatLevel?.ToString() ?? "—")</span>
+                                }
+                            </td>
+                            <td>
+                                @if (d.BaseDataMb.HasValue || d.TargetDataMb.HasValue)
+                                {
+                                    var baseMb = (d.BaseDataMb ?? 0) + (d.BaseLogMb ?? 0);
+                                    var targetMb = (d.TargetDataMb ?? 0) + (d.TargetLogMb ?? 0);
+                                    if (d.BaseDataMb.HasValue && d.TargetDataMb.HasValue && Math.Round(baseMb, 0) != Math.Round(targetMb, 0))
+                                    {
+                                        <span>@baseMb.ToString("N0") &rarr; @targetMb.ToString("N0") MB</span>
+                                    }
+                                    else
+                                    {
+                                        <span>@targetMb.ToString("N0") MB</span>
+                                    }
+                                }
+                                else
+                                {
+                                    <span class="muted">—</span>
+                                }
+                            </td>
+                            <td>
+                                @if (d.Changes.Count > 0)
+                                {
+                                    <ul class="mb-0 ps-3 small">
+                                        @foreach (var ch in d.Changes)
+                                        {
+                                            <li>@ch</li>
+                                        }
+                                    </ul>
+                                }
+                                else
+                                {
+                                    <span class="muted">—</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 5. Backups Diff -->
+            <div class="tab-pane fade" id="tab-backups-diff">
+                <table class="table table-sm table-hover align-middle">
+                    <thead>
+                        @await Html.PartialAsync("_ColumnFilters", new[] { "Status", "Server", "Database", "Baseline Last Full", "Target Last Full", "Baseline Last Diff", "Target Last Diff", "Baseline Last Log", "Target Last Log" })
+                    </thead>
+                    <tbody>
+                    @foreach (var b in Model.BackupsDiff)
+                    {
+                        <tr>
+                            <td>
+                                @if (b.Status == "Updated")
+                                {
+                                    <span class="badge bg-success">Updated</span>
+                                }
+                                else if (b.Status == "New")
+                                {
+                                    <span class="badge bg-info text-dark">New</span>
+                                }
+                                else if (b.Status == "Removed")
+                                {
+                                    <span class="badge bg-danger">Removed</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark">Stale</span>
+                                }
+                            </td>
+                            <td>@b.ServerName</td>
+                            <td><strong>@b.DatabaseName</strong></td>
+                            <td>@(b.BaseLastFullBackup?.ToString("yyyy-MM-dd HH:mm") ?? "—")</td>
+                            <td>@(b.TargetLastFullBackup?.ToString("yyyy-MM-dd HH:mm") ?? "—")</td>
+                            <td>@(b.BaseLastDifferentialBackup?.ToString("yyyy-MM-dd HH:mm") ?? "—")</td>
+                            <td>@(b.TargetLastDifferentialBackup?.ToString("yyyy-MM-dd HH:mm") ?? "—")</td>
+                            <td>@(b.BaseLastLogBackup?.ToString("yyyy-MM-dd HH:mm") ?? "—")</td>
+                            <td>@(b.TargetLastLogBackup?.ToString("yyyy-MM-dd HH:mm") ?? "—")</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 6. sp_configure Diff -->
+            @if (Model.ConfigsDiff.Count > 0)
+            {
+                <div class="tab-pane fade" id="tab-configs-diff">
+                    <table class="table table-sm table-hover align-middle">
+                        <thead>
+                            @await Html.PartialAsync("_ColumnFilters", new[] { "Server", "Configuration Setting", "Baseline Value (Run)", "Target Value (Run)", "Status" })
+                        </thead>
+                        <tbody>
+                        @foreach (var c in Model.ConfigsDiff)
+                        {
+                            <tr>
+                                <td>@c.ServerName</td>
+                                <td><strong>@c.ConfigName</strong></td>
+                                <td><code>@c.BaseRunValue</code></td>
+                                <td><code>@c.TargetRunValue</code></td>
+                                <td><span class="badge bg-primary">Changed</span></td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Findings status chip filtering
+            const chips = document.querySelectorAll('[data-diff-filter]');
+            const table = document.getElementById('compareFindingsTable');
+            if (table) {
+                const rows = table.querySelectorAll('tbody tr[data-diff-status]');
+                chips.forEach(function (chip) {
+                    chip.addEventListener('click', function () {
+                        chips.forEach(function (c) { c.classList.remove('active'); });
+                        chip.classList.add('active');
+                        const filter = chip.getAttribute('data-diff-filter') || '';
+                        rows.forEach(function (row) {
+                            const status = row.getAttribute('data-diff-status') || '';
+                            if (!filter || status === filter) {
+                                row.style.display = '';
+                            } else {
+                                row.style.display = 'none';
+                            }
+                        });
+                    });
+                });
+            }
+        });
+    </script>
+}

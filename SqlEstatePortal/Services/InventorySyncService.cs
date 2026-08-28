@@ -1,9 +1,20 @@
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using SqlEstatePortal.Data;
 using SqlEstatePortal.Models;
 
 namespace SqlEstatePortal.Services;
+
+public class InventorySyncOptions
+{
+    public const string ModeMakerChecker = "MakerChecker";
+    public const string ModeAutoDirect = "AutoDirect";
+
+    public string Mode { get; set; } = ModeMakerChecker;
+
+    public bool IsAutoDirect => string.Equals(Mode, ModeAutoDirect, StringComparison.OrdinalIgnoreCase);
+}
 
 public class InventorySyncService
 {
@@ -19,10 +30,32 @@ public class InventorySyncService
     public const string EntityServer = "Server";
 
     private readonly AppDbContext _db;
+    private readonly InventorySyncOptions _options;
 
-    public InventorySyncService(AppDbContext db)
+    public InventorySyncService(AppDbContext db, IOptions<InventorySyncOptions>? options = null)
     {
         _db = db;
+        _options = options?.Value ?? new InventorySyncOptions();
+    }
+
+    public InventorySyncOptions Options => _options;
+    public bool IsAutoDirect => _options.IsAutoDirect;
+
+    /// <summary>
+    /// When Mode is set to AutoDirect, automatically generates and applies the sync batch immediately upon assessment completion.
+    /// </summary>
+    public async Task<InventorySyncBatch?> AutoSyncIfEnabledAsync(int assessmentRunId, string actor, CancellationToken ct = default)
+    {
+        if (!_options.IsAutoDirect)
+            return null;
+
+        var hasChanges = await HasChangesAsync(assessmentRunId, ct);
+        if (!hasChanges)
+            return null;
+
+        var batch = await GenerateAsync(assessmentRunId, actor, ct);
+        await ApproveAndApplyAsync(batch.Id, actor, ct);
+        return batch;
     }
 
     public async Task<InventorySyncBatch> GenerateAsync(int assessmentRunId, string actor, CancellationToken ct = default)
@@ -308,6 +341,7 @@ public class InventorySyncService
                         var row = new CtServer
                         {
                             ServerName = item.ServerName,
+                            ServerType = "SQL Servers",
                             ServerStatus = snap.ServerStatus,
                             SqlProduct = snap.SqlProduct,
                             SupportStatus = snap.SupportStatus,
@@ -443,9 +477,18 @@ public class InventorySyncService
             case "CollationName": row.CollationName = snap.CollationName; break;
             case "CreationDate": row.CreationDate = snap.CreationDate; break;
             case "BackupInfo": row.BackupInfo = snap.BackupInfo; break;
-            case "LastFullBackup": row.LastFullBackup = snap.LastFullBackup; break;
-            case "LastDifferentialBackup": row.LastDifferentialBackup = snap.LastDifferentialBackup; break;
-            case "LastLogBackup": row.LastLogBackup = snap.LastLogBackup; break;
+            case "LastFullBackup":
+                row.LastFullBackup = snap.LastFullBackup;
+                if (!string.IsNullOrWhiteSpace(snap.BackupInfo)) row.BackupInfo = snap.BackupInfo;
+                break;
+            case "LastDifferentialBackup":
+                row.LastDifferentialBackup = snap.LastDifferentialBackup;
+                if (!string.IsNullOrWhiteSpace(snap.BackupInfo)) row.BackupInfo = snap.BackupInfo;
+                break;
+            case "LastLogBackup":
+                row.LastLogBackup = snap.LastLogBackup;
+                if (!string.IsNullOrWhiteSpace(snap.BackupInfo)) row.BackupInfo = snap.BackupInfo;
+                break;
             case "DatabaseOwner": row.DatabaseOwner = snap.DatabaseOwner; break;
             case "Environment": row.Environment = snap.Environment; break;
             case "Tower": row.Tower = snap.Tower; break;

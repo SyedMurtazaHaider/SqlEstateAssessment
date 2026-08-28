@@ -1,10 +1,24 @@
 @model IEnumerable<SqlEstatePortal.Models.InventorySyncBatch>
+@inject SqlEstatePortal.Services.InventorySyncService SyncService
 @{
     ViewData["Title"] = "Sync History";
     string? status = ViewBag.Status as string;
 }
 <div class="page-toolbar">
-    <h1>Database Sync History</h1>
+    <div>
+        <h1>Database Sync History</h1>
+        <p class="estate-line">
+            Mode:
+            @if (SyncService.IsAutoDirect)
+            {
+                <span class="badge bg-info text-dark" title="Assessments automatically update tables directly without waiting for approval.">Auto-Direct Update</span>
+            }
+            else
+            {
+                <span class="badge bg-secondary" title="Assessments generate diff batches requiring review and approval before tables are updated.">Maker-Checker (Approval Required)</span>
+            }
+        </p>
+    </div>
     <a class="btn btn-outline-secondary" asp-controller="Assessments" asp-action="Index">Assessments</a>
 </div>
 

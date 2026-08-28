@@ -313,6 +313,7 @@ public class DatabaseRowViewModel
 public class ServerRegisterViewModel
 {
     public string? ServerName { get; set; }
+    public string? ServerType { get; set; }
     public string? Environment { get; set; }
     public string? Status { get; set; }
     public string? Subscription { get; set; }
@@ -321,6 +322,7 @@ public class ServerRegisterViewModel
     public int TotalCount { get; set; }
 
     public IReadOnlyList<string> ServerNameOptions { get; set; } = [];
+    public IReadOnlyList<string> ServerTypeOptions { get; set; } = [];
     public IReadOnlyList<string> EnvironmentOptions { get; set; } = [];
     public IReadOnlyList<string> StatusOptions { get; set; } = [];
     public IReadOnlyList<string> SubscriptionOptions { get; set; } = [];
@@ -333,6 +335,7 @@ public class ServerRowViewModel
 {
     public int TxId { get; set; }
     public string ServerName { get; set; } = string.Empty;
+    public string? ServerType { get; set; }
     public string? Environment { get; set; }
     public string? ServerStatus { get; set; }
     public string? SqlProduct { get; set; }

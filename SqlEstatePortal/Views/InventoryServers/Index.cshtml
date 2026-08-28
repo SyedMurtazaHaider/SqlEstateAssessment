@@ -50,6 +50,17 @@
                     </select>
                 </div>
                 <div>
+                    <label for="serverType">Type</label>
+                    <select id="serverType" name="serverType" class="form-select form-select-sm">
+                        <option value="">All</option>
+                        @foreach (var o in Model.ServerTypeOptions)
+                        {
+                            if (Sel(Model.ServerType, o)) { <option value="@o" selected>@o</option> }
+                            else { <option value="@o">@o</option> }
+                        }
+                    </select>
+                </div>
+                <div>
                     <label for="environment">Environment</label>
                     <select id="environment" name="environment" class="form-select form-select-sm">
                         <option value="">All</option>
@@ -124,7 +135,7 @@
             <thead>
             @await Html.PartialAsync("_ColumnFilters", new[]
             {
-                "Server", "Environment", "Status", "Product", "Support", "Edition", "Version",
+                "Server", "Type", "Environment", "Status", "Product", "Support", "Edition", "Version",
                 "Subscription", "Data Centre",
                 "Databases", "Linked Apps", "-Actions"
             })
@@ -136,6 +147,7 @@
                     <td>
                         <a class="app-name-link" asp-action="Details" asp-route-id="@s.TxId">@s.ServerName</a>
                     </td>
+                    <td>@Dash(s.ServerType)</td>
                     <td>@Dash(s.Environment)</td>
                     <td>
                         @if (!string.IsNullOrWhiteSpace(s.ServerStatus))

@@ -24,7 +24,12 @@
 <body class="app-shell">
 <aside class="sidebar">
     <div class="sidebar-brand">
-        <img src="~/img/logo.png" alt="Charles Taylor" class="brand-logo sidebar-logo" asp-append-version="true" />
+        <div class="sidebar-brand-top">
+            <img src="~/img/logo.png" alt="Charles Taylor" class="brand-logo sidebar-logo" asp-append-version="true" />
+            <button type="button" class="sidebar-menu-btn" id="sidebarMenuBtn" aria-label="Collapse menu" title="Collapse menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
         <span class="sidebar-brand-text">SQL Estate Management</span>
     </div>
     <nav class="sidebar-nav">
@@ -102,6 +107,7 @@
         <span class="sidebar-hide-label">Collapse menu</span>
     </button>
 </aside>
+<div class="sidebar-backdrop" id="sidebarBackdrop" aria-hidden="true"></div>
 <div class="workspace">
     <header class="topbar">
         <button type="button" class="menu-toggle" id="sidebarToggle" aria-label="Collapse menu" title="Collapse menu">
@@ -140,6 +146,11 @@
             <div class="assessment-progress-bar" id="assessmentProgressBar" style="width: 1%;"></div>
         </div>
         <div class="assessment-progress-pct" id="assessmentProgressPct">1%</div>
+        <div class="assessment-progress-timer" id="assessmentProgressTimer">
+            <span id="assessmentStartTime">Started: --:--:--</span>
+            <span class="assessment-timer-sep">·</span>
+            <span id="assessmentElapsedTime">Elapsed: 00:00</span>
+        </div>
     </div>
 </div>
 

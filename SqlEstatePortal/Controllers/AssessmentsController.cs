@@ -16,17 +16,20 @@ public class AssessmentsController : Controller
     private readonly AssessmentRunnerService _runner;
     private readonly ServerReachabilityService _reachability;
     private readonly InventorySyncService _inventorySync;
+    private readonly AssessmentCompareService _compareService;
 
     public AssessmentsController(
         AppDbContext db,
         AssessmentRunnerService runner,
         ServerReachabilityService reachability,
-        InventorySyncService inventorySync)
+        InventorySyncService inventorySync,
+        AssessmentCompareService compareService)
     {
         _db = db;
         _runner = runner;
         _reachability = reachability;
         _inventorySync = inventorySync;
+        _compareService = compareService;
     }
 
     [RequirePermission(AppModules.Assessments, "view")]
@@ -154,7 +157,8 @@ public class AssessmentsController : Controller
     public async Task<IActionResult> ReachableServers()
     {
         var servers = await _db.CtServers.AsNoTracking()
-            .Where(s => s.ServerStatus == ServerReachabilityService.StatusReachable)
+            .Where(s => s.ServerStatus == ServerReachabilityService.StatusReachable &&
+                       (s.ServerType == "SQL Servers" || s.ServerType == "SQL" || (string.IsNullOrEmpty(s.ServerType) && s.ServerName.Contains("SQL"))))
             .OrderBy(s => s.ServerName)
             .Select(s => new
             {
@@ -246,5 +250,95 @@ public class AssessmentsController : Controller
         }
 
         return RedirectToAction(nameof(Index));
+    }
+
+    [HttpGet]
+    [RequirePermission(AppModules.Assessments, "view")]
+    public async Task<IActionResult> Compare(int? baseRunId, int? targetRunId, CancellationToken ct = default)
+    {
+        var available = await _db.AssessmentRuns
+            .AsNoTracking()
+            .OrderByDescending(x => x.StartedAt)
+            .Take(50)
+            .Select(r => new AssessmentRunSummary
+            {
+                Id = r.Id,
+                StartedAt = r.StartedAt,
+                Status = r.Status,
+                ReachableCount = r.ReachableCount,
+                ServerCount = r.ServerCount,
+                CriticalCount = r.CriticalCount,
+                HighCount = r.HighCount,
+                MediumCount = r.MediumCount,
+                LowCount = r.LowCount
+            })
+            .ToListAsync(ct);
+
+        if (available.Count == 0)
+        {
+            return View(new AssessmentCompareViewModel { AvailableRuns = available });
+        }
+
+        // Default selection: if not provided, pick latest as target, and prior as base
+        if (!targetRunId.HasValue && available.Count > 0)
+        {
+            targetRunId = available[0].Id;
+        }
+
+        if (!baseRunId.HasValue)
+        {
+            if (available.Count > 1)
+            {
+                baseRunId = available[1].Id;
+            }
+            else if (available.Count > 0)
+            {
+                baseRunId = available[0].Id;
+            }
+        }
+
+        if (!baseRunId.HasValue || !targetRunId.HasValue)
+        {
+            return View(new AssessmentCompareViewModel
+            {
+                BaseRunId = baseRunId,
+                TargetRunId = targetRunId,
+                AvailableRuns = available
+            });
+        }
+
+        var baseRun = await _db.AssessmentRuns
+            .Include(x => x.Findings)
+            .Include(x => x.Servers)
+            .Include(x => x.Databases)
+            .Include(x => x.Backups)
+            .Include(x => x.Configurations)
+            .AsSplitQuery()
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == baseRunId.Value, ct);
+
+        var targetRun = await _db.AssessmentRuns
+            .Include(x => x.Findings)
+            .Include(x => x.Servers)
+            .Include(x => x.Databases)
+            .Include(x => x.Backups)
+            .Include(x => x.Configurations)
+            .AsSplitQuery()
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == targetRunId.Value, ct);
+
+        if (baseRun == null || targetRun == null)
+        {
+            TempData["Error"] = "One or both selected assessment runs could not be found.";
+            return View(new AssessmentCompareViewModel
+            {
+                BaseRunId = baseRunId,
+                TargetRunId = targetRunId,
+                AvailableRuns = available
+            });
+        }
+
+        var model = _compareService.Compare(baseRun, targetRun, available);
+        return View(model);
     }
 }

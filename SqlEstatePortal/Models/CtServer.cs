@@ -14,6 +14,10 @@ public class CtServer
     [MaxLength(200)]
     public string ServerName { get; set; } = string.Empty;
 
+    [Column("server_type")]
+    [MaxLength(50)]
+    public string? ServerType { get; set; }
+
     [Column("fqdn")]
     [MaxLength(255)]
     public string? Fqdn { get; set; }

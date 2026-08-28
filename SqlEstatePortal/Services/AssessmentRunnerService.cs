@@ -20,15 +20,18 @@ public class AssessmentRunnerService
 {
     private readonly AppDbContext _db;
     private readonly AssessmentOptions _options;
+    private readonly InventorySyncService _inventorySync;
     private readonly ILogger<AssessmentRunnerService> _logger;
 
     public AssessmentRunnerService(
         AppDbContext db,
         IOptions<AssessmentOptions> options,
+        InventorySyncService inventorySync,
         ILogger<AssessmentRunnerService> logger)
     {
         _db = db;
         _options = options.Value;
+        _inventorySync = inventorySync;
         _logger = logger;
     }
 
@@ -38,7 +41,8 @@ public class AssessmentRunnerService
         CancellationToken cancellationToken = default)
     {
         var reachable = await _db.CtServers
-            .Where(x => x.ServerStatus == ServerReachabilityService.StatusReachable)
+            .Where(x => x.ServerStatus == ServerReachabilityService.StatusReachable &&
+                       (x.ServerType == "SQL Servers" || x.ServerType == "SQL" || (string.IsNullOrEmpty(x.ServerType) && x.ServerName.Contains("SQL"))))
             .OrderBy(x => x.ServerName)
             .Select(x => x.ServerName)
             .ToListAsync(cancellationToken);
@@ -146,6 +150,19 @@ public class AssessmentRunnerService
 
             run.CompletedAt = DateTime.UtcNow;
             await _db.SaveChangesAsync(cancellationToken);
+
+            if (run.Status == "Succeeded")
+            {
+                try
+                {
+                    await _inventorySync.AutoSyncIfEnabledAsync(run.Id, triggeredBy ?? "System (AutoDirect)", cancellationToken);
+                }
+                catch (Exception syncEx)
+                {
+                    _logger.LogWarning(syncEx, "Auto-direct inventory sync failed for assessment #{RunId}", run.Id);
+                }
+            }
+
             return run;
         }
         catch (Exception ex)
@@ -199,6 +216,19 @@ public class AssessmentRunnerService
         await ImportJsonAsync(run, jsonPath, htmlPath, cancellationToken);
         run.CompletedAt = DateTime.UtcNow;
         await _db.SaveChangesAsync(cancellationToken);
+
+        if (run.Status == "Succeeded")
+        {
+            try
+            {
+                await _inventorySync.AutoSyncIfEnabledAsync(run.Id, triggeredBy ?? "System (AutoDirect)", cancellationToken);
+            }
+            catch (Exception syncEx)
+            {
+                _logger.LogWarning(syncEx, "Auto-direct inventory sync failed for assessment #{RunId}", run.Id);
+            }
+        }
+
         return run;
     }
 
@@ -403,99 +433,6 @@ public class AssessmentRunnerService
         }
 
         await _db.SaveChangesAsync(cancellationToken);
-        await SyncBackupTimesToRegisterAsync(run.Backups, cancellationToken);
-        await SyncOwnersToRegisterAsync(run.Databases, cancellationToken);
-    }
-
-    /// <summary>
-    /// Writes last full / differential / log backup times onto matching ct_database rows
-    /// so the Database Register reflects the latest assessment without a separate sync.
-    /// </summary>
-    private async Task SyncBackupTimesToRegisterAsync(
-        IEnumerable<AssessmentBackup> backups,
-        CancellationToken cancellationToken)
-    {
-        var list = backups
-            .Where(b => !string.IsNullOrWhiteSpace(b.ServerName) && !string.IsNullOrWhiteSpace(b.DatabaseName))
-            .GroupBy(b => $"{b.ServerName.Trim()}|{b.DatabaseName.Trim()}", StringComparer.OrdinalIgnoreCase)
-            .Select(g => g.Last())
-            .ToList();
-        if (list.Count == 0) return;
-
-        var servers = list.Select(b => b.ServerName.Trim()).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
-        var registerRows = await _db.CtDatabases
-            .Where(d => d.ServerName != null && servers.Contains(d.ServerName))
-            .ToListAsync(cancellationToken);
-
-        var byKey = registerRows
-            .Where(d => !string.IsNullOrWhiteSpace(d.ServerName) && !string.IsNullOrWhiteSpace(d.DatabaseName))
-            .GroupBy(d => $"{d.ServerName!.Trim()}|{d.DatabaseName.Trim()}", StringComparer.OrdinalIgnoreCase)
-            .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
-
-        var changed = false;
-        foreach (var bak in list)
-        {
-            var key = $"{bak.ServerName.Trim()}|{bak.DatabaseName.Trim()}";
-            if (!byKey.TryGetValue(key, out var row))
-                continue;
-
-            row.LastFullBackup = bak.LastFullBackup;
-            row.LastDifferentialBackup = bak.LastDifferentialBackup;
-            row.LastLogBackup = bak.LastLogBackup;
-
-            var parts = new List<string>();
-            if (bak.LastFullBackup != null)
-                parts.Add($"Full={bak.LastFullBackup:yyyy-MM-dd HH:mm}");
-            if (bak.LastDifferentialBackup != null)
-                parts.Add($"Diff={bak.LastDifferentialBackup:yyyy-MM-dd HH:mm}");
-            if (bak.LastLogBackup != null)
-                parts.Add($"Log={bak.LastLogBackup:yyyy-MM-dd HH:mm}");
-            if (parts.Count > 0)
-                row.BackupInfo = string.Join("; ", parts);
-
-            changed = true;
-        }
-
-        if (changed)
-            await _db.SaveChangesAsync(cancellationToken);
-    }
-
-    private async Task SyncOwnersToRegisterAsync(
-        IEnumerable<AssessmentDatabase> databases,
-        CancellationToken cancellationToken)
-    {
-        var list = databases
-            .Where(d => !string.IsNullOrWhiteSpace(d.ServerName)
-                        && !string.IsNullOrWhiteSpace(d.Name)
-                        && !string.IsNullOrWhiteSpace(d.OwnerName))
-            .GroupBy(d => $"{d.ServerName.Trim()}|{d.Name.Trim()}", StringComparer.OrdinalIgnoreCase)
-            .Select(g => g.Last())
-            .ToList();
-        if (list.Count == 0) return;
-
-        var servers = list.Select(d => d.ServerName.Trim()).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
-        var registerRows = await _db.CtDatabases
-            .Where(d => d.ServerName != null && servers.Contains(d.ServerName))
-            .ToListAsync(cancellationToken);
-
-        var byKey = registerRows
-            .Where(d => !string.IsNullOrWhiteSpace(d.ServerName) && !string.IsNullOrWhiteSpace(d.DatabaseName))
-            .GroupBy(d => $"{d.ServerName!.Trim()}|{d.DatabaseName.Trim()}", StringComparer.OrdinalIgnoreCase)
-            .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
-
-        var changed = false;
-        foreach (var db in list)
-        {
-            var key = $"{db.ServerName.Trim()}|{db.Name.Trim()}";
-            if (!byKey.TryGetValue(key, out var row))
-                continue;
-
-            row.DatabaseOwner = db.OwnerName!.Trim();
-            changed = true;
-        }
-
-        if (changed)
-            await _db.SaveChangesAsync(cancellationToken);
     }
 
     private static IEnumerable<JsonElement> Enumerate(JsonElement parent, string name)

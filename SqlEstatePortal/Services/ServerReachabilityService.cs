@@ -28,7 +28,11 @@ public class ServerReachabilityService
 
     public async Task<ServerReachabilityResult> CheckAllAsync(CancellationToken cancellationToken = default)
     {
-        var servers = await _db.CtServers.ToListAsync(cancellationToken);
+        var servers = await _db.CtServers
+            .Where(s => s.ServerType == "SQL Servers"
+                     || s.ServerType == "SQL"
+                     || (string.IsNullOrEmpty(s.ServerType) && s.ServerName.Contains("SQL")))
+            .ToListAsync(cancellationToken);
         var result = new ServerReachabilityResult { Total = servers.Count };
         if (servers.Count == 0)
             return result;

@@ -370,6 +370,7 @@ BEGIN
     CREATE TABLE dbo.[ct_servers] (
     [tx_id] int IDENTITY(1,1) NOT NULL,
     [server_name] nvarchar(200) NOT NULL,
+    [server_type] nvarchar(50) NULL,
     [fqdn] nvarchar(255) NULL,
     [sql_version] nvarchar(150) NULL,
     [sql_product] nvarchar(100) NULL,
@@ -405,6 +406,19 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_ct_servers_server_name' AND object_id = OBJECT_ID(N'dbo.ct_servers'))
         CREATE NONCLUSTERED INDEX [IX_ct_servers_server_name] ON dbo.[ct_servers] ([server_name]);
 END;
+
+IF COL_LENGTH('dbo.ct_servers', 'server_type') IS NULL
+BEGIN
+    ALTER TABLE dbo.ct_servers ADD [server_type] nvarchar(50) NULL;
+END;
+
+UPDATE dbo.ct_servers
+SET server_type = CASE 
+    WHEN UPPER(server_name) LIKE '%APP%' THEN 'APP Servers'
+    WHEN UPPER(server_name) LIKE '%SQL%' THEN 'SQL Servers'
+    ELSE 'Others'
+END
+WHERE server_type IS NULL OR server_type = '';
 
 IF OBJECT_ID(N'dbo.ct_database', N'U') IS NULL
 BEGIN
