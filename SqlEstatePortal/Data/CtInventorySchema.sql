@@ -466,3 +466,4 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_ct_database_database_name' AND object_id = OBJECT_ID(N'dbo.ct_database'))
         CREATE NONCLUSTERED INDEX [IX_ct_database_database_name] ON dbo.[ct_database] ([database_name]);
 END;
+ 
