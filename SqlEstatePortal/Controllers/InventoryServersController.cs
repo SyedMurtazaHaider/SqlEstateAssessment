@@ -61,6 +61,17 @@ public class InventoryServersController : Controller
             """
             SELECT server_id AS ServerId, server_name AS ServerName, application_id AS ApplicationId
             FROM dbo.ct_application_server
+
+            UNION
+
+            SELECT
+                s.tx_id AS ServerId,
+                LTRIM(RTRIM(d.server_name)) AS ServerName,
+                l.application_id AS ApplicationId
+            FROM dbo.ct_application_database l
+            INNER JOIN dbo.ct_database d ON d.tx_id = l.database_id
+            LEFT JOIN dbo.ct_servers s ON LOWER(LTRIM(RTRIM(s.server_name))) = LOWER(LTRIM(RTRIM(d.server_name)))
+            WHERE d.server_name IS NOT NULL AND LTRIM(RTRIM(d.server_name)) <> N''
             """).ToListAsync();
 
         var filtered = all.AsEnumerable();
@@ -80,9 +91,13 @@ public class InventoryServersController : Controller
         var list = filtered.ToList();
 
         int LinkedAppCount(CtServer s) =>
-            appLinkRows.Count(l =>
-                (l.ServerId.HasValue && l.ServerId.Value == s.TxId) ||
-                (!l.ServerId.HasValue && string.Equals(l.ServerName, s.ServerName, StringComparison.OrdinalIgnoreCase)));
+            appLinkRows
+                .Where(l =>
+                    (l.ServerId.HasValue && l.ServerId.Value == s.TxId) ||
+                    string.Equals(l.ServerName, s.ServerName, StringComparison.OrdinalIgnoreCase))
+                .Select(l => l.ApplicationId)
+                .Distinct()
+                .Count();
 
         var vm = new ServerRegisterViewModel
         {
@@ -174,23 +189,9 @@ public class InventoryServersController : Controller
             })
             .ToListAsync();
 
-        var linkedApplications = await _db.Database.SqlQueryRaw<LinkedApplicationItemViewModel>(
-            """
-            SELECT
-                a.id AS ApplicationId,
-                a.name AS ApplicationName,
-                a.status AS Status,
-                a.[function] AS [Function],
-                a.application_type AS ApplicationType,
-                a.location AS Location,
-                a.service_owner AS ServiceOwner,
-                a.operating_region AS OperatingRegion
-            FROM dbo.ct_application_server l
-            INNER JOIN dbo.ct_applications a ON a.id = l.application_id
-            WHERE l.server_id = {0}
-               OR (l.server_id IS NULL AND LOWER(l.server_name) = LOWER({1}))
-            ORDER BY a.name
-            """, id, server.ServerName).ToListAsync();
+        var linkedApplications = (await GetLinkedApplicationsAsync(id, server.ServerName))
+            .Select(ToLinkedApplicationItem)
+            .ToList();
 
         return View(new ServerDetailsViewModel
         {
@@ -242,7 +243,20 @@ public class InventoryServersController : Controller
         var server = await _db.CtServers.AsNoTracking().FirstOrDefaultAsync(s => s.TxId == id);
         if (server == null) return NotFound();
 
-        var applications = await _db.Database.SqlQueryRaw<LinkedApplicationDto>(
+        var applications = await GetLinkedApplicationsAsync(id, server.ServerName);
+
+        return Json(new
+        {
+            serverId = id,
+            serverName = server.ServerName,
+            count = applications.Count,
+            applications
+        });
+    }
+
+    private async Task<List<LinkedApplicationDto>> GetLinkedApplicationsAsync(int serverId, string serverName)
+    {
+        var rows = await _db.Database.SqlQueryRaw<LinkedApplicationDto>(
             """
             SELECT
                 a.id AS ApplicationId,
@@ -253,22 +267,42 @@ public class InventoryServersController : Controller
                 a.location AS Location,
                 a.service_owner AS ServiceOwner,
                 a.operating_region AS OperatingRegion,
-                l.server_name AS LinkedServerName
-            FROM dbo.ct_application_server l
-            INNER JOIN dbo.ct_applications a ON a.id = l.application_id
-            WHERE l.server_id = {0}
-               OR (l.server_id IS NULL AND LOWER(l.server_name) = LOWER({1}))
-            ORDER BY a.name
-            """, id, server.ServerName).ToListAsync();
+                MAX(x.server_name) AS LinkedServerName
+            FROM (
+                SELECT l.application_id, LTRIM(RTRIM(l.server_name)) AS server_name
+                FROM dbo.ct_application_server l
+                WHERE l.server_id = {0}
+                   OR LOWER(LTRIM(RTRIM(l.server_name))) = LOWER({1})
 
-        return Json(new
-        {
-            serverId = id,
-            serverName = server.ServerName,
-            count = applications.Count,
-            applications
-        });
+                UNION ALL
+
+                SELECT l.application_id, LTRIM(RTRIM(d.server_name)) AS server_name
+                FROM dbo.ct_application_database l
+                INNER JOIN dbo.ct_database d ON d.tx_id = l.database_id
+                WHERE LOWER(LTRIM(RTRIM(d.server_name))) = LOWER({1})
+            ) x
+            INNER JOIN dbo.ct_applications a ON a.id = x.application_id
+            GROUP BY
+                a.id, a.name, a.status, a.[function], a.application_type,
+                a.location, a.service_owner, a.operating_region
+            """, serverId, serverName).ToListAsync();
+
+        return rows
+            .OrderBy(a => a.ApplicationName ?? string.Empty, StringComparer.OrdinalIgnoreCase)
+            .ToList();
     }
+
+    private static LinkedApplicationItemViewModel ToLinkedApplicationItem(LinkedApplicationDto a) => new()
+    {
+        ApplicationId = a.ApplicationId,
+        ApplicationName = a.ApplicationName,
+        Status = a.Status,
+        Function = a.Function,
+        ApplicationType = a.ApplicationType,
+        Location = a.Location,
+        ServiceOwner = a.ServiceOwner,
+        OperatingRegion = a.OperatingRegion
+    };
 
     private static string? Norm(string? value) =>
         string.IsNullOrWhiteSpace(value) ? null : value.Trim();

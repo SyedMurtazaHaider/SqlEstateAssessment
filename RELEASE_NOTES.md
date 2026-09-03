@@ -1,3 +1,12 @@
+# Release Notes - September 3, 2026
+
+## Linked Apps / Servers via Databases
+- **Application Register**: Linked server counts, detail lists, and popup JSON now include servers inferred from linked databases (`ct_application_database` → `ct_database.server_name`), merged with explicit `ct_application_server` links and deduplicated by server name.
+- **Server Register**: Linked application counts, detail lists, and popup JSON now include applications inferred the same way (apps whose linked databases sit on that server), with distinct application IDs so counts stay accurate.
+- **Shared query helpers**: `GetLinkedServersAsync` / `GetLinkedApplicationsAsync` centralize the union logic for details views and Linked popups.
+
+---
+
 # Release Notes - August 28, 2026
 
 ## 1. Assessment Comparison Feature

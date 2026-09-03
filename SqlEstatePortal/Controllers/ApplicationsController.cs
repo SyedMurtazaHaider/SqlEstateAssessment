@@ -66,7 +66,18 @@ public class ApplicationsController : Controller
         var linkedServerLookup = (await _db.Database.SqlQueryRaw<AppLinkCountRow>(
                 """
                 SELECT application_id AS ApplicationId, COUNT(*) AS [Count]
-                FROM dbo.ct_application_server
+                FROM (
+                    SELECT application_id, LOWER(LTRIM(RTRIM(server_name))) AS server_key
+                    FROM dbo.ct_application_server
+                    WHERE server_name IS NOT NULL AND LTRIM(RTRIM(server_name)) <> N''
+
+                    UNION
+
+                    SELECT l.application_id, LOWER(LTRIM(RTRIM(d.server_name))) AS server_key
+                    FROM dbo.ct_application_database l
+                    INNER JOIN dbo.ct_database d ON d.tx_id = l.database_id
+                    WHERE d.server_name IS NOT NULL AND LTRIM(RTRIM(d.server_name)) <> N''
+                ) x
                 GROUP BY application_id
                 """).ToListAsync())
             .ToDictionary(x => x.ApplicationId, x => x.Count);
@@ -170,27 +181,13 @@ public class ApplicationsController : Controller
             ORDER BY d.database_name
             """, id).ToListAsync();
 
-        var linkedServers = await _db.Database.SqlQueryRaw<LinkedServerItemViewModel>(
-            """
-            SELECT
-                l.server_id AS ServerId,
-                l.server_name AS ServerName,
-                s.environment AS Environment,
-                s.server_status AS ServerStatus,
-                s.tower AS Tower,
-                s.subscription AS Subscription,
-                s.data_centre_location AS DataCentreLocation
-            FROM dbo.ct_application_server l
-            LEFT JOIN dbo.ct_servers s ON s.tx_id = l.server_id
-            WHERE l.application_id = {0}
-            ORDER BY l.server_name
-            """, id).ToListAsync();
+        var linkedServers = await GetLinkedServersAsync(id);
 
         return View(new ApplicationDetailsViewModel
         {
             Application = app,
             LinkedDatabases = linkedDatabases,
-            LinkedServers = linkedServers
+            LinkedServers = linkedServers.Select(ToLinkedServerItem).ToList()
         });
     }
 
@@ -237,23 +234,7 @@ public class ApplicationsController : Controller
         var app = await _db.CtApplications.AsNoTracking().FirstOrDefaultAsync(a => a.Id == id);
         if (app == null) return NotFound();
 
-        var servers = await _db.Database.SqlQueryRaw<LinkedServerDto>(
-            """
-            SELECT
-                l.id AS LinkId,
-                l.server_id AS ServerId,
-                l.server_name AS ServerName,
-                l.source_text AS SourceText,
-                s.environment AS Environment,
-                s.server_status AS ServerStatus,
-                s.tower AS Tower,
-                s.subscription AS Subscription,
-                s.data_centre_location AS DataCentreLocation
-            FROM dbo.ct_application_server l
-            LEFT JOIN dbo.ct_servers s ON s.tx_id = l.server_id
-            WHERE l.application_id = {0}
-            ORDER BY l.server_name
-            """, id).ToListAsync();
+        var servers = await GetLinkedServersAsync(id);
 
         return Json(new
         {
@@ -284,6 +265,89 @@ public class ApplicationsController : Controller
         TempData["Success"] = $"Deleted {app.Name ?? ("#" + id)}.";
         return RedirectToAction(nameof(Index));
     }
+
+    private async Task<List<LinkedServerDto>> GetLinkedServersAsync(int applicationId)
+    {
+        var rows = await _db.Database.SqlQueryRaw<LinkedServerDto>(
+            """
+            SELECT
+                COALESCE(p.explicit_link_id, p.inferred_link_id, 0) AS LinkId,
+                COALESCE(s.tx_id, p.server_id) AS ServerId,
+                COALESCE(s.server_name, p.explicit_name, p.inferred_name) AS ServerName,
+                COALESCE(p.explicit_source, p.inferred_source) AS SourceText,
+                s.environment AS Environment,
+                s.server_status AS ServerStatus,
+                s.tower AS Tower,
+                s.subscription AS Subscription,
+                s.data_centre_location AS DataCentreLocation
+            FROM (
+                SELECT
+                    LOWER(LTRIM(RTRIM(u.server_name))) AS server_key,
+                    MAX(u.server_id) AS server_id,
+                    MAX(CASE WHEN u.inferred = 0 THEN u.link_id END) AS explicit_link_id,
+                    MAX(CASE WHEN u.inferred = 1 THEN u.link_id END) AS inferred_link_id,
+                    MAX(CASE WHEN u.inferred = 0 THEN u.source_text END) AS explicit_source,
+                    MAX(CASE WHEN u.inferred = 1 THEN u.source_text END) AS inferred_source,
+                    MAX(CASE WHEN u.inferred = 0 THEN u.server_name END) AS explicit_name,
+                    MAX(CASE WHEN u.inferred = 1 THEN u.server_name END) AS inferred_name
+                FROM (
+                    SELECT
+                        l.id AS link_id,
+                        l.server_id AS server_id,
+                        LTRIM(RTRIM(l.server_name)) AS server_name,
+                        l.source_text AS source_text,
+                        0 AS inferred
+                    FROM dbo.ct_application_server l
+                    WHERE l.application_id = {0}
+                      AND l.server_name IS NOT NULL AND LTRIM(RTRIM(l.server_name)) <> N''
+
+                    UNION ALL
+
+                    SELECT
+                        MIN(l.id) AS link_id,
+                        CAST(NULL AS int) AS server_id,
+                        LTRIM(RTRIM(d.server_name)) AS server_name,
+                        N'Linked database' AS source_text,
+                        1 AS inferred
+                    FROM dbo.ct_application_database l
+                    INNER JOIN dbo.ct_database d ON d.tx_id = l.database_id
+                    WHERE l.application_id = {0}
+                      AND d.server_name IS NOT NULL AND LTRIM(RTRIM(d.server_name)) <> N''
+                    GROUP BY LTRIM(RTRIM(d.server_name))
+                ) u
+                GROUP BY LOWER(LTRIM(RTRIM(u.server_name)))
+            ) p
+            OUTER APPLY (
+                SELECT TOP (1)
+                    inv.tx_id,
+                    inv.server_name,
+                    inv.environment,
+                    inv.server_status,
+                    inv.tower,
+                    inv.subscription,
+                    inv.data_centre_location
+                FROM dbo.ct_servers inv
+                WHERE (p.server_id IS NOT NULL AND inv.tx_id = p.server_id)
+                   OR LOWER(LTRIM(RTRIM(inv.server_name))) = p.server_key
+                ORDER BY CASE WHEN p.server_id IS NOT NULL AND inv.tx_id = p.server_id THEN 0 ELSE 1 END, inv.tx_id
+            ) s
+            """, applicationId).ToListAsync();
+
+        return rows
+            .OrderBy(s => s.ServerName, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+    }
+
+    private static LinkedServerItemViewModel ToLinkedServerItem(LinkedServerDto s) => new()
+    {
+        ServerId = s.ServerId,
+        ServerName = s.ServerName,
+        Environment = s.Environment,
+        ServerStatus = s.ServerStatus,
+        Tower = s.Tower,
+        Subscription = s.Subscription,
+        DataCentreLocation = s.DataCentreLocation
+    };
 
     private static string? Norm(string? value) =>
         string.IsNullOrWhiteSpace(value) ? null : value.Trim();
